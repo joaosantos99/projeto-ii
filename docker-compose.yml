@@ -1,0 +1,6 @@
+name: "projeto-ii"
+services:
+  mysql:
+  # TODO: Petunia
+  mongodb:
+  # TODO: Rego
