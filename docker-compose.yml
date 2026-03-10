@@ -4,19 +4,11 @@ services:
     image: mysql:9.6.0
     restart: always
     ports:
-      - "3307:3306"
+      - "${DB_PORT}:3306"
     volumes:
     - './.data/mysql:/var/lib/mysql'
     environment:
-      MYSQL_ROOT_PASSWORD: 1234Pass
-
-  mongodb:
-    image: mongo:8.2.6-rc0
-    restart: always
-    ports:
-      - "8081:8081"
-    volumes:
-    - './.data:/data/db'
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: 1234Pass
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
