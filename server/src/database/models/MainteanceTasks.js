@@ -1,6 +1,7 @@
 import { DataTypes } from 'sequelize';
 
 import sequelize from '../database/connection';
+import GreenSpaces from './GreenSpaces';
 
 const GreenSpaceZones = sequelize.define(
   'GreenSpaceZones',
@@ -19,38 +20,25 @@ const GreenSpaceZones = sequelize.define(
         key: 'id',
       },
     },
-    name: {
+    type: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    created_at: {
+    scheduled_date: {
       type: DataTypes.DATE,
       allowNull: false,
     },
-    updated_at: {
+    completed_at: {
       type: DataTypes.DATE,
       allowNull: false,
-    },
-    updated_by: {
-      type: DataTypes.STRING,
-      allowNull: false,
-    },
-    deleted_at: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
-    deleted_by: {
-      type: DataTypes.STRING,
-      allowNull: true,
     },
   },
   {
     tableName: 'green_spaces_zones',
     timestamps: true,
     paranoid: true,
-    createdAt: 'created_at',
-    updatedAt: 'updated_at',
-    deletedAt: 'deleted_at',
+    scheduled_date: 'scheduled_date',
+    completedAt: 'completed_at',
   },
 );
 

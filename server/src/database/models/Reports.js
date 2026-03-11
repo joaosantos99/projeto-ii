@@ -1,15 +1,23 @@
 import { DataTypes } from 'sequelize';
 
-import sequelize from '../database/connection';
+import sequelize from '../connection';
 
-const GreenSpaceZones = sequelize.define(
-  'GreenSpaceZones',
+const Reports = sequelize.define(
+  'Reports',
   {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
       allowNull: false,
+    },
+    user_id: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
     },
     green_spaces_id: {
       type: DataTypes.UUID,
@@ -19,15 +27,26 @@ const GreenSpaceZones = sequelize.define(
         key: 'id',
       },
     },
-    name: {
+    name:{
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: false
     },
+		type:{
+			type: DataTypes.STRING,
+			allowNull: false
+		},
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: false
+    },
+		status: {
+			type: DataTypes.STRING
+		},
     created_at: {
       type: DataTypes.DATE,
       allowNull: false,
     },
-    updated_at: {
+		updated_at: {
       type: DataTypes.DATE,
       allowNull: false,
     },
@@ -45,7 +64,7 @@ const GreenSpaceZones = sequelize.define(
     },
   },
   {
-    tableName: 'green_spaces_zones',
+    tableName: 'reports',
     timestamps: true,
     paranoid: true,
     createdAt: 'created_at',
@@ -54,17 +73,17 @@ const GreenSpaceZones = sequelize.define(
   },
 );
 
-GreenSpaceZones.associate = (models) => {
-  GreenSpaceZones.belongsTo(models.GreenSpaces, {
+Reports.associate = (models) => {
+  Reports.belongsTo(models.Users, {
+    foreignKey: 'users_id',
+    as: 'user',
+  });
+
+  Reports.belongsTo(models.GreenSpaces, {
     foreignKey: 'green_spaces_id',
     as: 'greenSpace',
   });
-
-  GreenSpacesZones.hasMany(models.Sensors, {
-    foreignKey: 'green_spaces_zones_id',
-    as: 'sensor',
-  });
 };
 
-export default GreenSpaceZones;
+export default Reports;
 

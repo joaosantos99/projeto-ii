@@ -1,9 +1,9 @@
 import { DataTypes } from 'sequelize';
 
-import sequelize from '../database/connection';
+import sequelize from '../connection';
 
-const GreenSpaceZones = sequelize.define(
-  'GreenSpaceZones',
+const Users = sequelize.define(
+  'Users',
   {
     id: {
       type: DataTypes.UUID,
@@ -11,15 +11,15 @@ const GreenSpaceZones = sequelize.define(
       primaryKey: true,
       allowNull: false,
     },
-    green_spaces_id: {
-      type: DataTypes.UUID,
+    full_name: {
+      type: DataTypes.STRING,
       allowNull: false,
-      references: {
-        model: 'green_spaces',
-        key: 'id',
-      },
     },
-    name: {
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    password_hash: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -45,7 +45,7 @@ const GreenSpaceZones = sequelize.define(
     },
   },
   {
-    tableName: 'green_spaces_zones',
+    tableName: 'users',
     timestamps: true,
     paranoid: true,
     createdAt: 'created_at',
@@ -54,17 +54,17 @@ const GreenSpaceZones = sequelize.define(
   },
 );
 
-GreenSpaceZones.associate = (models) => {
-  GreenSpaceZones.belongsTo(models.GreenSpaces, {
-    foreignKey: 'green_spaces_id',
-    as: 'greenSpace',
+Users.associate = (models) => {
+  Users.hasOne(models.Roles, {
+    foreignKey: 'users_id',
+    as: 'role',
   });
 
-  GreenSpacesZones.hasMany(models.Sensors, {
-    foreignKey: 'green_spaces_zones_id',
-    as: 'sensor',
+  Users.hasMany(models.Reports, {
+    foreignKey: 'users_id',
+    as: 'report',
   });
 };
 
-export default GreenSpaceZones;
+export default Users;
 

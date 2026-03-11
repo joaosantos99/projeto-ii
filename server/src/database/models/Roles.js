@@ -1,9 +1,9 @@
 import { DataTypes } from 'sequelize';
 
-import sequelize from '../database/connection';
+import sequelize from '../connection';
 
-const GreenSpaceZones = sequelize.define(
-  'GreenSpaceZones',
+const Roles = sequelize.define(
+  'Roles',
   {
     id: {
       type: DataTypes.UUID,
@@ -11,18 +11,19 @@ const GreenSpaceZones = sequelize.define(
       primaryKey: true,
       allowNull: false,
     },
-    green_spaces_id: {
+    user_id: {
       type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: 'green_spaces',
+        model: 'users',
         key: 'id',
       },
     },
-    name: {
+    name:{
       type: DataTypes.STRING,
-      allowNull: false,
+      allowNull: false
     },
+    //Incluir permissions_dump
     created_at: {
       type: DataTypes.DATE,
       allowNull: false,
@@ -45,7 +46,7 @@ const GreenSpaceZones = sequelize.define(
     },
   },
   {
-    tableName: 'green_spaces_zones',
+    tableName: 'roles',
     timestamps: true,
     paranoid: true,
     createdAt: 'created_at',
@@ -54,17 +55,12 @@ const GreenSpaceZones = sequelize.define(
   },
 );
 
-GreenSpaceZones.associate = (models) => {
-  GreenSpaceZones.belongsTo(models.GreenSpaces, {
-    foreignKey: 'green_spaces_id',
-    as: 'greenSpace',
-  });
-
-  GreenSpacesZones.hasMany(models.Sensors, {
-    foreignKey: 'green_spaces_zones_id',
-    as: 'sensor',
+Roles.associate = (models) => {
+  Roles.belongsTo(models.Users, {
+    foreignKey: 'users_id',
+    as: 'user',
   });
 };
 
-export default GreenSpaceZones;
+export default Roles;
 
