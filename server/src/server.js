@@ -7,6 +7,10 @@ import env from './env.js';
 const app = express();
 app.use(cors())
 
+app.get('/health', (req, res) => {
+  res.set('Content-Type', 'application/json');
+  res.status(200).json({status: "ok"});
+})
 
 app.listen(env.PORT, () => {
   // Check if the database is connected
