@@ -62,5 +62,22 @@ const GreenSpaces = sequelize.define(
   },
 );
 
+GreenSpaces.associate = (models) => {
+  GreenSpaces.hasMany(models.GreenSpaceZones, {
+    foreignKey: 'green_spaces_id',
+    as: 'zones',
+  });
+
+  GreenSpaces.hasMany(models.Reports, {
+    foreignKey: 'green_spaces_id',
+    as: 'report',
+  });
+
+  GreenSpaces.hasMany(models.MaintenanceTasks, {
+    foreignKey: 'green_spaces_id',
+    as: 'maintenanceTasks',
+  });
+};
+
 export default GreenSpaces;
 

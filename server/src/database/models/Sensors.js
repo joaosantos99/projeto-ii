@@ -1,9 +1,9 @@
 import { DataTypes } from 'sequelize';
 
-import sequelize from '../database/connection';
+import sequelize from '../connection';
 
-const GreenSpaceZones = sequelize.define(
-  'GreenSpaceZones',
+const Sensors = sequelize.define(
+  'Sensors',
   {
     id: {
       type: DataTypes.UUID,
@@ -11,17 +11,17 @@ const GreenSpaceZones = sequelize.define(
       primaryKey: true,
       allowNull: false,
     },
-    green_spaces_id: {
+    green_space_zone_id: {
       type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: 'green_spaces',
+        model: 'green_spaces_zones',
         key: 'id',
       },
     },
-    name: {
+    type: {
       type: DataTypes.STRING,
-      allowNull: false,
+			allowNull: false,
     },
     created_at: {
       type: DataTypes.DATE,
@@ -45,7 +45,7 @@ const GreenSpaceZones = sequelize.define(
     },
   },
   {
-    tableName: 'green_spaces_zones',
+    tableName: 'sensors',
     timestamps: true,
     paranoid: true,
     createdAt: 'created_at',
@@ -54,17 +54,16 @@ const GreenSpaceZones = sequelize.define(
   },
 );
 
-GreenSpaceZones.associate = (models) => {
-  GreenSpaceZones.belongsTo(models.GreenSpaces, {
-    foreignKey: 'green_spaces_id',
-    as: 'greenSpace',
-  });
-
-  GreenSpacesZones.hasMany(models.Sensors, {
+Sensors.associate = (models) => {
+  Sensors.belongsTo(models.GreenSpaceZones, {
     foreignKey: 'green_spaces_zones_id',
-    as: 'sensor',
+    as: 'greenSpaceZone',
+  });
+	Sensors.hasMany(models.SensorReadingMeta, {
+    foreignKey: 'sensors_id',
+    as: 'sensorReadings',
   });
 };
 
-export default GreenSpaceZones;
+export default Sensors;
 
