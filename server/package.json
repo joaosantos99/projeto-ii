@@ -7,7 +7,10 @@
   "scripts": {
     "dev": "nodemon src/server.js",
     "lint": "biome lint src",
-    "lint:fix": "biome lint src --fix"
+    "lint:fix": "biome lint src --fix",
+    "db:migrate": "sequelize db:migrate",
+    "db:migrate:undo": "sequelize db:migrate:undo",
+    "db:create-migration": "sequelize migration:generate --name "
   },
   "author": "",
   "license": "ISC",
@@ -20,6 +23,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.6",
-    "nodemon": "^3.1.14"
+    "nodemon": "^3.1.14",
+    "sequelize-cli": "^6.6.5"
   }
 }
