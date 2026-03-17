@@ -11,34 +11,21 @@ const Roles = sequelize.define(
       primaryKey: true,
       allowNull: false,
     },
-    name:{
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    permissions_dump: {
-      type: DataTypes.STRING,
+    user_id: {
+      type: DataTypes.UUID,
       allowNull: false,
-      defaultValue: '[]',
-    },
-    permissions: {
-      type: DataTypes.VIRTUAL,
-      get() {
-        return JSON.parse(this.permissions_dump);
-      },
-      set(value) {
-        this.permissions_dump = JSON.stringify(value);
-      },
-    },
-    created_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
-    created_by: {
-      type: DataTypes.UUIDV4,
       references: {
         model: 'users',
         key: 'id',
       },
+    },
+    name:{
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    //Incluir permissions_dump
+    created_at: {
+      type: DataTypes.DATE,
       allowNull: false,
     },
     updated_at: {
@@ -46,11 +33,7 @@ const Roles = sequelize.define(
       allowNull: false,
     },
     updated_by: {
-      type: DataTypes.UUIDV4,
-      references: {
-        model: 'users',
-        key: 'id',
-      },
+      type: DataTypes.STRING,
       allowNull: false,
     },
     deleted_at: {
@@ -58,11 +41,7 @@ const Roles = sequelize.define(
       allowNull: true,
     },
     deleted_by: {
-      type: DataTypes.UUIDV4,
-      references: {
-        model: 'users',
-        key: 'id',
-      },
+      type: DataTypes.STRING,
       allowNull: true,
     },
   },
@@ -80,21 +59,6 @@ Roles.associate = (models) => {
   Roles.belongsTo(models.Users, {
     foreignKey: 'users_id',
     as: 'user',
-  });
-
-  Roles.hasOne(models.Users, {
-    foreignKey: 'created_by',
-    as: 'createdBy',
-  });
-
-  Roles.hasOne(models.Users, {
-    foreignKey: 'updated_by',
-    as: 'updatedBy',
-  });
-
-  Roles.hasOne(models.Users, {
-    foreignKey: 'deleted_by',
-    as: 'deletedBy',
   });
 };
 
