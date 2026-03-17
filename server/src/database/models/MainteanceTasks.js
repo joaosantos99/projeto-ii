@@ -1,10 +1,9 @@
 import { DataTypes } from 'sequelize';
 
 import sequelize from '../database/connection';
-import GreenSpaces from './GreenSpaces';
 
-const GreenSpaceZones = sequelize.define(
-  'GreenSpaceZones',
+const MaintenanceTaks = sequelize.define(
+  'MaintenanceTaks',
   {
     id: {
       type: DataTypes.UUID,
@@ -42,17 +41,12 @@ const GreenSpaceZones = sequelize.define(
   },
 );
 
-GreenSpaceZones.associate = (models) => {
-  GreenSpaceZones.belongsTo(models.GreenSpaces, {
+MaintenanceTaks.associate = (models) => {
+  MaintenanceTaks.belongsTo(models.GreenSpaces, {
     foreignKey: 'green_spaces_id',
     as: 'greenSpace',
   });
-
-  GreenSpacesZones.hasMany(models.Sensors, {
-    foreignKey: 'green_spaces_zones_id',
-    as: 'sensor',
-  });
 };
 
-export default GreenSpaceZones;
+export default MaintenanceTaks;
 

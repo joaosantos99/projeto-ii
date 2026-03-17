@@ -62,7 +62,7 @@ GreenSpaceZones.associate = (models) => {
 
   GreenSpacesZones.hasMany(models.Sensors, {
     foreignKey: 'green_spaces_zones_id',
-    as: 'sensor',
+    as: 'sensors',
   });
 };
 
