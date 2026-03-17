@@ -1,10 +1,9 @@
 import { DataTypes } from 'sequelize';
 
 import sequelize from '../database/connection';
-import GreenSpaces from './GreenSpaces';
 
-const GreenSpaceZones = sequelize.define(
-  'GreenSpaceZones',
+const MaintenanceTasks = sequelize.define(
+  'MaintenanceTasks',
   {
     id: {
       type: DataTypes.UUID,
@@ -34,7 +33,7 @@ const GreenSpaceZones = sequelize.define(
     },
   },
   {
-    tableName: 'green_spaces_zones',
+    tableName: 'maintenance_tasks',
     timestamps: true,
     paranoid: true,
     scheduled_date: 'scheduled_date',
@@ -42,17 +41,17 @@ const GreenSpaceZones = sequelize.define(
   },
 );
 
-GreenSpaceZones.associate = (models) => {
-  GreenSpaceZones.belongsTo(models.GreenSpaces, {
+MaintenanceTasks.associate = (models) => {
+  MaintenanceTasks.belongsTo(models.GreenSpaces, {
     foreignKey: 'green_spaces_id',
     as: 'greenSpace',
   });
 
-  GreenSpacesZones.hasMany(models.Sensors, {
+  MaintenanceTasks.hasMany(models.Sensors, {
     foreignKey: 'green_spaces_zones_id',
     as: 'sensor',
   });
 };
 
-export default GreenSpaceZones;
+export default MaintenanceTasks;
 
