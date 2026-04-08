@@ -23,24 +23,28 @@ const GreenSpaceZones = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    created_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
-    updated_at: {
-      type: DataTypes.DATE,
+    created_by: {
+      type: DataTypes.UUID,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
       allowNull: false,
     },
     updated_by: {
-      type: DataTypes.STRING,
+      type: DataTypes.UUID,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
       allowNull: false,
     },
-    deleted_at: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
     deleted_by: {
-      type: DataTypes.STRING,
+      type: DataTypes.UUID,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
       allowNull: true,
     },
   },
@@ -60,9 +64,24 @@ GreenSpaceZones.associate = (models) => {
     as: 'greenSpace',
   });
 
-  GreenSpacesZones.hasMany(models.Sensors, {
-    foreignKey: 'green_spaces_zones_id',
-    as: 'sensor',
+  GreenSpaceZones.hasMany(models.Sensors, {
+    foreignKey: 'green_space_zone_id',
+    as: 'sensors',
+  });
+
+  GreenSpaceZones.belongsTo(models.Users, {
+    foreignKey: 'created_by',
+    as: 'createdBy',
+  });
+
+  GreenSpaceZones.belongsTo(models.Users, {
+    foreignKey: 'updated_by',
+    as: 'updatedBy',
+  });
+
+  GreenSpaceZones.belongsTo(models.Users, {
+    foreignKey: 'deleted_by',
+    as: 'deletedBy',
   });
 };
 

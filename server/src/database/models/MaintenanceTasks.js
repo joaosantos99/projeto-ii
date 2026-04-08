@@ -23,21 +23,26 @@ const MaintenanceTasks = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    description: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+    },
+    status: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     scheduled_date: {
       type: DataTypes.DATE,
       allowNull: false,
     },
     completed_at: {
       type: DataTypes.DATE,
-      allowNull: false,
+      allowNull: true,
     },
   },
   {
     tableName: 'maintenance_tasks',
-    timestamps: true,
-    paranoid: true,
-    scheduled_date: 'scheduled_date',
-    completedAt: 'completed_at',
+    timestamps: false,
   },
 );
 
@@ -46,12 +51,6 @@ MaintenanceTasks.associate = (models) => {
     foreignKey: 'green_spaces_id',
     as: 'greenSpace',
   });
-
-  MaintenanceTasks.hasMany(models.Sensors, {
-    foreignKey: 'green_spaces_zones_id',
-    as: 'sensor',
-  });
 };
 
 export default MaintenanceTasks;
-

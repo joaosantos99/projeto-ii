@@ -23,24 +23,44 @@ const Sensors = sequelize.define(
       type: DataTypes.STRING,
 			allowNull: false,
     },
-    created_at: {
-      type: DataTypes.DATE,
+    parameter: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
-    updated_at: {
-      type: DataTypes.DATE,
+    min_value: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+    },
+    max_value: {
+      type: DataTypes.FLOAT,
+      allowNull: false,
+    },
+    is_active: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+    },
+    created_by: {
+      type: DataTypes.UUID,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
       allowNull: false,
     },
     updated_by: {
-      type: DataTypes.STRING,
+      type: DataTypes.UUID,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
       allowNull: false,
     },
-    deleted_at: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
     deleted_by: {
-      type: DataTypes.STRING,
+      type: DataTypes.UUID,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
       allowNull: true,
     },
   },
@@ -50,16 +70,32 @@ const Sensors = sequelize.define(
     paranoid: true,
     createdAt: 'created_at',
     updatedAt: 'updated_at',
-    deletedAt: 'deleted_at',
-  },
+    deletedAt: 'deleted_at'
+  }
 );
 
 Sensors.associate = (models) => {
+  Sensors.belongsTo(models.Users, {
+    foreignKey: 'created_by',
+    as: 'createdBy',
+  });
+  
+  Sensors.belongsTo(models.Users, {
+    foreignKey: 'updated_by',
+    as: 'updatedBy',
+  });
+
+  Sensors.belongsTo(models.Users, {
+    foreignKey: 'deleted_by',
+    as: 'deletedBy',
+  });
+
   Sensors.belongsTo(models.GreenSpaceZones, {
-    foreignKey: 'green_spaces_zones_id',
+    foreignKey: 'green_space_zone_id',
     as: 'greenSpaceZone',
   });
-	Sensors.hasMany(models.SensorReadingMeta, {
+
+	Sensors.hasMany(models.SensorReadingMetas, {
     foreignKey: 'sensors_id',
     as: 'sensorReadings',
   });

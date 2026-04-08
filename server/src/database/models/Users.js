@@ -11,6 +11,14 @@ const Users = sequelize.define(
       primaryKey: true,
       allowNull: false,
     },
+    role_id: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: 'roles',
+        key: 'id',
+      },
+    },
     full_name: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -23,24 +31,28 @@ const Users = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    created_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
-    updated_at: {
-      type: DataTypes.DATE,
+    created_by: {
+      type: DataTypes.UUID,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
       allowNull: false,
     },
     updated_by: {
-      type: DataTypes.STRING,
+      type: DataTypes.UUID,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
       allowNull: false,
     },
-    deleted_at: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
     deleted_by: {
-      type: DataTypes.STRING,
+      type: DataTypes.UUID,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
       allowNull: true,
     },
   },
@@ -55,16 +67,45 @@ const Users = sequelize.define(
 );
 
 Users.associate = (models) => {
-  Users.hasOne(models.Roles, {
-    foreignKey: 'users_id',
+  Users.belongsTo(models.Roles, {
+    foreignKey: 'role_id',
     as: 'role',
   });
 
   Users.hasMany(models.Reports, {
-    foreignKey: 'users_id',
-    as: 'report',
+    foreignKey: 'user_id',
+    as: 'reports',
+  });
+
+  Users.belongsTo(models.Users, {
+    foreignKey: 'created_by',
+    as: 'createdBy'
+  });
+
+  Users.belongsTo(models.Users, {
+    foreignKey: 'updated_by',
+    as: 'updatedBy'
+  });
+
+  Users.belongsTo(models.Users, {
+    foreignKey: 'deleted_by',
+    as: 'deletedBy'
+  });
+
+  Users.hasMany(models.Sensors, {
+    foreignKey: 'created_by',
+    as: 'sensors'
+  });
+
+  Users.hasMany(models.Alerts, {
+    foreignKey: 'created_by',
+    as: 'alerts'
+  });
+
+  Users.hasMany(models.MaintenanceTasks, {
+    foreignKey: 'created_by',
+    as: 'maintenanceTasks'
   });
 };
 
 export default Users;
-

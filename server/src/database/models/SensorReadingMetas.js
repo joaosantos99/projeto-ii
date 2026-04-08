@@ -19,26 +19,38 @@ const SensorReadingMetas = sequelize.define(
         key: 'id',
       },
     },
+    green_space_id: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: 'green_spaces',
+        key: 'id',
+      },
+    },
     recorded_at: {
       type: DataTypes.DATE,
       allowNull: false,
     },
-    valid: {
-      type: DataTypes.TINYINT,
+    is_valid: {
+      type: DataTypes.BOOLEAN,
       allowNull: false,
     },
   },
   {
-    tableName: 'alert_rules',
-    paranoid: true,
-    recordedAt: 'recorded_at',
+    tableName: 'sensor_reading_metas',
+    timestamps: false,
   },
 );
 
 SensorReadingMetas.associate = (models) => {
   SensorReadingMetas.belongsTo(models.Sensors, {
-    foreignKey: 'Sensors_id',
+    foreignKey: 'sensor_id',
     as: 'sensor',
+  });
+
+  SensorReadingMetas.belongsTo(models.GreenSpaces, {
+    foreignKey: 'green_space_id',
+    as: 'greenSpace',
   });
 };
 

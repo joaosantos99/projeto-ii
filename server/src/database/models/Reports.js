@@ -19,11 +19,19 @@ const Reports = sequelize.define(
         key: 'id',
       },
     },
-    green_spaces_id: {
+    green_space_id: {
       type: DataTypes.UUID,
       allowNull: false,
       references: {
         model: 'green_spaces',
+        key: 'id',
+      },
+    },
+    green_spaces_zone_id: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: 'green_spaces_zones',
         key: 'id',
       },
     },
@@ -42,24 +50,20 @@ const Reports = sequelize.define(
 		status: {
 			type: DataTypes.STRING
 		},
-    created_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
-		updated_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
     updated_by: {
-      type: DataTypes.STRING,
+      type: DataTypes.UUID,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
       allowNull: false,
-    },
-    deleted_at: {
-      type: DataTypes.DATE,
-      allowNull: true,
     },
     deleted_by: {
-      type: DataTypes.STRING,
+      type: DataTypes.UUID,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
       allowNull: true,
     },
   },
@@ -74,14 +78,29 @@ const Reports = sequelize.define(
 );
 
 Reports.associate = (models) => {
-  Reports.belongsTo(models.Users, {
-    foreignKey: 'users_id',
-    as: 'user',
+  Reports.belongsTo(models.GreenSpaces, {
+    foreignKey: 'green_space_id',
+    as: 'greenSpace',
+  });
+  
+  Reports.belongsTo(models.GreenSpaceZones, {
+    foreignKey: 'green_spaces_zone_id',
+    as: 'greenSpaceZone',
   });
 
-  Reports.belongsTo(models.GreenSpaces, {
-    foreignKey: 'green_spaces_id',
-    as: 'greenSpace',
+  Reports.belongsTo(models.Users, {
+    foreignKey: 'user_id',
+    as: 'createdBy',
+  });
+
+  Reports.belongsTo(models.Users, {
+    foreignKey: 'updated_by',
+    as: 'updatedBy',
+  });
+
+  Reports.belongsTo(models.Users, {
+    foreignKey: 'deleted_by',
+    as: 'deletedBy',
   });
 };
 

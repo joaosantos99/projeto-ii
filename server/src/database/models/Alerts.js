@@ -11,11 +11,19 @@ const Alerts = sequelize.define(
       primaryKey: true,
       allowNull: false,
     },
-    alert_rule_id: {
+    sensor_id: {
       type: DataTypes.UUID,
       allowNull: false,
       references: {
-        model: 'alert_rules',
+        model: 'sensors',
+        key: 'id',
+      },
+    },
+    green_space_id: {
+      type: DataTypes.UUID,
+      allowNull: false,
+      references: {
+        model: 'green_spaces',
         key: 'id',
       },
     },
@@ -27,20 +35,24 @@ const Alerts = sequelize.define(
       type: DataTypes.TEXT,
       allowNull: false,
     },
-    notified: {
-      type: DataTypes.TINYINT,
+    is_notified: {
+      type: DataTypes.BOOLEAN,
       allowNull: false,
     },
-    created_at: {
-      type: DataTypes.DATE,
+    created_by: {
+      type: DataTypes.UUID,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
       allowNull: false,
     },
   },
   {
     tableName: 'alerts',
     timestamps: true,
-    paranoid: true,
     createdAt: 'created_at',
+    updatedAt: false,
   },
 );
 
@@ -48,6 +60,21 @@ Alerts.associate = (models) => {
   Alerts.hasOne(models.AlertRules, {
     foreignKey: 'alerts_id',
     as: 'alertRule',
+  });
+
+  Alerts.belongsTo(models.Sensors, {
+    foreignKey: 'sensor_id',
+    as: 'sensor',
+  });
+
+  Alerts.belongsTo(models.GreenSpaces, {
+    foreignKey: 'green_space_id',
+    as: 'greenSpace',
+  });
+  
+  Alerts.belongsTo(models.Users, {
+    foreignKey: 'created_by',
+    as: 'createdBy',
   });
 };
 
