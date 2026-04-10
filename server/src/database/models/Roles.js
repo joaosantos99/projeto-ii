@@ -51,7 +51,7 @@ const Roles = sequelize.define(
         model: 'users',
         key: 'id',
       },
-      allowNull: false,
+      allowNull: true,
     }
   },
   {
