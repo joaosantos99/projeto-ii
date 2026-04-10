@@ -15,12 +15,20 @@ export default {
           key: 'id',
         },
       },
+      green_space_id: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: 'green_spaces',
+          key: 'id',
+        },
+      },
       recorded_at: {
         type: Sequelize.DATE,
         allowNull: false,
       },
-      valid: {
-        type: Sequelize.TINYINT,
+      is_valid: {
+        type: Sequelize.BOOLEAN,
         allowNull: false,
       },
     });

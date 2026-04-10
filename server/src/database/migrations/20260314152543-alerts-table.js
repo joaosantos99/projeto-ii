@@ -7,11 +7,19 @@ export default {
         primaryKey: true,
         allowNull: false,
       },
-      alert_rule_id: {
+      sensor_id: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'alert_rules',
+          model: 'sensors',
+          key: 'id',
+        },
+      },
+      green_space_id: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: 'green_spaces',
           key: 'id',
         },
       },
@@ -23,12 +31,20 @@ export default {
         type: Sequelize.TEXT,
         allowNull: false,
       },
-      notified: {
-        type: Sequelize.TINYINT,
+      is_notified: {
+        type: Sequelize.BOOLEAN,
         allowNull: false,
       },
       created_at: {
         type: Sequelize.DATE,
+        allowNull: false
+      },
+      created_by: {
+        type: Sequelize.UUID,
+        references: {
+          model: 'users',
+          key: 'id',
+        },
         allowNull: false,
       },
     });

@@ -12,16 +12,16 @@ export default {
         allowNull: false
       },
       permissions_dump: {
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
         allowNull: false,
         defaultValue: '[]',
       },
       created_at: {
         type: Sequelize.DATE,
-        allowNull: false,
+        allowNull: false
       },
       created_by: {
-        type: Sequelize.UUIDV4,
+        type: Sequelize.UUID,
         references: {
           model: 'users',
           key: 'id',
@@ -30,10 +30,10 @@ export default {
       },
       updated_at: {
         type: Sequelize.DATE,
-        allowNull: false,
+        allowNull: false
       },
       updated_by: {
-        type: Sequelize.UUIDV4,
+        type: Sequelize.UUID,
         references: {
           model: 'users',
           key: 'id',
@@ -42,16 +42,16 @@ export default {
       },
       deleted_at: {
         type: Sequelize.DATE,
-        allowNull: true,
+        allowNull: true
       },
       deleted_by: {
-        type: Sequelize.UUIDV4,
+        type: Sequelize.UUID,
         references: {
           model: 'users',
           key: 'id',
         },
         allowNull: true,
-      },
+      }
     });
   },
 

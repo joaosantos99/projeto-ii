@@ -29,22 +29,38 @@ export default {
       },
       created_at: {
         type: Sequelize.DATE,
+        allowNull: false
+      },
+      created_by: {
+        type: Sequelize.UUID,
+        references: {
+          model: 'users',
+          key: 'id',
+        },
         allowNull: false,
       },
       updated_at: {
         type: Sequelize.DATE,
-        allowNull: false,
+        allowNull: false
       },
       updated_by: {
-        type: Sequelize.STRING,
+        type: Sequelize.UUID,
+        references: {
+          model: 'users',
+          key: 'id',
+        },
         allowNull: false,
       },
       deleted_at: {
         type: Sequelize.DATE,
-        allowNull: true,
+        allowNull: true
       },
       deleted_by: {
-        type: Sequelize.STRING,
+        type: Sequelize.UUID,
+        references: {
+          model: 'users',
+          key: 'id',
+        },
         allowNull: true,
       },
     });

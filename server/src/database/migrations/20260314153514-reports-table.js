@@ -15,11 +15,19 @@ export default {
           key: 'id',
         },
       },
-      green_spaces_id: {
+      green_space_id: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
           model: 'green_spaces',
+          key: 'id',
+        },
+      },
+      green_spaces_zone_id: {
+        type: Sequelize.UUID,
+        allowNull: false,
+        references: {
+          model: 'green_spaces_zones',
           key: 'id',
         },
       },
@@ -39,23 +47,30 @@ export default {
         type: Sequelize.STRING
       },
       created_at: {
-        type: Sequelize.DATE,
-        allowNull: false,
+        type: Sequelize.DATE
       },
       updated_at: {
         type: Sequelize.DATE,
-        allowNull: false,
+        allowNull: false
       },
       updated_by: {
-        type: Sequelize.STRING,
+        type: Sequelize.UUID,
+        references: {
+          model: 'users',
+          key: 'id',
+        },
         allowNull: false,
       },
       deleted_at: {
         type: Sequelize.DATE,
-        allowNull: true,
+        allowNull: true
       },
       deleted_by: {
-        type: Sequelize.STRING,
+        type: Sequelize.UUID,
+        references: {
+          model: 'users',
+          key: 'id',
+        },
         allowNull: true,
       },
     });

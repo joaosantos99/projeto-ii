@@ -19,14 +19,22 @@ export default {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      description: {
+        type: Sequelize.TEXT,
+        allowNull: false,
+      },
+      status: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
       scheduled_date: {
         type: Sequelize.DATE,
         allowNull: false,
       },
       completed_at: {
         type: Sequelize.DATE,
-        allowNull: false,
-      }
+        allowNull: true,
+      },
     });
   },
 

@@ -1,41 +1,40 @@
-
 export default {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('alert_rules', {
+    await queryInterface.createTable('sessions', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
         primaryKey: true,
         allowNull: false,
       },
-      sensor_id: {
+      user_id: {
         type: Sequelize.UUID,
         allowNull: false,
         references: {
-          model: 'sensors',
+          model: 'users',
           key: 'id',
         },
       },
-      parameter: {
+      token: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      min_value: {
-        type: Sequelize.FLOAT,
-        allowNull: false,
+      expires_at: {
+        type: Sequelize.DATE,
+        allowNull: false
       },
-      max_value: {
-        type: Sequelize.FLOAT,
-        allowNull: false,
+      ip_address: {
+        type: Sequelize.STRING,
+        allowNull: true
       },
-      active: {
-        type: Sequelize.TINYINT,
-        allowNull: false,
-      },
+      user_agent: {
+        type: Sequelize.STRING,
+        allowNull: true
+      }
     });
   },
 
   async down (queryInterface) {
-    await queryInterface.dropTable('alert_rules');
+    await queryInterface.dropTable('sessions');
   }
 };
