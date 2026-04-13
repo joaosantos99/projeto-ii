@@ -1,5 +1,5 @@
-import BaseSerializer from "./BaseSerializer";
-import RolesSerializer from "./RoleSerializer";
+import BaseSerializer from "./BaseSerializer.js";
+import RolesSerializer from "./RoleSerializer.js";
 
 /**
  * Serializer for the User model.

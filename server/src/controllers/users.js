@@ -1,5 +1,5 @@
-import UserSerializer from '../serializers/UserSerializer';
-import UsersService from '../services/users';
+import UserSerializer from '../serializers/UserSerializer.js';
+import UsersService from '../services/users.js';
 
 
 /**

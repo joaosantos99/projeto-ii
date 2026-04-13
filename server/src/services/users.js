@@ -1,4 +1,4 @@
-import Users from '../database/models/Users';
+import Users from '../database/models/Users.js';
 
 /**
  * Service for the users routes.

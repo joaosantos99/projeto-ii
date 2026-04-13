@@ -4,13 +4,17 @@ import cors from "cors";
 import sequelize from './database/connection.js';
 import env from './env.js';
 
+import usersRouter from './routers/users.js'
+import spacesRouter from './routers/spaces.js'
+
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-const apiRouter = app.use('/api', Router());
-
-apiRouter.use('/users', usersRouter());
+const apiRouter = Router();
+app.use('/api', apiRouter);
+apiRouter.use('/users', usersRouter);
+apiRouter.use('/spaces', spacesRouter);
 
 apiRouter.get('/health', (req, res) => {
   res.set('Content-Type', 'application/json');

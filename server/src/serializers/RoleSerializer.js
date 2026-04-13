@@ -1,4 +1,4 @@
-import BaseSerializer from "./BaseSerializer";
+import BaseSerializer from "./BaseSerializer.js";
 
 /**
  * Serializer for the Role model.

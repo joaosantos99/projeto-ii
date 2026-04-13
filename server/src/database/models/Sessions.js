@@ -1,6 +1,6 @@
 import { DataTypes } from 'sequelize';
 
-import sequelize from '../connection';
+import sequelize from '../connection.js';
 
 const Sessions = sequelize.define(
   'Sessions',
