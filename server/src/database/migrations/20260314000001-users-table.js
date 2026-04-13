@@ -9,11 +9,7 @@ export default {
       },
       role_id: {
         type: Sequelize.UUID,
-        allowNull: false,
-        references: {
-          model: 'roles',
-          key: 'id',
-        },
+        allowNull: false
       },
       full_name: {
         type: Sequelize.STRING,
