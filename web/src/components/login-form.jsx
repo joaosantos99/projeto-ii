@@ -42,7 +42,7 @@ export function LoginForm({ className, ...props }) {
                 <div className="flex items-center">
                   <FieldLabel htmlFor="password">Palavra-passe</FieldLabel>
                   <Link
-                    to="/recuperar"
+                    to="/recuperar-password"
                     className="ml-auto text-xs text-primary underline-offset-4 hover:underline"
                   >
                     Esqueceu-se da palavra-passe?
