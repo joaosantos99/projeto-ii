@@ -59,6 +59,10 @@ export default {
         },
         allowNull: false,
       },
+      deleted_at: {
+        type: Sequelize.DATE,
+        allowNull: true
+      },
       deleted_by: {
         type: Sequelize.UUID,
         references: {
