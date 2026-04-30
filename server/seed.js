@@ -7,6 +7,8 @@ import Roles from './src/database/models/Roles.js';
 const DATA_SCALE = 1;
 
 let systemOwner;
+let managerRole;
+let tecnicalRole;
 
 const generateSystemOwner = async () => {
   const systemOwnerFirstName = faker.person.firstName();
@@ -37,10 +39,15 @@ const generateSystemOwner = async () => {
 };
 
 const generateRoles = async () => {
-  const systemOwnerRole = await Roles.create({
-    name: 'system_owner',
-    created_by: 'system',
-    updated_by: 'system',
+  managerRole = await Roles.create({
+    name: 'Gestor',
+    created_by: systemOwner.id,
+    updated_by: systemOwner.id,
+  });
+  tecnicalRole = await Roles.create({
+    name: 'Técnico',
+    created_by: systemOwner.id,
+    updated_by: systemOwner.id,
   });
 };
 
@@ -60,6 +67,7 @@ const generateUsers = async () => {
         provider: 'cm-viladoconde.pt',
       }),
       password_hash: faker.internet.password(),
+      role_id: i % 2 === 0 ? managerRole.id : tecnicalRole.id,
       created_by: systemOwner.id,
       updated_by: systemOwner.id,
     });
@@ -69,4 +77,5 @@ const generateUsers = async () => {
 };
 
 await generateSystemOwner();
+await generateRoles();
 await generateUsers();
