@@ -1,5 +1,7 @@
 import { fn, col } from 'sequelize';
 import Reports from '../database/models/Reports.js';
+import GreenSpaces from '../database/models/GreenSpaces.js';
+import GreenSpaceZones from '../database/models/GreenSpaceZones.js';
 
 /**
  * Service for the reports routes.
@@ -45,6 +47,44 @@ class ReportsService {
     );
 
     return types.map((type, i) => ({ type, total: counts[i] }));
+  }
+
+  /**
+   * Generate a new report for a green space.
+   * @param {Object} data - type, greenSpaceId.
+   * @param {string} createdBy - The authenticated user's uuid.
+   * @returns {Promise<Report>} - The created report.
+   */
+  static async generateReport(data, createdBy) {
+    const greenSpace = await GreenSpaces.findByPk(data.greenSpaceId);
+    if (!greenSpace) {
+      const error = new Error('Espaço verde não encontrado');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const zone = await GreenSpaceZones.findOne({
+      where: { green_spaces_id: greenSpace.id },
+      order: [['created_at', 'ASC']],
+    });
+    if (!zone) {
+      const error = new Error('Espaço verde não encontrado');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const report = await Reports.create({
+      user_id: createdBy,
+      green_space_id: greenSpace.id,
+      green_spaces_zone_id: zone.id,
+      name: `Relatório ${data.type} - ${greenSpace.name}`,
+      type: data.type,
+      description: '',
+      status: 'generated',
+      updated_by: createdBy,
+    });
+
+    return report;
   }
 }
 

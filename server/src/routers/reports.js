@@ -8,5 +8,6 @@ const reportsRouter = Router();
 
 reportsRouter.get('/summary', requireAuth, requirePermission('reports:read'), ReportsController.getSummary);
 reportsRouter.get('/distribution', requireAuth, requirePermission('reports:read'), ReportsController.getDistribution);
+reportsRouter.post('/generate', requireAuth, requirePermission('reports:create'), ReportsController.generateReport);
 
 export default reportsRouter;
