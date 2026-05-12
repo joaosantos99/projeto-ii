@@ -30,6 +30,22 @@ class ReportsService {
 
     return { total, generated, scheduled, lastCreatedAt };
   }
+
+  /**
+   * Return the distribution of reports across the three known types:
+   * operational, environmental, incidents. Always includes all three
+   * entries, even when a type has zero reports.
+   * @returns {Promise<Array<{ type: string, total: number }>>}
+   */
+  static async getDistribution() {
+    const types = ['operational', 'environmental', 'incidents'];
+
+    const counts = await Promise.all(
+      types.map((type) => Reports.count({ where: { type } })),
+    );
+
+    return types.map((type, i) => ({ type, total: counts[i] }));
+  }
 }
 
 export default ReportsService;
