@@ -33,6 +33,29 @@ class ReportsController {
   }
 
   /**
+   * Export a report (returns download metadata).
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   */
+  static async exportReport(req, res) {
+    try {
+      const report = await ReportsService.getReportById(req.params.reportId);
+
+      res.status(200).json({
+        id: report.id,
+        greenSpaceId: report.green_space_id,
+        type: report.type,
+        status: report.status,
+        url: `https://s3.amazonaws.com/bucket/${report.id}.pdf`,
+        createdAt: new Date(report.created_at).toISOString(),
+        createdBy: report.user_id,
+      });
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ description: error.message });
+    }
+  }
+
+  /**
    * Generate a new report.
    * @param {Object} req - The request object.
    * @param {Object} res - The response object.
