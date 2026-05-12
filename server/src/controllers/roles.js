@@ -5,6 +5,28 @@ import RolesService from '../services/roles.js';
  */
 class RolesController {
   /**
+   * Get all roles.
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   */
+  static async getRoles(req, res) {
+    try {
+      const roles = await RolesService.getRoles();
+
+      res.json(
+        roles.map((role) => ({
+          id: role.id,
+          name: role.name,
+          permissionsDump: role.permissions,
+          createdAt: new Date(role.created_at).toISOString(),
+        })),
+      );
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ description: error.message });
+    }
+  }
+
+  /**
    * Create a new role.
    * @param {Object} req - The request object.
    * @param {Object} res - The response object.

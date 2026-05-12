@@ -5,6 +5,14 @@ import Roles from '../database/models/Roles.js';
  */
 class RolesService {
   /**
+   * Get all roles.
+   * @returns {Promise<Array<Role>>} - The roles.
+   */
+  static async getRoles() {
+    return Roles.findAll({ order: [['created_at', 'ASC']] });
+  }
+
+  /**
    * Create a new role.
    * @param {Object} data - name, permissions (array).
    * @param {string} createdBy - The authenticated user's uuid.
