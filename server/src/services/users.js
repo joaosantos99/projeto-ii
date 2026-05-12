@@ -109,6 +109,39 @@ class UsersService {
 
     return user.reload({ include: [{ model: Roles, as: 'role' }] });
   }
+
+  /**
+   * Create a new user.
+   * @param {Object} data - fullName, email, password, role (name).
+   * @param {string} createdBy - The authenticated user's uuid.
+   * @returns {Promise<User>} - The created user with role eager-loaded.
+   */
+  static async createUser(data, createdBy) {
+    const existing = await Users.findOne({ where: { email: data.email } });
+    if (existing) {
+      const error = new Error('Já existe um utilizador com esse email.');
+      error.statusCode = 409;
+      throw error;
+    }
+
+    const role = await Roles.findOne({ where: { name: data.role } });
+    if (!role) {
+      const error = new Error('Perfil não encontrado.');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const user = await Users.create({
+      full_name: data.fullName,
+      email: data.email,
+      password_hash: data.password,
+      role_id: role.id,
+      created_by: createdBy,
+      updated_by: createdBy,
+    });
+
+    return user.reload({ include: [{ model: Roles, as: 'role' }] });
+  }
 }
 
 export default UsersService;
