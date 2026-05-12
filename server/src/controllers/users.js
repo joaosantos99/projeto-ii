@@ -43,6 +43,20 @@ class UsersController {
   }
 
   /**
+   * Get a statistical summary of platform users.
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   */
+  static async getSummary(req, res) {
+    try {
+      const summary = await UsersService.getSummary();
+      res.json(summary);
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ description: error.message });
+    }
+  }
+
+  /**
    * Create a new user.
    * @param {Object} req - The request object.
    * @param {Object} res - The response object.

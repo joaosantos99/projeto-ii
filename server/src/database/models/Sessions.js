@@ -34,7 +34,12 @@ const Sessions = sequelize.define(
     user_agent: {
       type: DataTypes.STRING,
       allowNull: true
-    }
+    },
+    created_at: {
+      type: DataTypes.DATE,
+      allowNull: false,
+      defaultValue: DataTypes.NOW,
+    },
   },
   {
     tableName: 'sessions',

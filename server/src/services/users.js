@@ -1,6 +1,7 @@
-import { Op } from 'sequelize';
+import { Op, fn, col } from 'sequelize';
 import Users from '../database/models/Users.js';
 import Roles from '../database/models/Roles.js';
+import Sessions from '../database/models/Sessions.js';
 
 /**
  * Service for the users routes.
@@ -141,6 +142,44 @@ class UsersService {
     });
 
     return user.reload({ include: [{ model: Roles, as: 'role' }] });
+  }
+
+  /**
+   * Return a statistical summary of platform users.
+   * - total: all non-deleted users
+   * - active: users with at least one non-expired session
+   * - suspended: total - active
+   * - accessToday: users with a session created today (UTC)
+   * @returns {Promise<{ total, active, suspended, accessToday }>}
+   */
+  static async getSummary() {
+    const now = new Date();
+    const todayStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+
+    const [total, activeRows, accessTodayRows] = await Promise.all([
+      Users.count(),
+
+      Sessions.findAll({
+        attributes: [[fn('DISTINCT', col('user_id')), 'user_id']],
+        where: { expires_at: { [Op.gt]: now } },
+        raw: true,
+      }),
+
+      Sessions.findAll({
+        attributes: [[fn('DISTINCT', col('user_id')), 'user_id']],
+        where: { created_at: { [Op.gte]: todayStart } },
+        raw: true,
+      }),
+    ]);
+
+    const active = activeRows.length;
+
+    return {
+      total,
+      active,
+      suspended: total - active,
+      accessToday: accessTodayRows.length,
+    };
   }
 }
 
