@@ -88,6 +88,37 @@ class AuthService {
 
     await sendPasswordResetEmail(email, token);
   }
+
+  /**
+   * Reset a user's password using a valid reset token.
+   * Marks the token as used after a successful update.
+   * @param {string} resetToken - The token from the reset email link.
+   * @param {string} newPassword - The new plain-text password.
+   */
+  static async updatePassword(resetToken, newPassword) {
+    const record = await PasswordResetTokens.findOne({
+      where: { token: resetToken },
+    });
+
+    if (!record || record.used_at !== null) {
+      const error = new Error('Token inválido ou expirado');
+      error.statusCode = 401;
+      throw error;
+    }
+
+    if (new Date(record.expires_at).getTime() <= Date.now()) {
+      const error = new Error('Token inválido ou expirado');
+      error.statusCode = 401;
+      throw error;
+    }
+
+    await Users.update(
+      { password_hash: newPassword },
+      { where: { id: record.user_id } },
+    );
+
+    await record.update({ used_at: new Date() });
+  }
 }
 
 export default AuthService;

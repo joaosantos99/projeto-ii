@@ -102,6 +102,45 @@ class AuthController {
       res.status(statusCode).json({ description: error.message });
     }
   }
+
+  /**
+   * Reset a user's password using a valid reset token.
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   */
+  static async updatePassword(req, res) {
+    try {
+      const { token, password, confirmPassword } = req.body ?? {};
+      const errors = {};
+
+      if (!token) {
+        errors.token = ['Token is mandatory.'];
+      }
+
+      if (!password) {
+        errors.password = ['Password is mandatory.'];
+      } else if (password.length < 10) {
+        errors.password = ['Password must be at least 10 characters.'];
+      }
+
+      if (!confirmPassword) {
+        errors.confirmPassword = ['Password confirmation is mandatory.'];
+      } else if (password && password !== confirmPassword) {
+        errors.confirmPassword = ['Passwords do not match.'];
+      }
+
+      if (Object.keys(errors).length > 0) {
+        return res.status(400).json({ description: 'Invalid request parameters.', errors });
+      }
+
+      await AuthService.updatePassword(token, password);
+
+      res.json({ message: 'Password atualizada com sucesso.' });
+    } catch (error) {
+      const statusCode = error.statusCode || 500;
+      res.status(statusCode).json({ description: error.message });
+    }
+  }
 }
 
 export default AuthController;
