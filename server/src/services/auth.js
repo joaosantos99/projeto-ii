@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import bcrypt from 'bcrypt';
 import Users from '../database/models/Users.js';
 import Roles from '../database/models/Roles.js';
 import Sessions from '../database/models/Sessions.js';
@@ -51,7 +52,8 @@ class AuthService {
       throw error;
     }
 
-    if (user.password_hash !== password) {
+    const passwordMatch = await bcrypt.compare(password, user.password_hash);
+    if (!passwordMatch) {
       const error = new Error('Token inválido ou expirado');
       error.statusCode = 401;
       throw error;
@@ -112,8 +114,9 @@ class AuthService {
       throw error;
     }
 
+    const hashed = await bcrypt.hash(newPassword, 12);
     await Users.update(
-      { password_hash: newPassword },
+      { password_hash: hashed },
       { where: { id: record.user_id } },
     );
 

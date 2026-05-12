@@ -1,3 +1,4 @@
+import bcrypt from 'bcrypt';
 import { faker } from '@faker-js/faker';
 
 import sequelize from './src/database/connection.js';
@@ -29,7 +30,7 @@ const generateSystemOwner = async () => {
       lastName: systemOwnerLastName,
       provider: 'cm-viladoconde.pt',
     }),
-    password_hash: faker.internet.password(),
+    password_hash: await bcrypt.hash(faker.internet.password({ length: 12 }), 12),
     role_id: adminRole.id,
     created_by: 'system',
     updated_by: 'system',
@@ -66,7 +67,7 @@ const generateUsers = async () => {
         lastName,
         provider: 'cm-viladoconde.pt',
       }),
-      password_hash: faker.internet.password(),
+      password_hash: await bcrypt.hash(faker.internet.password({ length: 12 }), 12),
       role_id: i % 2 === 0 ? managerRole.id : tecnicalRole.id,
       created_by: systemOwner.id,
       updated_by: systemOwner.id,

@@ -1,4 +1,5 @@
 import { Op, fn, col } from 'sequelize';
+import bcrypt from 'bcrypt';
 import Users from '../database/models/Users.js';
 import Roles from '../database/models/Roles.js';
 import Sessions from '../database/models/Sessions.js';
@@ -93,7 +94,7 @@ class UsersService {
     }
 
     if (data.password !== undefined) {
-      changes.password_hash = data.password;
+      changes.password_hash = await bcrypt.hash(data.password, 12);
     }
 
     if (data.role !== undefined) {
@@ -135,7 +136,7 @@ class UsersService {
     const user = await Users.create({
       full_name: data.fullName,
       email: data.email,
-      password_hash: data.password,
+      password_hash: await bcrypt.hash(data.password, 12),
       role_id: role.id,
       created_by: createdBy,
       updated_by: createdBy,
