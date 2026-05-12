@@ -55,6 +55,30 @@ class RolesController {
       res.status(error.statusCode || 500).json({ description: error.message });
     }
   }
+
+  /**
+   * Update (toggle) a permission for a role.
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   */
+  static async updateRolePermission(req, res) {
+    try {
+      const { permissionId } = req.body ?? {};
+
+      if (!permissionId) {
+        return res.status(400).json({
+          description: 'Invalid request parameters.',
+          errors: { permissionId: ['permissionId is mandatory.'] },
+        });
+      }
+
+      await RolesService.updateRolePermission(req.params.roleId, permissionId, req.user.id);
+
+      res.status(200).json({ permissionId });
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ description: error.message });
+    }
+  }
 }
 
 export default RolesController;

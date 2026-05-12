@@ -35,6 +35,32 @@ class RolesService {
 
     return role;
   }
+
+  /**
+   * Toggle a single permission on a role. Adds it if missing, removes it if present.
+   * @param {string} roleId - The role's uuid.
+   * @param {string} permissionId - The permission identifier to toggle.
+   * @param {string} updatedBy - The authenticated user's uuid.
+   * @returns {Promise<Role>} - The updated role.
+   */
+  static async updateRolePermission(roleId, permissionId, updatedBy) {
+    const role = await Roles.findByPk(roleId);
+
+    if (!role) {
+      const error = new Error('Role não encontrado');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const current = role.permissions ?? [];
+    const next = current.includes(permissionId)
+      ? current.filter((p) => p !== permissionId)
+      : [...current, permissionId];
+
+    await role.update({ permissions: next, updated_by: updatedBy });
+
+    return role;
+  }
 }
 
 export default RolesService;
