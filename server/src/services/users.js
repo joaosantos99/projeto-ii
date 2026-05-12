@@ -37,6 +37,24 @@ class UsersService {
 
     return user;
   }
+
+  /**
+   * Soft-delete a user by id, recording who deleted it.
+   * @param {string} userId - The user's uuid.
+   * @param {string} deletedBy - The authenticated user's uuid.
+   */
+  static async deleteUser(userId, deletedBy) {
+    const user = await Users.findByPk(userId);
+
+    if (!user) {
+      const error = new Error('Utilizador não encontrado');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    await user.update({ deleted_by: deletedBy });
+    await user.destroy();
+  }
 }
 
 export default UsersService;

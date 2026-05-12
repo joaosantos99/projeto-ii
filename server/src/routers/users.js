@@ -8,5 +8,6 @@ const usersRouter = Router();
 
 usersRouter.get('/', UsersController.getUsers);
 usersRouter.get('/:userId', requireAuth, requirePermission('users:read'), UsersController.getUserById);
+usersRouter.delete('/:userId', requireAuth, requirePermission('users:delete'), UsersController.deleteUser);
 
 export default usersRouter;

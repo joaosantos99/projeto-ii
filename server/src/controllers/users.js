@@ -41,6 +41,21 @@ class UsersController {
       res.status(error.statusCode || 500).json({ description: error.message });
     }
   }
+
+  /**
+   * Soft-delete a user by id.
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   */
+  static async deleteUser(req, res) {
+    try {
+      await UsersService.deleteUser(req.params.userId, req.user.id);
+
+      res.status(204).json({ message: 'Utilizador eliminado com sucesso.' });
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ description: error.message });
+    }
+  }
 }
 
 export default UsersController;
