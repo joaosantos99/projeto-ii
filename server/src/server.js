@@ -8,6 +8,7 @@ import usersRouter from './routers/users.js'
 import spacesRouter from './routers/spaces.js'
 import authRouter from './routers/auth.js'
 import rolesRouter from './routers/roles.js'
+import reportsRouter from './routers/reports.js'
 
 const app = express();
 app.use(cors());
@@ -19,6 +20,7 @@ apiRouter.use('/auth', authRouter);
 apiRouter.use('/users', usersRouter);
 apiRouter.use('/spaces', spacesRouter);
 apiRouter.use('/roles', rolesRouter);
+apiRouter.use('/reports', reportsRouter);
 
 apiRouter.get('/health', (req, res) => {
   res.set('Content-Type', 'application/json');
