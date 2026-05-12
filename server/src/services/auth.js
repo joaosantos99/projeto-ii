@@ -1,5 +1,9 @@
+import crypto from 'node:crypto';
 import Users from '../database/models/Users.js';
 import Roles from '../database/models/Roles.js';
+import Sessions from '../database/models/Sessions.js';
+
+const SESSION_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 /**
  * Service for the auth routes.
@@ -22,6 +26,44 @@ class AuthService {
     }
 
     return user;
+  }
+
+  /**
+   * Authenticate a user by email and password.
+   * Creates a new session and returns the token alongside the user.
+   * @param {string} email
+   * @param {string} password
+   * @param {Object} meta - ip_address and user_agent from the request.
+   * @returns {Promise<{ token: string, user: User }>}
+   */
+  static async login(email, password, meta = {}) {
+    const user = await Users.findOne({
+      where: { email },
+      include: [{ model: Roles, as: 'role' }],
+    });
+
+    if (!user) {
+      const error = new Error('Utilizador não encontrado');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    if (user.password_hash !== password) {
+      const error = new Error('Token inválido ou expirado');
+      error.statusCode = 401;
+      throw error;
+    }
+
+    const token = crypto.randomBytes(32).toString('hex');
+    await Sessions.create({
+      user_id: user.id,
+      token,
+      expires_at: new Date(Date.now() + SESSION_TTL_MS),
+      ip_address: meta.ip_address ?? null,
+      user_agent: meta.user_agent ?? null,
+    });
+
+    return { token, user };
   }
 }
 
