@@ -1,3 +1,4 @@
+import { Op } from 'sequelize';
 import Users from '../database/models/Users.js';
 import Roles from '../database/models/Roles.js';
 
@@ -54,6 +55,59 @@ class UsersService {
 
     await user.update({ deleted_by: deletedBy });
     await user.destroy();
+  }
+
+  /**
+   * Update a user's data.
+   * @param {string} userId - The user's uuid.
+   * @param {Object} data - Fields to update: fullName, email, password, role (name).
+   * @param {string} updatedBy - The authenticated user's uuid.
+   * @returns {Promise<User>} - The updated user with role eager-loaded.
+   */
+  static async updateUser(userId, data, updatedBy) {
+    const user = await Users.findByPk(userId);
+
+    if (!user) {
+      const error = new Error('Utilizador não encontrado');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const changes = { updated_by: updatedBy };
+
+    if (data.fullName !== undefined) {
+      changes.full_name = data.fullName;
+    }
+
+    if (data.email !== undefined) {
+      const conflict = await Users.findOne({
+        where: { email: data.email, id: { [Op.ne]: userId } },
+      });
+      if (conflict) {
+        const error = new Error('Email já está em uso.');
+        error.statusCode = 409;
+        throw error;
+      }
+      changes.email = data.email;
+    }
+
+    if (data.password !== undefined) {
+      changes.password_hash = data.password;
+    }
+
+    if (data.role !== undefined) {
+      const role = await Roles.findOne({ where: { name: data.role } });
+      if (!role) {
+        const error = new Error('Perfil não encontrado.');
+        error.statusCode = 404;
+        throw error;
+      }
+      changes.role_id = role.id;
+    }
+
+    await user.update(changes);
+
+    return user.reload({ include: [{ model: Roles, as: 'role' }] });
   }
 }
 

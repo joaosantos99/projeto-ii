@@ -43,6 +43,46 @@ class UsersController {
   }
 
   /**
+   * Update a user's data.
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   */
+  static async updateUser(req, res) {
+    try {
+      const { fullName, email, password, role } = req.body ?? {};
+      const errors = {};
+
+      if (email !== undefined && !email.includes('@')) {
+        errors.email = ['Email must contain @.'];
+      }
+
+      if (password !== undefined && password.length < 10) {
+        errors.password = ['Password must be at least 10 characters.'];
+      }
+
+      if (Object.keys(errors).length > 0) {
+        return res.status(400).json({ description: 'Invalid request parameters.', errors });
+      }
+
+      const user = await UsersService.updateUser(
+        req.params.userId,
+        { fullName, email, password, role },
+        req.user.id,
+      );
+
+      res.json({
+        id: user.id,
+        email: user.email,
+        fullName: user.full_name,
+        role: user.role?.name ?? null,
+        createdAt: new Date(user.created_at).toISOString(),
+      });
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ description: error.message });
+    }
+  }
+
+  /**
    * Soft-delete a user by id.
    * @param {Object} req - The request object.
    * @param {Object} res - The response object.
