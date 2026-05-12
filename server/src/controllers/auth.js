@@ -72,6 +72,36 @@ class AuthController {
       res.status(statusCode).json({ description: error.message });
     }
   }
+
+  /**
+   * Send a password reset email to the given address if it belongs to a known user.
+   * Always returns 200 to avoid revealing whether the email exists.
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   */
+  static async forgotPassword(req, res) {
+    try {
+      const { email } = req.body ?? {};
+      const errors = {};
+
+      if (!email) {
+        errors.email = ['Email is mandatory.'];
+      } else if (!VALID_EMAIL_RE.test(email)) {
+        errors.email = ['Email must contain @.'];
+      }
+
+      if (Object.keys(errors).length > 0) {
+        return res.status(400).json({ description: 'Invalid request parameters.', errors });
+      }
+
+      await AuthService.forgotPassword(email);
+
+      res.json({ message: 'Email de recuperação enviado com sucesso.' });
+    } catch (error) {
+      const statusCode = error.statusCode || 500;
+      res.status(statusCode).json({ description: error.message });
+    }
+  }
 }
 
 export default AuthController;
