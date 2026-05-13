@@ -7,6 +7,7 @@ import { DashboardPage } from "#/pages/dashboard"
 import { ManutencaoPage } from "#/pages/manutencao"
 import { UtilizadoresPage } from "#/pages/utilizadores"
 import { UtilizadorPage } from "#/pages/utilizador"
+import { ContaPage } from "#/pages/conta"
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
         <Route path="/dashboard/manutencao" element={<ManutencaoPage />} />
         <Route path="/dashboard/utilizadores" element={<UtilizadoresPage />} />
         <Route path="/dashboard/utilizadores/:id" element={<UtilizadorPage />} />
+        <Route path="/dashboard/conta" element={<ContaPage />} />
       </Route>
     </Routes>
   )

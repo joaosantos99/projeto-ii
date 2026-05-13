@@ -65,9 +65,16 @@ export function AppSidebar() {
       </nav>
 
       <div className="border-t border-sidebar-border px-3 py-3">
-        <button
-          type="button"
-          className="flex w-full items-center gap-3 rounded-md px-2 py-2 text-sm hover:bg-sidebar-accent/50 transition-colors"
+        <NavLink
+          to="/dashboard/conta"
+          className={({ isActive }) =>
+            [
+              "flex w-full items-center gap-3 rounded-md px-2 py-2 text-sm transition-colors",
+              isActive
+                ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                : "hover:bg-sidebar-accent/50",
+            ].join(" ")
+          }
         >
           <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-sidebar-primary text-sidebar-primary-foreground text-xs font-semibold">
             {user.initials}
@@ -77,7 +84,7 @@ export function AppSidebar() {
             <span className="truncate text-xs text-muted-foreground">{user.email}</span>
           </div>
           <CaretUpDown className="size-4 shrink-0 text-muted-foreground" />
-        </button>
+        </NavLink>
       </div>
     </aside>
   )
