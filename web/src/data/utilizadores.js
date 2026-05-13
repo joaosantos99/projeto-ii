@@ -19,6 +19,13 @@ export const statusOptions = [
   { value: "suspenso", label: "Suspenso" },
 ]
 
+export const roleTableIds = {
+  admin: "ROL-ADM-01",
+  operador: "ROL-OPE-01",
+  tecnico: "ROL-TEC-01",
+  analista: "ROL-ANA-01",
+}
+
 export const usersSeed = [
   {
     id: "USR-201",
@@ -27,6 +34,12 @@ export const usersSeed = [
     role: "admin",
     status: "ativo",
     lastAccess: "2026-03-23 09:31",
+    roleId: "ROL-ADM-01",
+    phone: "+351 253 000 201",
+    city: "Vila Verde",
+    postalCode: "4730-000",
+    createdAt: "2025-06-12 10:00",
+    updatedAt: "2026-03-22 18:40",
   },
   {
     id: "USR-144",
@@ -35,6 +48,12 @@ export const usersSeed = [
     role: "operador",
     status: "ativo",
     lastAccess: "2026-03-23 08:55",
+    roleId: "ROL-OPE-01",
+    phone: "+351 253 000 144",
+    city: "Braga",
+    postalCode: "4700-223",
+    createdAt: "2025-09-01 09:15",
+    updatedAt: "2026-03-21 14:22",
   },
   {
     id: "USR-089",
@@ -43,6 +62,12 @@ export const usersSeed = [
     role: "tecnico",
     status: "suspenso",
     lastAccess: "2026-03-19 17:22",
+    roleId: "ROL-TEC-01",
+    phone: "+351 253 000 089",
+    city: "Vila Verde",
+    postalCode: "4730-120",
+    createdAt: "2025-04-20 11:30",
+    updatedAt: "2026-03-18 09:00",
   },
   {
     id: "USR-233",
@@ -51,6 +76,12 @@ export const usersSeed = [
     role: "analista",
     status: "ativo",
     lastAccess: "2026-03-23 10:04",
+    roleId: "ROL-ANA-01",
+    phone: "+351 253 000 233",
+    city: "Guimarães",
+    postalCode: "4800-100",
+    createdAt: "2025-11-05 08:45",
+    updatedAt: "2026-03-23 07:10",
   },
   ...Array.from({ length: 18 }, (_, index) => {
     const seed = index + 1
@@ -66,6 +97,12 @@ export const usersSeed = [
       role,
       status: index % 7 === 0 ? "suspenso" : "ativo",
       lastAccess: `2026-03-${day.toString().padStart(2, "0")} ${hour}:${minute}`,
+      roleId: roleTableIds[role],
+      phone: `+351 253 ${(200 + seed).toString().padStart(3, "0")} ${(10 + seed).toString().padStart(3, "0")}`,
+      city: seed % 2 === 0 ? "Vila Verde" : "Braga",
+      postalCode: `473${seed % 10}-00${seed % 10}`,
+      createdAt: `2025-${((seed % 12) + 1).toString().padStart(2, "0")}-10 12:00`,
+      updatedAt: `2026-03-${((seed % 20) + 1).toString().padStart(2, "0")} 10:00`,
     }
   }),
 ]

@@ -6,6 +6,7 @@ import { DashboardLayout } from "#/components/dashboard-layout"
 import { DashboardPage } from "#/pages/dashboard"
 import { ManutencaoPage } from "#/pages/manutencao"
 import { UtilizadoresPage } from "#/pages/utilizadores"
+import { UtilizadorPage } from "#/pages/utilizador"
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/dashboard/manutencao" element={<ManutencaoPage />} />
         <Route path="/dashboard/utilizadores" element={<UtilizadoresPage />} />
+        <Route path="/dashboard/utilizadores/:id" element={<UtilizadorPage />} />
       </Route>
     </Routes>
   )
