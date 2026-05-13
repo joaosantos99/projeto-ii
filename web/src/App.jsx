@@ -4,6 +4,7 @@ import { RecuperarPage } from "#/pages/recuperar-password"
 import { RedefinirPage } from "#/pages/redefinir-password"
 import { DashboardLayout } from "#/components/dashboard-layout"
 import { DashboardPage } from "#/pages/dashboard"
+import { ManutencaoPage } from "#/pages/manutencao"
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
       <Route path="/redefinir-password" element={<RedefinirPage />} />
       <Route element={<DashboardLayout />}>
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path="/dashboard/manutencao" element={<ManutencaoPage />} />
       </Route>
     </Routes>
   )
