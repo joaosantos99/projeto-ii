@@ -1,0 +1,46 @@
+import AlertsSerializer from '../serializers/AlertsSerializer.js';
+import AlertsService from '../services/alerts.js';
+
+/**
+ * Controller for the alerts routes.
+ */
+class AlertController {
+  /**
+   * Get all alerts.
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   */
+  static async getAlerts(req, res) {
+    try {
+      const alerts = await AlertsService.getAlerts(req.params.spaceId);
+
+      res.json(AlertsSerializer.serialize(alerts));
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ error: error.message });
+    }
+  }
+
+  /**
+   * Update an alert.
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   */
+  static async updateAlert(req, res) {
+    try {
+      if (!req.body || Object.keys(req.body).length === 0) {
+        return res.status(400).json({ error: 'No fields provided for update' });
+      }
+
+      const alert = await AlertsService.getAlertById(req.params.incidentId);
+      const { severity, message, is_notified } = req.body;
+      const updatedAlert = await alert.update({ severity, message, is_notified  });
+
+      res.json(AlertsSerializer.serialize(updatedAlert));
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ error: error.message });
+    }
+  }
+  
+}
+
+export default AlertController;
