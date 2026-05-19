@@ -4,6 +4,7 @@ import { faker } from '@faker-js/faker';
 import sequelize from './src/database/connection.js';
 import Users from './src/database/models/Users.js';
 import Roles from './src/database/models/Roles.js';
+import GreenSpaces from './src/database/models/GreenSpaces.js';
 
 const DATA_SCALE = 1;
 
@@ -75,8 +76,28 @@ const generateUsers = async () => {
   }
 
   await Users.bulkCreate(users);
+}
+
+const generateGreenSpaces = async () => {
+  const greenSpacesCount = 100 * DATA_SCALE;
+  const greenSpaces = [];
+
+  for (let i = 0; i < greenSpacesCount; i++) {
+    greenSpaces.push({
+      name: faker.location.city() + ' Park',
+      city: faker.location.city(),
+      postal_code: faker.location.zipCode(),
+      latitude: faker.location.latitude(),
+      longitude: faker.location.longitude(),
+      created_by: systemOwner.id,
+      updated_by: systemOwner.id
+    });
+  }
+
+  await GreenSpaces.bulkCreate(greenSpaces);
 };
 
 await generateSystemOwner();
 await generateRoles();
 await generateUsers();
+await generateGreenSpaces();
