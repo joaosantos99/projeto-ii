@@ -11,18 +11,22 @@ class SpacesService {
   static async getSpaces() {
     const spaces = await GreenSpaces.findAll();
 
-    if (!spaces) {
-      throw new Error({ statusCode: 404, message: 'No spaces found' });
+    if (!spaces.length) {
+      const error = new Error('No spaces found');
+      error.statusCode = 404;
+      throw error;
     }
 
     return spaces;
   }
 
   static async getSpaceById(spaceId) {
-    const space = await GreenSpaces.findByPK(spaceId)
+    const space = await GreenSpaces.findByPk(spaceId)
 
     if (!space) {
-      throw new Error({ statusCode: 404, message: `Space not found` });
+      const error = new Error('Space not found');
+      error.statusCode = 404;
+      throw error;
     }
 
     return space;
@@ -31,6 +35,10 @@ class SpacesService {
   static async createSpace(data) {
     const newSpace = await GreenSpaces.create(data);
     return newSpace;
+  }
+
+  static async count(options = {}) {
+    return GreenSpaces.count(options);
   }
 }
 
