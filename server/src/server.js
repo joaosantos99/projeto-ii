@@ -2,6 +2,7 @@ import express, { Router } from 'express';
 import cors from "cors";
 
 import sequelize from './database/connection.js';
+import './database/models/index.js';
 import env from './env.js';
 
 import usersRouter from './routers/users.js'

@@ -1,42 +1,33 @@
-import fs from 'fs';
-import path from 'path';
-import Sequelize from 'sequelize';
-import process from 'process';
-import basename from 'path';
-import env from '../env.js';
+import Alerts from './Alerts.js';
+import GreenSpaces from './GreenSpaces.js';
+import GreenSpaceZones from './GreenSpaceZones.js';
+import MaintenanceTasks from './MaintenanceTasks.js';
+import PasswordResetTokens from './PasswordResetTokens.js';
+import Reports from './Reports.js';
+import Roles from './Roles.js';
+import SensorReadingMetas from './SensorReadingMetas.js';
+import Sensors from './Sensors.js';
+import Sessions from './Sessions.js';
+import Users from './Users.js';
 
-const config = require(__dirname + '/../database/config.json')[env];
-const db = {};
+const models = {
+  Alerts,
+  GreenSpaces,
+  GreenSpaceZones,
+  MaintenanceTasks,
+  PasswordResetTokens,
+  Reports,
+  Roles,
+  SensorReadingMetas,
+  Sensors,
+  Sessions,
+  Users,
+};
 
-let sequelize;
-if (config.use_env_variable) {
-  sequelize = new Sequelize(process.env[config.use_env_variable], config);
-} else {
-  sequelize = new Sequelize(config.database, config.username, config.password, config);
+for (const model of Object.values(models)) {
+  if (typeof model.associate === 'function') {
+    model.associate(models);
+  }
 }
 
-fs
-  .readdirSync(__dirname)
-  .filter(file => {
-    return (
-      file.indexOf('.') !== 0 &&
-      file !== basename &&
-      file.slice(-3) === '.js' &&
-      file.indexOf('.test.js') === -1
-    );
-  })
-  .forEach(file => {
-    const model = require(path.join(__dirname, file))(sequelize, Sequelize.DataTypes);
-    db[model.name] = model;
-  });
-
-Object.keys(db).forEach(modelName => {
-  if (db[modelName].associate) {
-    db[modelName].associate(db);
-  }
-});
-
-db.sequelize = sequelize;
-db.Sequelize = Sequelize;
-
-module.exports = db;
+export default models;

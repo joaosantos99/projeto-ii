@@ -1,6 +1,6 @@
 import { DataTypes } from 'sequelize';
 
-import sequelize from '../database/connection.js';
+import sequelize from '../connection.js';
 
 const MaintenanceTasks = sequelize.define(
   'MaintenanceTasks',
