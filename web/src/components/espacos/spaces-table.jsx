@@ -1,4 +1,5 @@
-import { PencilSimple, Prohibit } from "@phosphor-icons/react"
+import { Link } from "react-router-dom"
+import { Eye } from "@phosphor-icons/react"
 import { Badge } from "#/components/ui/badge"
 import { Button } from "#/components/ui/button"
 import { operationalStatusLabels } from "#/data/espacos"
@@ -9,7 +10,7 @@ function statusBadgeVariant(status) {
   return "secondary"
 }
 
-export function SpacesTable({ spaces, onEdit, onDeactivate }) {
+export function SpacesTable({ spaces }) {
   if (spaces.length === 0) {
     return (
       <div className="py-10 text-center text-sm text-muted-foreground">
@@ -29,7 +30,9 @@ export function SpacesTable({ spaces, onEdit, onDeactivate }) {
             <th className="px-3 py-2 text-right font-medium">Sensores</th>
             <th className="px-3 py-2 text-right font-medium">Alertas ativos</th>
             <th className="px-3 py-2 font-medium">Estado</th>
-            <th className="w-24 px-3 py-2 text-right font-medium">Ações</th>
+            <th className="w-12 px-3 py-2 text-right font-medium">
+              <span className="sr-only">Ver detalhe</span>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -52,26 +55,17 @@ export function SpacesTable({ spaces, onEdit, onDeactivate }) {
                   {operationalStatusLabels[space.operationalStatus]}
                 </Badge>
               </td>
-              <td className="px-3 py-2">
-                <div className="flex items-center justify-end gap-1">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label={`Editar ${space.name}`}
-                    onClick={() => onEdit(space.id)}
-                  >
-                    <PencilSimple />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label={`Desativar ${space.name}`}
-                    disabled={space.operationalStatus === "inativo"}
-                    onClick={() => onDeactivate(space.id)}
-                  >
-                    <Prohibit />
-                  </Button>
-                </div>
+              <td className="px-3 py-2 text-right">
+                <Button
+                  asChild
+                  variant="ghost"
+                  size="icon"
+                  aria-label={`Ver ficha de ${space.name}`}
+                >
+                  <Link to={`/dashboard/espacos/${space.id}`}>
+                    <Eye />
+                  </Link>
+                </Button>
               </td>
             </tr>
           ))}

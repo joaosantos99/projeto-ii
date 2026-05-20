@@ -15,7 +15,6 @@ import { FiltersBar } from "#/components/espacos/filters-bar"
 import { SpacesTable } from "#/components/espacos/spaces-table"
 import { SpacesPagination } from "#/components/espacos/spaces-pagination"
 import { SpaceFormDialog } from "#/components/espacos/space-form-dialog"
-import { DeactivateConfirm } from "#/components/espacos/deactivate-confirm"
 import {
   ROWS_PER_PAGE,
   paginateSpaces,
@@ -30,11 +29,7 @@ export function EspacosPage() {
   const [districtFilter, setDistrictFilter] = useState("todos")
   const [statusFilter, setStatusFilter] = useState("todos")
   const [page, setPage] = useState(1)
-
-  const [formOpen, setFormOpen] = useState(false)
-  const [formMode, setFormMode] = useState("create")
-  const [editingId, setEditingId] = useState(null)
-  const [deactivateTarget, setDeactivateTarget] = useState(null)
+  const [createOpen, setCreateOpen] = useState(false)
 
   useEffect(() => {
     setTitle("Espaços verdes")
@@ -69,66 +64,22 @@ export function EspacosPage() {
   const currentPage = Math.min(page, totalPages)
   const pageRows = paginateSpaces(filtered, currentPage)
 
-  const editingSpace = editingId ? spaces.find((s) => s.id === editingId) : null
-  const deactivateSpace = deactivateTarget
-    ? spaces.find((s) => s.id === deactivateTarget)
-    : null
-
-  const openCreate = () => {
-    setFormMode("create")
-    setEditingId(null)
-    setFormOpen(true)
+  const handleCreate = (values) => {
+    let id = slugFromName(values.name)
+    if (spaces.some((s) => s.id === id)) id = `${id}-${Date.now()}`
+    setSpaces((prev) => [
+      ...prev,
+      {
+        id,
+        ...values,
+        zonesCount: 0,
+        sensorsCount: 1,
+        activeAlerts: 0,
+        operationalStatus: "ativo",
+      },
+    ])
+    setCreateOpen(false)
   }
-
-  const openEdit = (id) => {
-    setFormMode("edit")
-    setEditingId(id)
-    setFormOpen(true)
-  }
-
-  const handleSubmit = (values) => {
-    if (formMode === "create") {
-      let id = slugFromName(values.name)
-      if (spaces.some((s) => s.id === id)) id = `${id}-${Date.now()}`
-      setSpaces((prev) => [
-        ...prev,
-        {
-          id,
-          ...values,
-          zonesCount: 0,
-          sensorsCount: 1,
-          activeAlerts: 0,
-          operationalStatus: "ativo",
-        },
-      ])
-    } else if (editingId) {
-      setSpaces((prev) =>
-        prev.map((s) => (s.id === editingId ? { ...s, ...values } : s))
-      )
-    }
-    setFormOpen(false)
-  }
-
-  const handleDeactivate = () => {
-    if (!deactivateTarget) return
-    setSpaces((prev) =>
-      prev.map((s) =>
-        s.id === deactivateTarget ? { ...s, operationalStatus: "inativo" } : s
-      )
-    )
-    setDeactivateTarget(null)
-  }
-
-  const initialFormValues = editingSpace
-    ? {
-        name: editingSpace.name,
-        municipality: editingSpace.municipality,
-        postalCode: editingSpace.postalCode,
-        district: editingSpace.district,
-        lat: String(editingSpace.lat),
-        lng: String(editingSpace.lng),
-      }
-    : null
 
   return (
     <div className="flex flex-col gap-6">
@@ -139,10 +90,10 @@ export function EspacosPage() {
           <div className="flex flex-col gap-1">
             <CardTitle>Espaços</CardTitle>
             <CardDescription>
-              Pesquisa, filtros e ações por linha.
+              Pesquise e filtre os espaços registados.
             </CardDescription>
           </div>
-          <Button size="sm" onClick={openCreate}>
+          <Button size="sm" onClick={() => setCreateOpen(true)}>
             <Plus />
             Novo espaço
           </Button>
@@ -159,11 +110,7 @@ export function EspacosPage() {
             districtOptions={districtOptions}
           />
           <div className="border-t" />
-          <SpacesTable
-            spaces={pageRows}
-            onEdit={openEdit}
-            onDeactivate={(id) => setDeactivateTarget(id)}
-          />
+          <SpacesTable spaces={pageRows} />
           {filtered.length > 0 ? (
             <>
               <div className="border-t" />
@@ -184,18 +131,11 @@ export function EspacosPage() {
       </Card>
 
       <SpaceFormDialog
-        open={formOpen}
-        mode={formMode}
-        initial={initialFormValues}
-        onClose={() => setFormOpen(false)}
-        onSubmit={handleSubmit}
-      />
-
-      <DeactivateConfirm
-        open={deactivateTarget !== null}
-        spaceName={deactivateSpace?.name}
-        onCancel={() => setDeactivateTarget(null)}
-        onConfirm={handleDeactivate}
+        open={createOpen}
+        mode="create"
+        initial={null}
+        onClose={() => setCreateOpen(false)}
+        onSubmit={handleCreate}
       />
     </div>
   )
