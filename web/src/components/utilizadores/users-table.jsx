@@ -44,7 +44,7 @@ export function UsersTable({ users }) {
                   size="icon"
                   aria-label={`Ver ficha de ${user.name}`}
                 >
-                  <Link to={`/dashboard/utilizadores/${user.id}`}>
+                  <Link to={`/admin/utilizadores/${user.id}`}>
                     <Eye />
                   </Link>
                 </Button>

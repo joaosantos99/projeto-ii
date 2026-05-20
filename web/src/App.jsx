@@ -19,14 +19,14 @@ function App() {
       <Route path="/recuperar-password" element={<RecuperarPage />} />
       <Route path="/redefinir-password" element={<RedefinirPage />} />
       <Route element={<DashboardLayout />}>
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/dashboard/manutencao" element={<ManutencaoPage />} />
-        <Route path="/dashboard/utilizadores" element={<UtilizadoresPage />} />
-        <Route path="/dashboard/utilizadores/:id" element={<UtilizadorPage />} />
-        <Route path="/dashboard/conta" element={<ContaPage />} />
-        <Route path="/dashboard/relatorios" element={<RelatoriosPage />} />
-        <Route path="/dashboard/espacos" element={<EspacosPage />} />
-        <Route path="/dashboard/espacos/:id" element={<EspacoDetalhePage />} />
+        <Route path="/admin" element={<DashboardPage />} />
+        <Route path="/admin/manutencao" element={<ManutencaoPage />} />
+        <Route path="/admin/utilizadores" element={<UtilizadoresPage />} />
+        <Route path="/admin/utilizadores/:id" element={<UtilizadorPage />} />
+        <Route path="/admin/conta" element={<ContaPage />} />
+        <Route path="/admin/relatorios" element={<RelatoriosPage />} />
+        <Route path="/admin/espacos" element={<EspacosPage />} />
+        <Route path="/admin/espacos/:id" element={<EspacoDetalhePage />} />
       </Route>
     </Routes>
   )

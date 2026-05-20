@@ -56,7 +56,7 @@ export function UtilizadorPage() {
   }
 
   const handleDelete = () => {
-    navigate("/dashboard/utilizadores")
+    navigate("/admin/utilizadores")
   }
 
   return (

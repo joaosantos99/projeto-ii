@@ -13,14 +13,14 @@ import {
 } from "@phosphor-icons/react"
 
 const navItems = [
-  { title: "Visão geral", to: "/dashboard", icon: SquaresFour },
-  { title: "Alertas", to: "/dashboard/alertas", icon: Warning },
-  { title: "Espaços", to: "/dashboard/espacos", icon: Tree },
-  { title: "Manutenção", to: "/dashboard/manutencao", icon: Clipboard },
-  { title: "Sensores", to: "/dashboard/sensores", icon: SlidersHorizontal },
-  { title: "Utilizadores", to: "/dashboard/utilizadores", icon: Users },
-  { title: "Relatorios", to: "/dashboard/relatorios", icon: ChartBar },
-  { title: "Roles", to: "/dashboard/roles", icon: ShieldCheck },
+  { title: "Visão geral", to: "/admin", icon: SquaresFour },
+  { title: "Alertas", to: "/admin/alertas", icon: Warning },
+  { title: "Espaços", to: "/admin/espacos", icon: Tree },
+  { title: "Manutenção", to: "/admin/manutencao", icon: Clipboard },
+  { title: "Sensores", to: "/admin/sensores", icon: SlidersHorizontal },
+  { title: "Utilizadores", to: "/admin/utilizadores", icon: Users },
+  { title: "Relatorios", to: "/admin/relatorios", icon: ChartBar },
+  { title: "Roles", to: "/admin/roles", icon: ShieldCheck },
 ]
 
 const user = {
@@ -48,7 +48,7 @@ export function AppSidebar() {
             <li key={to}>
               <NavLink
                 to={to}
-                end={to === "/dashboard"}
+                end={to === "/admin"}
                 className={({ isActive }) =>
                   [
                     "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
@@ -68,7 +68,7 @@ export function AppSidebar() {
 
       <div className="border-t border-sidebar-border px-3 py-3">
         <NavLink
-          to="/dashboard/conta"
+          to="/admin/conta"
           className={({ isActive }) =>
             [
               "flex w-full items-center gap-3 rounded-md px-2 py-2 text-sm transition-colors",

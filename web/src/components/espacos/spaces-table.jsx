@@ -62,7 +62,7 @@ export function SpacesTable({ spaces }) {
                   size="icon"
                   aria-label={`Ver ficha de ${space.name}`}
                 >
-                  <Link to={`/dashboard/espacos/${space.id}`}>
+                  <Link to={`/admin/espacos/${space.id}`}>
                     <Eye />
                   </Link>
                 </Button>

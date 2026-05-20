@@ -10,7 +10,7 @@ export function NotFoundCard() {
           Não foi possível obter o registo solicitado.
         </p>
         <Button asChild size="sm">
-          <Link to="/dashboard/utilizadores">Voltar à lista</Link>
+          <Link to="/admin/utilizadores">Voltar à lista</Link>
         </Button>
       </div>
     </div>

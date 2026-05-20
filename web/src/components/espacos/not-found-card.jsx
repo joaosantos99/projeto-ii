@@ -19,7 +19,7 @@ export function NotFoundCard() {
       </CardHeader>
       <CardContent>
         <Button asChild>
-          <Link to="/dashboard/espacos">Voltar à lista</Link>
+          <Link to="/admin/espacos">Voltar à lista</Link>
         </Button>
       </CardContent>
     </Card>
