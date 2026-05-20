@@ -1,3 +1,5 @@
+'use client'
+
 import { CalendarCheck, UserCheck, UserMinus, Users } from "@phosphor-icons/react"
 import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card"
 

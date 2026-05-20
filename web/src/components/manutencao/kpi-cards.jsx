@@ -1,3 +1,5 @@
+'use client'
+
 import { Warning, Clock, Wrench } from "@phosphor-icons/react"
 import { Badge } from "#/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card"

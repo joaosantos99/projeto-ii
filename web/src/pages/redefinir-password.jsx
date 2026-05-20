@@ -1,3 +1,5 @@
+'use client'
+
 import { useSearchParams } from "react-router-dom"
 
 import { AuthLayout } from "#/components/auth-layout"

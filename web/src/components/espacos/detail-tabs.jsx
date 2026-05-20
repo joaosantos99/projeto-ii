@@ -1,3 +1,5 @@
+'use client'
+
 export function DetailTabs({ tabs, active, onChange }) {
   return (
     <div className="flex flex-wrap gap-1 rounded-md bg-muted/40 p-1">

@@ -1,3 +1,5 @@
+'use client'
+
 import { CaretLeft, CaretRight } from "@phosphor-icons/react"
 import { Button } from "#/components/ui/button"
 

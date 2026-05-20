@@ -1,3 +1,5 @@
+'use client'
+
 import { Warning, WarningCircle, Broadcast, Gauge } from "@phosphor-icons/react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#/components/ui/card"
 

@@ -1,3 +1,5 @@
+'use client'
+
 import { MapPin } from "@phosphor-icons/react"
 import {
   Card,

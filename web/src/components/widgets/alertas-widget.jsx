@@ -1,3 +1,5 @@
+'use client'
+
 import { useState, useMemo } from "react"
 import { Alarm, CheckCircle } from "@phosphor-icons/react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#/components/ui/card"

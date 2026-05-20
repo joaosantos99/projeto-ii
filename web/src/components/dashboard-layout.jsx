@@ -1,3 +1,5 @@
+'use client'
+
 import { useState } from "react"
 import { Outlet } from "react-router-dom"
 import { SidebarSimple } from "@phosphor-icons/react"

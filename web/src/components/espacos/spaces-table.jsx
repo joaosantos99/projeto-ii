@@ -1,3 +1,5 @@
+'use client'
+
 import { Link } from "react-router-dom"
 import { Eye } from "@phosphor-icons/react"
 import { Badge } from "#/components/ui/badge"

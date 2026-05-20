@@ -1,3 +1,5 @@
+'use client'
+
 import { useEffect } from "react"
 import { useOutletContext } from "react-router-dom"
 import { ProfileFormCard } from "#/components/conta/profile-form-card"

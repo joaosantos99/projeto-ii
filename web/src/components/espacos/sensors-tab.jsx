@@ -1,3 +1,5 @@
+'use client'
+
 import { Broadcast, Plus } from "@phosphor-icons/react"
 import { Badge } from "#/components/ui/badge"
 import { Button } from "#/components/ui/button"

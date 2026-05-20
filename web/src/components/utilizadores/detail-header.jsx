@@ -1,3 +1,5 @@
+'use client'
+
 import { getInitials } from "#/lib/format-date"
 
 export function DetailHeader({ name, email }) {

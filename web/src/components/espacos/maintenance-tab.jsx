@@ -1,3 +1,5 @@
+'use client'
+
 import { Wrench } from "@phosphor-icons/react"
 import { Badge } from "#/components/ui/badge"
 import {

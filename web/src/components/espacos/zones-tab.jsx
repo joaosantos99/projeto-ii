@@ -1,3 +1,5 @@
+'use client'
+
 import { Plus, Trash, Tree } from "@phosphor-icons/react"
 import { Button } from "#/components/ui/button"
 import {

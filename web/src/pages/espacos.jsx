@@ -1,3 +1,5 @@
+'use client'
+
 import { useEffect, useMemo, useState } from "react"
 import { useOutletContext } from "react-router-dom"
 import { Plus } from "@phosphor-icons/react"

@@ -1,3 +1,5 @@
+'use client'
+
 import { useState } from "react"
 import { Button } from "#/components/ui/button"
 import { Field, FieldGroup, FieldLabel } from "#/components/ui/field"

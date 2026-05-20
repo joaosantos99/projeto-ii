@@ -1,3 +1,5 @@
+'use client'
+
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { Button } from "#/components/ui/button"
@@ -5,13 +7,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#/com
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "#/components/ui/field"
 import { Input } from "#/components/ui/input"
 import { api } from "#/lib/api"
-import { setCookie } from "#/lib/cookies"
+import { useAuth } from "#/hooks/use-auth"
 import { cn } from "#/lib/utils"
-
-const SESSION_MAX_AGE = 7 * 24 * 60 * 60
 
 export function LoginForm({ className, ...props }) {
   const navigate = useNavigate()
+  const { login } = useAuth()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
@@ -23,8 +24,7 @@ export function LoginForm({ className, ...props }) {
     setSubmitting(true)
     try {
       const { data } = await api.post("/auth/login", { email, password })
-      setCookie("token", data.token, SESSION_MAX_AGE)
-      localStorage.setItem("user", JSON.stringify(data.user))
+      login(data.token, data.user)
       navigate("/admin")
     } catch (err) {
       setError(err.response?.data?.description ?? "Erro ao iniciar sessão.")
