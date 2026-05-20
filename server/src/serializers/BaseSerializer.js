@@ -10,11 +10,11 @@ class BaseSerializer {
    * @param {Array} plainData - The list of items to serialize.
    * @returns {Array} The serialized list of items.
    */
-  static serialize(plainData) {
+  static serialize(plainData, extraData) {
     if (Array.isArray(plainData)) {
-      return plainData.map((item) => this.serializeOne(item));
+      return plainData.map((item) => this.serializeOne(item, extraData));
     }
-    return this.serializeOne(plainData);
+    return this.serializeOne(plainData, extraData);
   }
 
   /**

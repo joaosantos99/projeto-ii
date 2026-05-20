@@ -19,34 +19,36 @@ function KpiCard({ label, value, icon, hint }) {
   )
 }
 
-export function KpiCards({ spaces, districtCount }) {
-  const totalZones = spaces.reduce((acc, s) => acc + s.zonesCount, 0)
-  const activeCount = spaces.filter((s) => s.operationalStatus === "ativo").length
+export function KpiCards({ summary }) {
+  const spacesCount = summary?.spacesCount ?? 0
+  const zonesCount = summary?.zonesCount ?? 0
+  const activeCount = summary?.activeCount ?? 0
+  const districtsCount = summary?.districtsCount ?? 0
 
   return (
     <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
       <KpiCard
         label="Espaços registados"
-        value={spaces.length}
+        value={spacesCount}
         icon={<MapPin className="size-4 text-chart-1" aria-hidden />}
-        hint="Inclui novos rascunhos locais"
+        hint="Total na plataforma"
       />
       <KpiCard
         label="Zonas mapeadas"
-        value={totalZones}
+        value={zonesCount}
         icon={<Tree className="size-4 text-muted-foreground" aria-hidden />}
         hint="Subdivisões por espaço"
       />
       <KpiCard
-        label="Ativos"
+        label="Sensores ativos"
         value={activeCount}
         icon={<Badge variant="secondary">{activeCount}</Badge>}
-        hint="Estado operacional normal"
+        hint="A reportar dados"
       />
       <KpiCard
-        label="Distritos"
-        value={districtCount}
-        icon={<Badge variant="outline">{districtCount}</Badge>}
+        label="Cidades"
+        value={districtsCount}
+        icon={<Badge variant="outline">{districtsCount}</Badge>}
         hint="Cobertura geográfica"
       />
     </section>

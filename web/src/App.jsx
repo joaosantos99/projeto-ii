@@ -20,9 +20,10 @@ import "#/styles.css"
 const isBrowser = typeof window !== "undefined"
 
 export default function App({ initialUser = null, initialUrl = "/" }) {
-  const initialStatus = initialUser ? "authenticated" : "anonymous"
+  const initialStatus = initialUser ? "authenticated" : null
   const Router = isBrowser ? BrowserRouter : StaticRouter
   const routerProps = isBrowser ? {} : { location: initialUrl }
+
   return (
     <Router {...routerProps}>
       <AuthProvider initialUser={initialUser} initialStatus={initialStatus}>

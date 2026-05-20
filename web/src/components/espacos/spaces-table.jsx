@@ -2,15 +2,7 @@
 
 import { Link } from "react-router-dom"
 import { Eye } from "@phosphor-icons/react"
-import { Badge } from "#/components/ui/badge"
 import { Button } from "#/components/ui/button"
-import { operationalStatusLabels } from "#/data/espacos"
-
-function statusBadgeVariant(status) {
-  if (status === "inativo") return "destructive"
-  if (status === "em_manutencao") return "outline"
-  return "secondary"
-}
 
 export function SpacesTable({ spaces }) {
   if (spaces.length === 0) {
@@ -31,7 +23,6 @@ export function SpacesTable({ spaces }) {
             <th className="px-3 py-2 text-right font-medium">Zonas</th>
             <th className="px-3 py-2 text-right font-medium">Sensores</th>
             <th className="px-3 py-2 text-right font-medium">Alertas ativos</th>
-            <th className="px-3 py-2 font-medium">Estado</th>
             <th className="w-12 px-3 py-2 text-right font-medium">
               <span className="sr-only">Ver detalhe</span>
             </th>
@@ -44,19 +35,14 @@ export function SpacesTable({ spaces }) {
                 <div className="flex flex-col gap-0.5">
                   <p className="font-medium">{space.name}</p>
                   <p className="text-xs text-muted-foreground">
-                    {space.district} · {space.postalCode}
+                    {space.postalCode}
                   </p>
                 </div>
               </td>
-              <td className="px-3 py-2">{space.municipality}</td>
+              <td className="px-3 py-2">{space.city}</td>
               <td className="px-3 py-2 text-right tabular-nums">{space.zonesCount}</td>
               <td className="px-3 py-2 text-right tabular-nums">{space.sensorsCount}</td>
               <td className="px-3 py-2 text-right tabular-nums">{space.activeAlerts}</td>
-              <td className="px-3 py-2">
-                <Badge variant={statusBadgeVariant(space.operationalStatus)}>
-                  {operationalStatusLabels[space.operationalStatus]}
-                </Badge>
-              </td>
               <td className="px-3 py-2 text-right">
                 <Button
                   asChild

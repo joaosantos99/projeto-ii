@@ -7,11 +7,10 @@ import { Input } from "#/components/ui/input"
 
 const emptyForm = {
   name: "",
-  municipality: "",
+  city: "",
   postalCode: "",
-  district: "",
-  lat: "40.2",
-  lng: "-8.4",
+  latitude: "40.2",
+  longitude: "-8.4",
 }
 
 export function SpaceFormDialog({ open, mode, initial, onClose, onSubmit }) {
@@ -29,17 +28,16 @@ export function SpaceFormDialog({ open, mode, initial, onClose, onSubmit }) {
     setForm((prev) => ({ ...prev, [field]: event.target.value }))
 
   const handleSubmit = () => {
-    if (!form.name.trim() || !form.municipality.trim() || !form.district.trim()) return
-    const lat = Number.parseFloat(form.lat.replace(",", "."))
-    const lng = Number.parseFloat(form.lng.replace(",", "."))
-    if (Number.isNaN(lat) || Number.isNaN(lng)) return
+    if (!form.name.trim() || !form.city.trim()) return
+    const latitude = Number.parseFloat(String(form.latitude).replace(",", "."))
+    const longitude = Number.parseFloat(String(form.longitude).replace(",", "."))
+    if (Number.isNaN(latitude) || Number.isNaN(longitude)) return
     onSubmit({
       name: form.name.trim(),
-      municipality: form.municipality.trim(),
+      city: form.city.trim(),
       postalCode: form.postalCode.trim() || "0000-000",
-      district: form.district.trim(),
-      lat,
-      lng,
+      latitude,
+      longitude,
     })
   }
 
@@ -73,26 +71,20 @@ export function SpaceFormDialog({ open, mode, initial, onClose, onSubmit }) {
           </Field>
           <Field>
             <FieldLabel htmlFor="esp-city">Cidade</FieldLabel>
-            <Input id="esp-city" value={form.municipality} onChange={update("municipality")} />
+            <Input id="esp-city" value={form.city} onChange={update("city")} />
           </Field>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            <Field>
-              <FieldLabel htmlFor="esp-postal">Código postal</FieldLabel>
-              <Input id="esp-postal" value={form.postalCode} onChange={update("postalCode")} />
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="esp-district">Distrito</FieldLabel>
-              <Input id="esp-district" value={form.district} onChange={update("district")} />
-            </Field>
-          </div>
+          <Field>
+            <FieldLabel htmlFor="esp-postal">Código postal</FieldLabel>
+            <Input id="esp-postal" value={form.postalCode} onChange={update("postalCode")} />
+          </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field>
               <FieldLabel htmlFor="esp-lat">Latitude</FieldLabel>
-              <Input id="esp-lat" inputMode="decimal" value={form.lat} onChange={update("lat")} />
+              <Input id="esp-lat" inputMode="decimal" value={form.latitude} onChange={update("latitude")} />
             </Field>
             <Field>
               <FieldLabel htmlFor="esp-lng">Longitude</FieldLabel>
-              <Input id="esp-lng" inputMode="decimal" value={form.lng} onChange={update("lng")} />
+              <Input id="esp-lng" inputMode="decimal" value={form.longitude} onChange={update("longitude")} />
             </Field>
           </div>
         </FieldGroup>

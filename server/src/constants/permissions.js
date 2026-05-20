@@ -13,4 +13,8 @@ export const PERMISSIONS = Object.freeze({
 
   REPORTS_READ: 'reports:read',
   REPORTS_CREATE: 'reports:create',
+
+  SPACES_READ: 'spaces:read',
+  SPACES_CREATE: 'spaces:create',
+  SPACES_UPDATE: 'spaces:update',
 });

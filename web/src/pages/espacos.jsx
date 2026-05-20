@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 import { useOutletContext } from "react-router-dom"
 import { Plus } from "@phosphor-icons/react"
 
@@ -17,75 +17,71 @@ import { FiltersBar } from "#/components/espacos/filters-bar"
 import { SpacesTable } from "#/components/espacos/spaces-table"
 import { SpacesPagination } from "#/components/espacos/spaces-pagination"
 import { SpaceFormDialog } from "#/components/espacos/space-form-dialog"
-import {
-  ROWS_PER_PAGE,
-  paginateSpaces,
-  slugFromName,
-  spacesSeed,
-} from "#/data/espacos"
+import { PER_PAGE } from "#/components/ui/pagination"
+import { api } from "#/lib/api"
 
 export function EspacosPage() {
   const { setTitle } = useOutletContext()
-  const [spaces, setSpaces] = useState(spacesSeed)
+  const [spaces, setSpaces] = useState([])
+  const [pagination, setPagination] = useState({
+    page: 1,
+    perPage: PER_PAGE,
+    total: 0,
+    totalPages: 1,
+  })
+  const [loading, setLoading] = useState(true)
   const [query, setQuery] = useState("")
-  const [districtFilter, setDistrictFilter] = useState("todos")
-  const [statusFilter, setStatusFilter] = useState("todos")
   const [page, setPage] = useState(1)
   const [createOpen, setCreateOpen] = useState(false)
+  const [summary, setSummary] = useState(null)
+  const [refresh, setRefresh] = useState(0)
 
   useEffect(() => {
     setTitle("Espaços verdes")
   }, [setTitle])
 
   useEffect(() => {
+    api.get("/spaces/summary")
+      .then((res) => setSummary(res.data))
+      .catch(() => setSummary(null))
+  }, [refresh])
+
+  useEffect(() => {
+    setLoading(true)
+    const params = {
+      page,
+      perPage: PER_PAGE,
+      ...(query && { query }),
+    }
+    api.get("/spaces", { params })
+      .then((res) => {
+        setSpaces(res.data.spaces)
+        setPagination(res.data.pagination)
+      })
+      .catch(() => {
+        setSpaces([])
+        setPagination({ page: 1, perPage: PER_PAGE, total: 0, totalPages: 1 })
+      })
+      .finally(() => setLoading(false))
+  }, [page, query, refresh])
+
+  useEffect(() => {
     setPage(1)
-  }, [query, districtFilter, statusFilter])
-
-  const districtOptions = useMemo(
-    () => Array.from(new Set(spaces.map((s) => s.district))).sort(),
-    [spaces]
-  )
-
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase()
-    return spaces.filter((space) => {
-      const matchesQuery =
-        !q ||
-        space.name.toLowerCase().includes(q) ||
-        space.municipality.toLowerCase().includes(q) ||
-        space.district.toLowerCase().includes(q)
-      const matchesDistrict =
-        districtFilter === "todos" || space.district === districtFilter
-      const matchesStatus =
-        statusFilter === "todos" || space.operationalStatus === statusFilter
-      return matchesQuery && matchesDistrict && matchesStatus
-    })
-  }, [spaces, query, districtFilter, statusFilter])
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / ROWS_PER_PAGE))
-  const currentPage = Math.min(page, totalPages)
-  const pageRows = paginateSpaces(filtered, currentPage)
+  }, [query])
 
   const handleCreate = (values) => {
-    let id = slugFromName(values.name)
-    if (spaces.some((s) => s.id === id)) id = `${id}-${Date.now()}`
-    setSpaces((prev) => [
-      ...prev,
-      {
-        id,
-        ...values,
-        zonesCount: 0,
-        sensorsCount: 1,
-        activeAlerts: 0,
-        operationalStatus: "ativo",
-      },
-    ])
-    setCreateOpen(false)
+    api.post("/spaces", values)
+      .then(() => {
+        setRefresh((n) => n + 1)
+        setPage(1)
+        setCreateOpen(false)
+      })
+      .catch(() => {})
   }
 
   return (
     <div className="flex flex-col gap-6">
-      <KpiCards spaces={spaces} districtCount={districtOptions.length} />
+      <KpiCards summary={summary} />
 
       <Card>
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -102,33 +98,31 @@ export function EspacosPage() {
         </CardHeader>
 
         <CardContent className="flex flex-col gap-4">
-          <FiltersBar
-            query={query}
-            onQueryChange={setQuery}
-            districtFilter={districtFilter}
-            onDistrictFilterChange={setDistrictFilter}
-            statusFilter={statusFilter}
-            onStatusFilterChange={setStatusFilter}
-            districtOptions={districtOptions}
-          />
+          <FiltersBar query={query} onQueryChange={setQuery} />
           <div className="border-t" />
-          <SpacesTable spaces={pageRows} />
-          {filtered.length > 0 ? (
+          {loading ? (
+            <p className="text-sm text-muted-foreground">A carregar...</p>
+          ) : (
             <>
-              <div className="border-t" />
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-xs text-muted-foreground">
-                  {filtered.length} de {spaces.length} espaço(s) — página{" "}
-                  {currentPage} de {totalPages}
-                </p>
-                <SpacesPagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  onPageChange={setPage}
-                />
-              </div>
+              <SpacesTable spaces={spaces} />
+              {pagination.total > 0 ? (
+                <>
+                  <div className="border-t" />
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <p className="text-xs text-muted-foreground">
+                      {pagination.total} espaço(s) — página{" "}
+                      {pagination.page} de {pagination.totalPages}
+                    </p>
+                    <SpacesPagination
+                      currentPage={pagination.page}
+                      totalPages={pagination.totalPages}
+                      onPageChange={setPage}
+                    />
+                  </div>
+                </>
+              ) : null}
             </>
-          ) : null}
+          )}
         </CardContent>
       </Card>
 

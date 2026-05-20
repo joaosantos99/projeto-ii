@@ -1,5 +1,4 @@
-const API_TARGET = process.env.API_URL || "http://localhost:3000"
-
+const API_TARGET = import.meta.env.VITE_API_URL || process.env.VITE_API_URL
 const AUTH_ROUTES = ["/login", "/recuperar-password", "/redefinir-password"]
 
 function readToken(cookieHeader) {
