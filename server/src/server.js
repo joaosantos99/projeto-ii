@@ -6,6 +6,8 @@ import env from './env.js';
 
 import usersRouter from './routers/users.js'
 import spacesRouter from './routers/spaces.js'
+import reportsRouter from './routers/reports.js'
+import sensorsRouter from './routers/sensors.js'
 
 const app = express();
 app.use(cors());
@@ -15,6 +17,11 @@ const apiRouter = Router();
 app.use('/api', apiRouter);
 apiRouter.use('/users', usersRouter);
 apiRouter.use('/spaces', spacesRouter);
+apiRouter.use('/reports', reportsRouter);
+apiRouter.use('/sensors', sensorsRouter);
+apiRouter.use('/alerts', alertsRouter);
+apiRouter.use('/maintenance', maintenanceRouter);
+apiRouter.use('/dashboard', dashboardRouter);
 
 apiRouter.get('/health', (req, res) => {
   res.set('Content-Type', 'application/json');
