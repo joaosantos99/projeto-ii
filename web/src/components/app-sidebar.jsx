@@ -13,6 +13,7 @@ import {
   Tree,
   CaretUpDown,
 } from "@phosphor-icons/react"
+import { useAuth } from "#/hooks/use-auth"
 
 const navItems = [
   { title: "Visão geral", to: "/admin", icon: SquaresFour },
@@ -25,13 +26,23 @@ const navItems = [
   { title: "Roles", to: "/admin/roles", icon: ShieldCheck },
 ]
 
-const user = {
-  name: "Paulo Portas",
-  email: "paulo@vilaverde.pt",
-  initials: "PP",
+function getInitials(name) {
+  if (!name) return "?"
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0].toUpperCase())
+    .join("")
 }
 
 export function AppSidebar() {
+  const { user } = useAuth()
+
+  const name = user?.fullName
+  const email = user?.email
+  const initials = getInitials(user?.fullName)
+
   return (
     <aside className="flex h-svh w-60 shrink-0 flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border">
       <div className="flex items-center gap-3 px-4 py-5">
@@ -81,11 +92,11 @@ export function AppSidebar() {
           }
         >
           <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-sidebar-primary text-sidebar-primary-foreground text-xs font-semibold">
-            {user.initials}
+            {initials}
           </div>
           <div className="flex flex-1 flex-col text-left leading-tight min-w-0">
-            <span className="truncate text-sm font-medium text-sidebar-foreground">{user.name}</span>
-            <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+            <span className="truncate text-sm font-medium text-sidebar-foreground">{name}</span>
+            <span className="truncate text-xs text-muted-foreground">{email}</span>
           </div>
           <CaretUpDown className="size-4 shrink-0 text-muted-foreground" />
         </NavLink>
