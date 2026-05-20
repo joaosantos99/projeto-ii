@@ -8,6 +8,7 @@ import { ManutencaoPage } from "#/pages/manutencao"
 import { UtilizadoresPage } from "#/pages/utilizadores"
 import { UtilizadorPage } from "#/pages/utilizador"
 import { ContaPage } from "#/pages/conta"
+import { RelatoriosPage } from "#/pages/relatorios"
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/dashboard/utilizadores" element={<UtilizadoresPage />} />
         <Route path="/dashboard/utilizadores/:id" element={<UtilizadorPage />} />
         <Route path="/dashboard/conta" element={<ContaPage />} />
+        <Route path="/dashboard/relatorios" element={<RelatoriosPage />} />
       </Route>
     </Routes>
   )
