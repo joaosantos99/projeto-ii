@@ -6,24 +6,7 @@ import {
   Clock,
   Stack,
 } from "@phosphor-icons/react"
-import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card"
-
-function KpiCard({ label, value, icon, hint, valueClassName }) {
-  return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
-        <CardTitle className="text-sm text-muted-foreground">{label}</CardTitle>
-        {icon}
-      </CardHeader>
-      <CardContent>
-        <p className={`text-2xl font-semibold tabular-nums ${valueClassName ?? ""}`}>
-          {value}
-        </p>
-        <p className="text-xs text-muted-foreground">{hint}</p>
-      </CardContent>
-    </Card>
-  )
-}
+import { KpiCard, KpiCardGrid } from "#/components/ui/kpi-card"
 
 export function KpiCards({ reports }) {
   const generatedCount = reports.filter((r) => r.status === "gerado").length
@@ -34,7 +17,7 @@ export function KpiCards({ reports }) {
   )
 
   return (
-    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <KpiCardGrid>
       <KpiCard
         label="Total no histórico"
         value={reports.length}
@@ -61,6 +44,6 @@ export function KpiCards({ reports }) {
         hint="Registo mais recente"
         valueClassName="text-lg leading-tight"
       />
-    </section>
+    </KpiCardGrid>
   )
 }

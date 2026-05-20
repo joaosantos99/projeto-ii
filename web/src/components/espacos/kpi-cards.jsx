@@ -2,22 +2,7 @@
 
 import { MapPin, Tree } from "@phosphor-icons/react"
 import { Badge } from "#/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card"
-
-function KpiCard({ label, value, icon, hint }) {
-  return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
-        <CardTitle className="text-sm text-muted-foreground">{label}</CardTitle>
-        {icon}
-      </CardHeader>
-      <CardContent>
-        <p className="text-2xl font-semibold tabular-nums">{value}</p>
-        <p className="text-xs text-muted-foreground">{hint}</p>
-      </CardContent>
-    </Card>
-  )
-}
+import { KpiCard, KpiCardGrid } from "#/components/ui/kpi-card"
 
 export function KpiCards({ summary }) {
   const spacesCount = summary?.spacesCount ?? 0
@@ -26,7 +11,7 @@ export function KpiCards({ summary }) {
   const districtsCount = summary?.districtsCount ?? 0
 
   return (
-    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <KpiCardGrid>
       <KpiCard
         label="Espaços registados"
         value={spacesCount}
@@ -51,6 +36,6 @@ export function KpiCards({ summary }) {
         icon={<Badge variant="outline">{districtsCount}</Badge>}
         hint="Cobertura geográfica"
       />
-    </section>
+    </KpiCardGrid>
   )
 }

@@ -2,22 +2,7 @@
 
 import { Warning, Clock, Wrench } from "@phosphor-icons/react"
 import { Badge } from "#/components/ui/badge"
-import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card"
-
-function KpiCard({ label, value, icon, hint, valueClassName }) {
-  return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between gap-2 pb-2">
-        <CardTitle className="text-sm text-muted-foreground">{label}</CardTitle>
-        {icon}
-      </CardHeader>
-      <CardContent>
-        <p className={`text-2xl font-semibold tabular-nums ${valueClassName ?? ""}`}>{value}</p>
-        <p className="text-xs text-muted-foreground">{hint}</p>
-      </CardContent>
-    </Card>
-  )
-}
+import { KpiCard, KpiCardGrid } from "#/components/ui/kpi-card"
 
 export function KpiCards({ tasks }) {
   const pendingCount = tasks.filter((t) => t.status === "pendente").length
@@ -28,7 +13,7 @@ export function KpiCards({ tasks }) {
   ).length
 
   return (
-    <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <KpiCardGrid>
       <KpiCard
         label="Pendentes"
         value={pendingCount}
@@ -54,6 +39,6 @@ export function KpiCards({ tasks }) {
         icon={<Warning className="size-4 text-muted-foreground" aria-hidden />}
         hint="Com prazo anterior a hoje"
       />
-    </section>
+    </KpiCardGrid>
   )
 }
