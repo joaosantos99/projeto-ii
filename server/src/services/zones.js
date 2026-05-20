@@ -10,14 +10,9 @@ class ZonesService {
    */
   static async getZones(spaceId) {
     const zones = await GreenSpaceZones.findAll({
-      where: { space_id: spaceId }
+      where: { green_spaces_id: spaceId },
+      order: [['created_at', 'ASC']],
     });
-
-    if (!zones) {
-      const error = new Error('No zones found');
-      error.statusCode = 404;
-      throw error;
-    }
 
     return zones;
   }

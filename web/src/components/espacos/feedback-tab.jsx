@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from "react"
 import { ChatCircle, Trash } from "@phosphor-icons/react"
 import { Button } from "#/components/ui/button"
 import {
@@ -10,7 +11,13 @@ import {
   CardTitle,
 } from "#/components/ui/card"
 
-export function FeedbackTab({ feedback, onRemove }) {
+export function FeedbackTab() {
+  const [feedback, setFeedback] = useState([])
+
+  const handleRemove = (id) => {
+    setFeedback((prev) => prev.filter((item) => item.id !== id))
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -47,7 +54,7 @@ export function FeedbackTab({ feedback, onRemove }) {
                 variant="outline"
                 size="sm"
                 className="shrink-0"
-                onClick={() => onRemove(item.id)}
+                onClick={() => handleRemove(item.id)}
               >
                 <Trash />
                 Eliminar

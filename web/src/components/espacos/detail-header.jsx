@@ -1,15 +1,9 @@
 'use client'
 
 import { Badge } from "#/components/ui/badge"
-import { operationalStatusLabels, severityLabels } from "#/data/espacos"
-
-function severityVariant(status) {
-  if (status === "critical") return "destructive"
-  if (status === "warning") return "outline"
-  return "secondary"
-}
 
 export function DetailHeader({ space }) {
+  if (!space) return null
   return (
     <div className="flex flex-col gap-3 border-b pb-4 md:flex-row md:items-center md:justify-between">
       <div className="flex flex-col gap-2">
@@ -17,15 +11,10 @@ export function DetailHeader({ space }) {
           <h1 className="text-xl font-semibold tracking-tight md:text-2xl">
             {space.name}
           </h1>
-          <Badge variant={severityVariant(space.status)}>
-            {severityLabels[space.status]}
-          </Badge>
-          <Badge variant="outline">
-            {operationalStatusLabels[space.operationalStatus]}
-          </Badge>
+          <Badge variant="outline">{space.city}</Badge>
         </div>
         <p className="text-xs text-muted-foreground">
-          {space.municipality} · {space.district} · {space.areaHa} ha
+          {space.city} · {space.postal_code}
         </p>
       </div>
     </div>

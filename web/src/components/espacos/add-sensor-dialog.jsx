@@ -5,33 +5,48 @@ import { Button } from "#/components/ui/button"
 import { Field, FieldGroup, FieldLabel } from "#/components/ui/field"
 import { Input } from "#/components/ui/input"
 import { selectClass } from "#/data/manutencao"
-import {
-  SENSOR_TYPE_OPTIONS,
-  sensorStatusOptions,
-} from "#/data/espacos"
+import { SENSOR_TYPE_OPTIONS } from "#/data/espacos"
 
 export function AddSensorDialog({ open, spaceName, zones, onClose, onSubmit }) {
-  const [zone, setZone] = useState("")
+  const [zoneId, setZoneId] = useState("")
   const [type, setType] = useState(SENSOR_TYPE_OPTIONS[0])
-  const [battery, setBattery] = useState("100")
-  const [status, setStatus] = useState("online")
+  const [parameter, setParameter] = useState("")
+  const [minValue, setMinValue] = useState("0")
+  const [maxValue, setMaxValue] = useState("100")
+  const [isActive, setIsActive] = useState(true)
+  const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
     if (open) {
-      setZone(zones[0]?.name ?? "")
+      setZoneId(zones[0]?.id ?? "")
       setType(SENSOR_TYPE_OPTIONS[0])
-      setBattery("100")
-      setStatus("online")
+      setParameter("")
+      setMinValue("0")
+      setMaxValue("100")
+      setIsActive(true)
+      setSubmitting(false)
     }
   }, [open, zones])
 
   if (!open) return null
 
-  const handleSubmit = () => {
-    if (!zone) return
-    const parsed = Number.parseInt(battery, 10)
-    const clamped = Math.max(0, Math.min(100, Number.isNaN(parsed) ? 0 : parsed))
-    onSubmit({ zone, type, battery: clamped, status })
+  const handleSubmit = async () => {
+    if (!zoneId) return
+    const min = Number.parseFloat(minValue)
+    const max = Number.parseFloat(maxValue)
+    setSubmitting(true)
+    try {
+      await onSubmit({
+        zoneId,
+        type,
+        parameter: parameter.trim() || type,
+        minValue: Number.isNaN(min) ? 0 : min,
+        maxValue: Number.isNaN(max) ? 0 : max,
+        isActive,
+      })
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   const noZones = zones.length === 0
@@ -48,8 +63,7 @@ export function AddSensorDialog({ open, spaceName, zones, onClose, onSubmit }) {
         <div className="flex flex-col gap-1">
           <h2 className="text-sm font-semibold">Adicionar sensor</h2>
           <p className="text-xs text-muted-foreground">
-            Novo sensor em {spaceName}. O ID é gerado automaticamente; a última
-            leitura reflete a data atual.
+            Novo sensor em {spaceName}.
           </p>
         </div>
         <FieldGroup className="gap-3">
@@ -58,15 +72,15 @@ export function AddSensorDialog({ open, spaceName, zones, onClose, onSubmit }) {
             <select
               id="sensor-zone"
               className={selectClass}
-              value={zone}
-              onChange={(event) => setZone(event.target.value)}
+              value={zoneId}
+              onChange={(event) => setZoneId(event.target.value)}
               disabled={noZones}
             >
               {noZones ? (
                 <option value="">Adicione uma zona primeiro</option>
               ) : (
                 zones.map((z) => (
-                  <option key={z.id} value={z.name}>
+                  <option key={z.id} value={z.id}>
                     {z.name}
                   </option>
                 ))
@@ -88,39 +102,54 @@ export function AddSensorDialog({ open, spaceName, zones, onClose, onSubmit }) {
               ))}
             </select>
           </Field>
+          <Field>
+            <FieldLabel htmlFor="sensor-parameter">Parâmetro</FieldLabel>
+            <Input
+              id="sensor-parameter"
+              value={parameter}
+              onChange={(event) => setParameter(event.target.value)}
+              placeholder="Ex.: humidade_solo"
+            />
+          </Field>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <Field>
-              <FieldLabel htmlFor="sensor-battery">Bateria (%)</FieldLabel>
+              <FieldLabel htmlFor="sensor-min">Valor mín.</FieldLabel>
               <Input
-                id="sensor-battery"
+                id="sensor-min"
                 inputMode="numeric"
-                value={battery}
-                onChange={(event) => setBattery(event.target.value)}
+                value={minValue}
+                onChange={(event) => setMinValue(event.target.value)}
               />
             </Field>
             <Field>
-              <FieldLabel htmlFor="sensor-status">Estado inicial</FieldLabel>
-              <select
-                id="sensor-status"
-                className={selectClass}
-                value={status}
-                onChange={(event) => setStatus(event.target.value)}
-              >
-                {sensorStatusOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+              <FieldLabel htmlFor="sensor-max">Valor máx.</FieldLabel>
+              <Input
+                id="sensor-max"
+                inputMode="numeric"
+                value={maxValue}
+                onChange={(event) => setMaxValue(event.target.value)}
+              />
             </Field>
           </div>
+          <Field>
+            <FieldLabel htmlFor="sensor-active">Estado</FieldLabel>
+            <select
+              id="sensor-active"
+              className={selectClass}
+              value={isActive ? "true" : "false"}
+              onChange={(event) => setIsActive(event.target.value === "true")}
+            >
+              <option value="true">Ativo</option>
+              <option value="false">Inativo</option>
+            </select>
+          </Field>
         </FieldGroup>
         <div className="flex items-center justify-end gap-2 pt-2">
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={onClose} disabled={submitting}>
             Cancelar
           </Button>
-          <Button onClick={handleSubmit} disabled={noZones || !zone}>
-            Adicionar
+          <Button onClick={handleSubmit} disabled={noZones || !zoneId || submitting}>
+            {submitting ? "A criar…" : "Adicionar"}
           </Button>
         </div>
       </div>

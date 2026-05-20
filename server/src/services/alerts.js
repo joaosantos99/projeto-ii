@@ -9,17 +9,10 @@ class AlertsService {
    * @returns {Promise<Array<User>>} - The spaces.
    */
   static async getAlerts(spaceId) {
-    const alerts = await Alerts.findAll({
-        where: { green_space_id: spaceId }
+    return Alerts.findAll({
+      where: { green_space_id: spaceId },
+      order: [['created_at', 'DESC']],
     });
-
-    if (!alerts.length) {
-      const error = new Error('No alerts found');
-      error.statusCode = 404;
-      throw error;
-    }
-
-    return alerts;
   }
 
   /**

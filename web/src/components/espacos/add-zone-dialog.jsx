@@ -7,21 +7,26 @@ import { Input } from "#/components/ui/input"
 
 export function AddZoneDialog({ open, spaceName, onClose, onSubmit }) {
   const [name, setName] = useState("")
-  const [description, setDescription] = useState("")
+  const [submitting, setSubmitting] = useState(false)
 
   useEffect(() => {
     if (open) {
       setName("")
-      setDescription("")
+      setSubmitting(false)
     }
   }, [open])
 
   if (!open) return null
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const trimmed = name.trim()
     if (!trimmed) return
-    onSubmit({ name: trimmed, description: description.trim() || "—" })
+    setSubmitting(true)
+    try {
+      await onSubmit({ name: trimmed })
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -36,8 +41,7 @@ export function AddZoneDialog({ open, spaceName, onClose, onSubmit }) {
         <div className="flex flex-col gap-1">
           <h2 className="text-sm font-semibold">Nova zona</h2>
           <p className="text-xs text-muted-foreground">
-            Defina uma subdivisão monitorizada em {spaceName}. A descrição é
-            opcional.
+            Defina uma subdivisão monitorizada em {spaceName}.
           </p>
         </div>
         <FieldGroup className="gap-3">
@@ -50,22 +54,13 @@ export function AddZoneDialog({ open, spaceName, onClose, onSubmit }) {
               placeholder="Ex.: Zona Norte"
             />
           </Field>
-          <Field>
-            <FieldLabel htmlFor="zone-desc">Descrição</FieldLabel>
-            <Input
-              id="zone-desc"
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-              placeholder="Contexto ou notas operacionais"
-            />
-          </Field>
         </FieldGroup>
         <div className="flex items-center justify-end gap-2 pt-2">
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={onClose} disabled={submitting}>
             Cancelar
           </Button>
-          <Button onClick={handleSubmit} disabled={!name.trim()}>
-            Adicionar
+          <Button onClick={handleSubmit} disabled={!name.trim() || submitting}>
+            {submitting ? "A criar…" : "Adicionar"}
           </Button>
         </div>
       </div>

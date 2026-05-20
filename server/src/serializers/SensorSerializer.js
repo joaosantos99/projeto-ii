@@ -1,29 +1,28 @@
 import BaseSerializer from "./BaseSerializer.js";
 
 /**
- * Serializer for the Space model.
+ * Serializer for the Sensor model.
  */
-class SpaceSerializer extends BaseSerializer {
+class SensorSerializer extends BaseSerializer {
+  static serializeOne(sensor) {
+    this.baseValidation(sensor);
 
-  /**
-   * Serialize a single user.
-   * @param {Object} space - The user to serialize.
-   * @param {Object} extraData - The extra data to serialize.
-   * @returns {Object} The serialized space.
-   */
-  static serializeOne(space) {
-    this.baseValidation(space);
+    const zone = sensor.greenSpaceZone || sensor.get?.('greenSpaceZone');
 
     return {
-      id: space.id,
-      name: space.name,
-      city: space.city,
-      postal_code: space.postal_code,
-      latitude: space.latitude,
-      longitude: space.longitude,
-      createdAt: new Date(space.created_at).toISOString(),
+      id: sensor.id,
+      zoneId: sensor.green_space_zone_id,
+      zoneName: zone?.name ?? null,
+      spaceId: zone?.green_spaces_id ?? null,
+      type: sensor.type,
+      parameter: sensor.parameter,
+      minValue: sensor.min_value,
+      maxValue: sensor.max_value,
+      isActive: sensor.is_active,
+      createdAt: sensor.created_at ? new Date(sensor.created_at).toISOString() : null,
+      updatedAt: sensor.updated_at ? new Date(sensor.updated_at).toISOString() : null,
     };
   }
 }
 
-export default SpaceSerializer;
+export default SensorSerializer;

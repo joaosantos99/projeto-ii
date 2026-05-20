@@ -17,7 +17,7 @@ class ZoneSerializer extends BaseSerializer {
     return {
       id: zone.id,
       name: zone.name,
-      spaceId: zone.space_id,
+      spaceId: zone.green_spaces_id,
       createdAt: new Date(zone.created_at).toISOString(),
       updatedAt: new Date(zone.updated_at).toISOString()
     };

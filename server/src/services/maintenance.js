@@ -9,17 +9,10 @@ class MaintenanceService {
    * @returns {Promise<Array<User>>} - The maintenance tasks.
    */
   static async getTasks(spaceId) {
-    const tasks = await MaintenanceTasks.findAll({
-        where: { green_spaces_id: spaceId }
+    return MaintenanceTasks.findAll({
+      where: { green_spaces_id: spaceId },
+      order: [['scheduled_date', 'DESC']],
     });
-
-    if (!tasks.length) {
-      const error = new Error('No maintenance tasks found');
-      error.statusCode = 404;
-      throw error;
-    }
-
-    return tasks;
   }
 
   /**

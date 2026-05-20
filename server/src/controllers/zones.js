@@ -34,6 +34,27 @@ class ZonesController {
   }
 
   /**
+   * Create a zone for a space.
+   */
+  static async createZone(req, res) {
+    try {
+      const { name } = req.body ?? {};
+      if (!name || !name.trim()) {
+        return res.status(400).json({ description: 'Invalid request parameters.', errors: { name: ['Nome é obrigatório.'] } });
+      }
+      const zone = await ZonesService.createZone({
+        name: name.trim(),
+        green_spaces_id: req.params.spaceId,
+        created_by: req.user.id,
+        updated_by: req.user.id,
+      });
+      res.status(201).json(ZoneSerializer.serialize(zone));
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ error: error.message });
+    }
+  }
+
+  /**
    * Update a zone.
    * @param {Object} req - The request object.
    * @param {Object} res - The response object.
