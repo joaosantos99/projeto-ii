@@ -24,69 +24,90 @@ import { UsersPagination } from "#/components/utilizadores/users-pagination"
 import { EmptyState } from "#/components/utilizadores/empty-state"
 import { FiltersSheet } from "#/components/utilizadores/filters-sheet"
 import { CreateUserDialog } from "#/components/utilizadores/create-user-dialog"
-import {
-  USERS_PER_PAGE,
-  paginateUsers,
-  usersSeed,
-} from "#/data/utilizadores"
+import { PER_PAGE } from "#/components/ui/pagination"
+import { api } from "#/lib/api"
 
 export function UtilizadoresPage() {
   const { setTitle } = useOutletContext()
-  const [users, setUsers] = useState(usersSeed)
+  const [users, setUsers] = useState([])
+  const [pagination, setPagination] = useState({
+    page: 1,
+    perPage: PER_PAGE,
+    total: 0,
+    totalPages: 1,
+  })
+  const [loading, setLoading] = useState(true)
   const [query, setQuery] = useState("")
   const [createUserOpen, setCreateUserOpen] = useState(false)
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [roleFilter, setRoleFilter] = useState("todos")
   const [statusFilter, setStatusFilter] = useState("todos")
   const [page, setPage] = useState(1)
+  const [summary, setSummary] = useState(null)
+  const [refresh, setRefresh] = useState(0)
+  const [roles, setRoles] = useState([])
 
   useEffect(() => {
     setTitle("Gestão de utilizadores")
   }, [setTitle])
 
-  const filteredUsers = useMemo(() => {
-    const normalized = query.toLowerCase()
-    return users.filter((user) => {
-      const matchesQuery =
-        user.name.toLowerCase().includes(normalized) ||
-        user.email.toLowerCase().includes(normalized)
-      const matchesRole = roleFilter === "todos" || user.role === roleFilter
-      const matchesStatus = statusFilter === "todos" || user.status === statusFilter
-      return matchesQuery && matchesRole && matchesStatus
-    })
-  }, [users, query, roleFilter, statusFilter])
+  useEffect(() => {
+    api.get("/users/summary")
+      .then((res) => setSummary(res.data))
+      .catch(() => setSummary(null))
+  }, [refresh])
 
-  const activeFilterCount = [roleFilter, statusFilter].filter(
-    (value) => value !== "todos"
-  ).length
+  useEffect(() => {
+    api.get("/roles")
+      .then((res) => setRoles(res.data))
+      .catch(() => setRoles([]))
+  }, [])
 
-  const totalPages = Math.max(1, Math.ceil(filteredUsers.length / USERS_PER_PAGE))
-  const currentPage = Math.min(page, totalPages)
-  const paginatedUsers = paginateUsers(filteredUsers, currentPage)
+  useEffect(() => {
+    setLoading(true)
+    const params = {
+      page,
+      perPage: PER_PAGE,
+      ...(query && { query }),
+      ...(roleFilter !== "todos" && { role: roleFilter }),
+      ...(statusFilter !== "todos" && { status: statusFilter }),
+    }
+    api.get("/users", { params })
+      .then((res) => {
+        setUsers(res.data.users)
+        setPagination(res.data.pagination)
+      })
+      .catch(() => {
+        setUsers([])
+        setPagination({ page: 1, perPage: PER_PAGE, total: 0, totalPages: 1 })
+      })
+      .finally(() => setLoading(false))
+  }, [page, query, roleFilter, statusFilter, refresh])
 
   useEffect(() => {
     setPage(1)
   }, [query, roleFilter, statusFilter])
 
-  const handleCreate = ({ name, email, role, status }) => {
-    setUsers((current) => [
-      {
-        id: `USR-${300 + current.length}`,
-        name,
-        email,
-        role,
-        status,
-        lastAccess: "Nunca",
-      },
-      ...current,
-    ])
+  const roleOptions = useMemo(() => {
+    return roles.map((r) => ({
+      value: r.name,
+      label: r.name.charAt(0).toUpperCase() + r.name.slice(1),
+    }))
+  }, [roles])
+
+  const activeFilterCount = [roleFilter, statusFilter].filter(
+    (value) => value !== "todos"
+  ).length
+
+  const handleCreate = () => {
+    setRefresh((n) => n + 1)
     setPage(1)
     setCreateUserOpen(false)
   }
 
   return (
     <div className="flex flex-col gap-6">
-      <KpiCards users={users} />
+      <KpiCards summary={summary} />
 
       <Card>
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -131,20 +152,22 @@ export function UtilizadoresPage() {
         </CardHeader>
 
         <CardContent className="flex flex-col gap-4">
-          {filteredUsers.length === 0 ? (
+          {loading ? (
+            <p className="text-sm text-muted-foreground">A carregar...</p>
+          ) : users.length === 0 ? (
             <EmptyState />
           ) : (
             <>
-              <UsersTable users={paginatedUsers} />
+              <UsersTable users={users} roleOptions={roleOptions} />
               <div className="border-t" />
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-xs text-muted-foreground">
-                  {filteredUsers.length} de {users.length} utilizador(es) — página{" "}
-                  {currentPage} de {totalPages}
+                  {pagination.total} utilizador(es) — página{" "}
+                  {pagination.page} de {pagination.totalPages}
                 </p>
                 <UsersPagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
+                  currentPage={pagination.page}
+                  totalPages={pagination.totalPages}
                   onPageChange={setPage}
                 />
               </div>
@@ -160,12 +183,14 @@ export function UtilizadoresPage() {
         onRoleFilterChange={setRoleFilter}
         statusFilter={statusFilter}
         onStatusFilterChange={setStatusFilter}
+        roleOptions={roleOptions}
       />
 
       <CreateUserDialog
         open={createUserOpen}
         onClose={() => setCreateUserOpen(false)}
         onCreate={handleCreate}
+        roleOptions={roleOptions}
       />
     </div>
   )

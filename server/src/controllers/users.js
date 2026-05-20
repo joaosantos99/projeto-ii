@@ -7,15 +7,37 @@ import UsersService from '../services/users.js';
 class UsersController {
 
   /**
-   * Get all users.
+   * Get paginated and filtered users.
    * @param {Object} req - The request object.
    * @param {Object} res - The response object.
    */
   static async getUsers(req, res) {
     try {
-      const users = await UsersService.getUsers();
+      const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+      const perPage = Math.max(1, parseInt(req.query.perPage, 10) || 10);
+      const { query, role, status } = req.query;
 
-      res.json(UserSerializer.serialize(users));
+      const { users, total, activeIds } = await UsersService.getUsers({ page, perPage, query, role, status });
+      const totalPages = Math.ceil(total / perPage);
+      const activeIdSet = new Set(activeIds);
+
+      res.json({
+        users: users.map((user) => ({
+          id: user.id,
+          name: user.full_name,
+          email: user.email,
+          role: user.role?.name ?? null,
+          status: activeIdSet.has(user.id) ? 'ativo' : 'suspenso',
+          lastAccess: 'Nunca',
+          createdAt: new Date(user.created_at).toISOString(),
+        })),
+        pagination: {
+          page,
+          perPage,
+          total,
+          totalPages,
+        },
+      });
     } catch (error) {
       res.status(error.statusCode || 500).json({ error: error.message });
     }

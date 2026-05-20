@@ -18,14 +18,14 @@ function KpiCard({ label, value, icon, hint }) {
   )
 }
 
-export function KpiCards({ users }) {
-  const total = users.length
-  const activeCount = users.filter((user) => user.status === "ativo").length
-  const suspendedCount = users.filter((user) => user.status === "suspenso").length
-  const todayAccessCount = users.filter((user) =>
-    user.lastAccess.startsWith("2026-03-23")
-  ).length
-  const adminCount = users.filter((user) => user.role === "admin").length
+export function KpiCards({ summary }) {
+  const {
+    total = 0,
+    active = 0,
+    suspended = 0,
+    accessToday = 0,
+    adminCount = 0,
+  } = summary ?? {}
 
   return (
     <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -37,19 +37,19 @@ export function KpiCards({ users }) {
       />
       <KpiCard
         label="Ativos"
-        value={activeCount}
+        value={active}
         icon={<UserCheck className="size-4 text-muted-foreground" aria-hidden />}
         hint="Com acesso autorizado"
       />
       <KpiCard
         label="Suspensos"
-        value={suspendedCount}
+        value={suspended}
         icon={<UserMinus className="size-4 text-muted-foreground" aria-hidden />}
         hint="Aguardar reativação manual"
       />
       <KpiCard
         label="Acessos hoje"
-        value={todayAccessCount}
+        value={accessToday}
         icon={<CalendarCheck className="size-4 text-muted-foreground" aria-hidden />}
         hint={`${adminCount} com perfil admin`}
       />

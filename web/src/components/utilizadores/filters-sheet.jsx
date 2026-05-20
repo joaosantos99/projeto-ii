@@ -1,9 +1,14 @@
 'use client'
 
+import { useEffect, useState } from "react"
 import { Button } from "#/components/ui/button"
 import { Field, FieldGroup, FieldLabel } from "#/components/ui/field"
 import { selectClass } from "#/data/manutencao"
-import { roleOptions, statusOptions } from "#/data/utilizadores"
+
+const statusOptions = [
+  { value: "ativo", label: "Ativo" },
+  { value: "suspenso", label: "Suspenso" },
+]
 
 export function FiltersSheet({
   open,
@@ -12,18 +17,41 @@ export function FiltersSheet({
   onRoleFilterChange,
   statusFilter,
   onStatusFilterChange,
+  roleOptions,
 }) {
+  const [draftRole, setDraftRole] = useState(roleFilter)
+  const [draftStatus, setDraftStatus] = useState(statusFilter)
+
+  useEffect(() => {
+    if (open) {
+      setDraftRole(roleFilter)
+      setDraftStatus(statusFilter)
+    }
+  }, [open, roleFilter, statusFilter])
+
   if (!open) return null
 
   const handleClear = () => {
-    onRoleFilterChange("todos")
-    onStatusFilterChange("todos")
+    setDraftRole("todos")
+    setDraftStatus("todos")
+  }
+
+  const handleApply = () => {
+    onRoleFilterChange(draftRole)
+    onStatusFilterChange(draftStatus)
+    onClose()
+  }
+
+  const handleClose = () => {
+    setDraftRole(roleFilter)
+    setDraftStatus(statusFilter)
+    onClose()
   }
 
   return (
     <div
       className="fixed inset-0 z-50 flex justify-end bg-black/50"
-      onClick={onClose}
+      onClick={handleClose}
     >
       <aside
         className="flex h-full w-full max-w-sm flex-col bg-background ring-1 ring-foreground/10"
@@ -39,12 +67,12 @@ export function FiltersSheet({
         <div className="flex-1 overflow-y-auto px-4 py-4">
           <FieldGroup className="gap-4">
             <Field>
-              <FieldLabel htmlFor="filter-role">Perfil</FieldLabel>
+              <FieldLabel htmlFor="filter-role">Role</FieldLabel>
               <select
                 id="filter-role"
                 className={selectClass}
-                value={roleFilter}
-                onChange={(event) => onRoleFilterChange(event.target.value)}
+                value={draftRole}
+                onChange={(event) => setDraftRole(event.target.value)}
               >
                 <option value="todos">Todos os perfis</option>
                 {roleOptions.map((option) => (
@@ -59,8 +87,8 @@ export function FiltersSheet({
               <select
                 id="filter-status"
                 className={selectClass}
-                value={statusFilter}
-                onChange={(event) => onStatusFilterChange(event.target.value)}
+                value={draftStatus}
+                onChange={(event) => setDraftStatus(event.target.value)}
               >
                 <option value="todos">Todos os estados</option>
                 {statusOptions.map((option) => (
@@ -77,7 +105,7 @@ export function FiltersSheet({
           <Button variant="ghost" onClick={handleClear}>
             Limpar filtros
           </Button>
-          <Button onClick={onClose}>Aplicar filtros</Button>
+          <Button onClick={handleApply}>Aplicar filtros</Button>
         </footer>
       </aside>
     </div>

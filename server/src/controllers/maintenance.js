@@ -12,7 +12,7 @@ class MaintenanceController {
    */
   static async getTasks(req, res) {
     try {
-      const tasks = await MaintenanceService.getTasks(req.params.maintenanceId);
+      const tasks = await MaintenanceService.getTasks(req.params.spaceId);
 
       res.json(MaintenanceSerializer.serialize(tasks));
     } catch (error) {

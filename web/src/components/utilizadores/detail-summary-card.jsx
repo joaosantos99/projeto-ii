@@ -1,7 +1,6 @@
 'use client'
 
 import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card"
-import { roleLabels } from "#/data/utilizadores"
 
 function DetailField({ label, value, mono }) {
   return (
@@ -14,7 +13,8 @@ function DetailField({ label, value, mono }) {
   )
 }
 
-export function DetailSummaryCard({ user }) {
+export function DetailSummaryCard({ user, roleOptions }) {
+  const roleLabel = roleOptions?.find((o) => o.value === user.role)?.label ?? user.role
   return (
     <Card>
       <CardHeader>
@@ -25,7 +25,7 @@ export function DetailSummaryCard({ user }) {
           <DetailField label="ID" value={user.id} mono />
           <DetailField label="Nome completo" value={user.name} />
           <DetailField label="Email" value={user.email} />
-          <DetailField label="Role" value={roleLabels[user.role] ?? user.role} />
+          <DetailField label="Role" value={roleLabel} />
         </div>
       </CardContent>
     </Card>

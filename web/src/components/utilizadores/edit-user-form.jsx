@@ -11,9 +11,8 @@ import { Button } from "#/components/ui/button"
 import { Field, FieldGroup, FieldLabel } from "#/components/ui/field"
 import { Input } from "#/components/ui/input"
 import { selectClass } from "#/data/manutencao"
-import { roleOptions } from "#/data/utilizadores"
 
-export function EditUserForm({ userId, values, onChange, onSubmit, saving }) {
+export function EditUserForm({ userId, values, onChange, onSubmit, saving, roleOptions }) {
   const handleField = (key) => (event) => onChange(key, event.target.value)
 
   const handleSubmit = (event) => {

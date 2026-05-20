@@ -5,6 +5,7 @@ import sequelize from './src/database/connection.js';
 import Users from './src/database/models/Users.js';
 import Roles from './src/database/models/Roles.js';
 import GreenSpaces from './src/database/models/GreenSpaces.js';
+import { PERMISSIONS } from './src/constants/permissions.js';
 
 const DATA_SCALE = 1;
 
@@ -20,6 +21,7 @@ const generateSystemOwner = async () => {
 
   const adminRole = await Roles.create({
     name: 'Admin',
+    permissions: Object.values(PERMISSIONS),
     created_by: 'system',
     updated_by: 'system',
   });

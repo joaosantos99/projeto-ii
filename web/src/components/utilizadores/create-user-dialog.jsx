@@ -5,9 +5,13 @@ import { Button } from "#/components/ui/button"
 import { Field, FieldGroup, FieldLabel } from "#/components/ui/field"
 import { Input } from "#/components/ui/input"
 import { selectClass } from "#/data/manutencao"
-import { roleOptions, statusOptions } from "#/data/utilizadores"
 
-export function CreateUserDialog({ open, onClose, onCreate }) {
+const statusOptions = [
+  { value: "ativo", label: "Ativo" },
+  { value: "suspenso", label: "Suspenso" },
+]
+
+export function CreateUserDialog({ open, onClose, onCreate, roleOptions }) {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [role, setRole] = useState("operador")

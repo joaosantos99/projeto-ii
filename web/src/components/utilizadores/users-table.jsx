@@ -6,14 +6,14 @@ import { Button } from "#/components/ui/button"
 import { RoleBadge } from "#/components/utilizadores/role-badge"
 import { StatusBadge } from "#/components/utilizadores/status-badge"
 
-export function UsersTable({ users }) {
+export function UsersTable({ users, roleOptions }) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead className="border-b text-left text-xs uppercase text-muted-foreground">
           <tr>
             <th className="px-3 py-2 font-medium">Utilizador</th>
-            <th className="px-3 py-2 font-medium">Perfil</th>
+            <th className="px-3 py-2 font-medium">Role</th>
             <th className="px-3 py-2 font-medium">Estado</th>
             <th className="px-3 py-2 font-medium">Último acesso</th>
             <th className="w-12 px-3 py-2 text-right">
@@ -31,7 +31,7 @@ export function UsersTable({ users }) {
                 </div>
               </td>
               <td className="px-3 py-2">
-                <RoleBadge role={user.role} />
+                <RoleBadge role={user.role} roleOptions={roleOptions} />
               </td>
               <td className="px-3 py-2">
                 <StatusBadge status={user.status} />

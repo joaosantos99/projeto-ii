@@ -1,4 +1,4 @@
-import { Op, fn, col } from 'sequelize';
+import { Op, fn, col, Sequelize } from 'sequelize';
 import bcrypt from 'bcrypt';
 import Users from '../database/models/Users.js';
 import Roles from '../database/models/Roles.js';
@@ -9,17 +9,58 @@ import Sessions from '../database/models/Sessions.js';
  */
 class UsersService {
   /**
-   * Get all users.
-   * @returns {Promise<Array<User>>} - The users.
+   * Get paginated and filtered users.
+   * @param {Object} options
+   * @param {number} options.page
+   * @param {number} options.perPage
+   * @param {string} [options.query]
+   * @param {string} [options.role]
+   * @param {string} [options.status]
+   * @returns {Promise<{users: Array<User>, total: number, activeIds: Array<string>}>}
    */
-  static async getUsers() {
-    const users = await Users.findAll();
+  static async getUsers({ page = 1, perPage = 10, query, role, status } = {}) {
+    const where = {};
+    const include = [{ model: Roles, as: 'role' }];
 
-    if (!users) {
-      throw new Error({ statusCode: 404, message: 'No users found' });
+    if (query) {
+      const q = `%${query}%`;
+      where[Op.or] = [
+        Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('full_name')), { [Op.like]: q.toLowerCase() }),
+        Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('email')), { [Op.like]: q.toLowerCase() }),
+      ];
     }
 
-    return users;
+    if (role) {
+      include[0].where = { name: role };
+    }
+
+    const activeRows = await Sessions.findAll({
+      attributes: [[fn('DISTINCT', col('user_id')), 'user_id']],
+      where: { expires_at: { [Op.gt]: new Date() } },
+      raw: true,
+    });
+    const activeIds = activeRows.map((r) => r.user_id);
+
+    if (status === 'ativo') {
+      if (activeIds.length === 0) {
+        return { users: [], total: 0, activeIds: [] };
+      }
+      where.id = { [Op.in]: activeIds };
+    } else if (status === 'suspenso') {
+      if (activeIds.length > 0) {
+        where.id = { [Op.notIn]: activeIds };
+      }
+    }
+
+    const { count, rows } = await Users.findAndCountAll({
+      where,
+      include,
+      limit: perPage,
+      offset: (page - 1) * perPage,
+      distinct: true,
+    });
+
+    return { users: rows, total: count, activeIds };
   }
 
   /**
@@ -157,7 +198,7 @@ class UsersService {
     const now = new Date();
     const todayStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
 
-    const [total, activeRows, accessTodayRows] = await Promise.all([
+    const [total, activeRows, accessTodayRows, adminCount] = await Promise.all([
       Users.count(),
 
       Sessions.findAll({
@@ -171,6 +212,10 @@ class UsersService {
         where: { created_at: { [Op.gte]: todayStart } },
         raw: true,
       }),
+
+      Users.count({
+        include: [{ model: Roles, as: 'role', where: { name: 'admin' } }],
+      }),
     ]);
 
     const active = activeRows.length;
@@ -180,6 +225,7 @@ class UsersService {
       active,
       suspended: total - active,
       accessToday: accessTodayRows.length,
+      adminCount,
     };
   }
 }

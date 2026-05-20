@@ -1,12 +1,12 @@
 'use client'
 
 import { Badge } from "#/components/ui/badge"
-import { roleLabels } from "#/data/utilizadores"
 
-export function RoleBadge({ role }) {
+export function RoleBadge({ role, roleOptions }) {
+  const label = roleOptions?.find((o) => o.value === role)?.label ?? role
   return (
     <Badge variant={role === "admin" ? "secondary" : "outline"}>
-      {roleLabels[role] ?? role}
+      {label}
     </Badge>
   )
 }
