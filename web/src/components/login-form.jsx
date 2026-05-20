@@ -1,18 +1,36 @@
 import { useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { Button } from "#/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#/components/ui/card"
 import { Field, FieldDescription, FieldGroup, FieldLabel } from "#/components/ui/field"
 import { Input } from "#/components/ui/input"
+import { api } from "#/lib/api"
+import { setCookie } from "#/lib/cookies"
 import { cn } from "#/lib/utils"
 
+const SESSION_MAX_AGE = 7 * 24 * 60 * 60
+
 export function LoginForm({ className, ...props }) {
+  const navigate = useNavigate()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [error, setError] = useState("")
+  const [submitting, setSubmitting] = useState(false)
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
-    // TODO: add login endpoint
+    setError("")
+    setSubmitting(true)
+    try {
+      const { data } = await api.post("/auth/login", { email, password })
+      setCookie("token", data.token, SESSION_MAX_AGE)
+      localStorage.setItem("user", JSON.stringify(data.user))
+      navigate("/admin")
+    } catch (err) {
+      setError(err.response?.data?.description ?? "Erro ao iniciar sessão.")
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -56,9 +74,14 @@ export function LoginForm({ className, ...props }) {
                   onChange={(e) => setPassword(e.target.value)}
                 />
               </Field>
+              {error && (
+                <p className="text-sm text-destructive" role="alert">
+                  {error}
+                </p>
+              )}
               <Field>
-                <Button type="submit" className="w-full">
-                  Iniciar sessão
+                <Button type="submit" className="w-full" disabled={submitting}>
+                  {submitting ? "A iniciar sessão..." : "Iniciar sessão"}
                 </Button>
               </Field>
             </FieldGroup>
