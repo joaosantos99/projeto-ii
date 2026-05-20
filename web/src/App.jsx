@@ -9,6 +9,7 @@ import { UtilizadoresPage } from "#/pages/utilizadores"
 import { UtilizadorPage } from "#/pages/utilizador"
 import { ContaPage } from "#/pages/conta"
 import { RelatoriosPage } from "#/pages/relatorios"
+import { EspacosPage } from "#/pages/espacos"
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Route path="/dashboard/utilizadores/:id" element={<UtilizadorPage />} />
         <Route path="/dashboard/conta" element={<ContaPage />} />
         <Route path="/dashboard/relatorios" element={<RelatoriosPage />} />
+        <Route path="/dashboard/espacos" element={<EspacosPage />} />
       </Route>
     </Routes>
   )
