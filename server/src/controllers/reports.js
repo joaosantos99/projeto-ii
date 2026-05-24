@@ -1,3 +1,4 @@
+import ReportSerializer from '../serializers/ReportSerializer.js';
 import ReportsService from '../services/reports.js';
 
 /**
@@ -91,6 +92,21 @@ class ReportsController {
       });
     } catch (error) {
       res.status(error.statusCode || 500).json({ description: error.message });
+    }
+  }
+
+  /**
+   * Create an incident for a space.
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   */
+  static async createIncident(req, res) {
+    try {
+      const report = await ReportsService.createIncident(req.params.spaceId, req.body);
+
+      res.status(201).json(ReportSerializer.serialize(report));
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ error: error.message });
     }
   }
 }

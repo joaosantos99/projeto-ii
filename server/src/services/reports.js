@@ -1,7 +1,13 @@
 import { fn, col } from 'sequelize';
+
 import Reports from '../database/models/Reports.js';
 import GreenSpaces from '../database/models/GreenSpaces.js';
 import GreenSpaceZones from '../database/models/GreenSpaceZones.js';
+
+const REPORT_TYPES = {
+  INCIDENT: 'incident',
+  COMMENT: 'comment',
+};
 
 /**
  * Service for the reports routes.
@@ -9,10 +15,6 @@ import GreenSpaceZones from '../database/models/GreenSpaceZones.js';
 class ReportsService {
   /**
    * Return a statistical summary of platform reports.
-   * - total: all non-deleted reports
-   * - generated: reports with status='generated'
-   * - scheduled: reports with status='scheduled'
-   * - lastCreatedAt: ISO timestamp of the most recent report (null if none)
    * @returns {Promise<{ total, generated, scheduled, lastCreatedAt }>}
    */
   static async getSummary() {
@@ -34,9 +36,7 @@ class ReportsService {
   }
 
   /**
-   * Return the distribution of reports across the three known types:
-   * operational, environmental, incidents. Always includes all three
-   * entries, even when a type has zero reports.
+   * Return the distribution of reports across known types.
    * @returns {Promise<Array<{ type: string, total: number }>>}
    */
   static async getDistribution() {
@@ -102,6 +102,54 @@ class ReportsService {
     }
 
     return report;
+  }
+
+  /**
+   * Validates that the given space exists.
+   * @param {string} spaceId - The green space UUID.
+   * @throws {Error} If the space is not found.
+   */
+  static async #validateSpace(spaceId) {
+    const space = await GreenSpaces.findByPk(spaceId);
+    if (!space) {
+      const error = new Error('Space not found');
+      error.statusCode = 404;
+      throw error;
+    }
+  }
+
+  /**
+   * Creates a report for a given space.
+   * @param {string} spaceId - The green space UUID.
+   * @param {string} type - The report type ('incident' or 'comment').
+   * @param {Object} data - The report payload from the request body.
+   * @returns {Promise<Reports>} The created report.
+   */
+  static async #createReport(spaceId, type, data) {
+    await this.#validateSpace(spaceId);
+
+    const report = await Reports.create({
+      green_space_id: spaceId,
+      green_spaces_zone_id: data.green_spaces_zone_id,
+      user_id: data.user_id,
+      updated_by: data.user_id,
+      name: data.name,
+      description: data.description,
+      type,
+      status: data.status ?? null,
+    });
+
+    return report;
+  }
+
+  /**
+   * Creates an incident report for a given space.
+   * @param {string} spaceId - The green space UUID.
+   * @param {Object} data - The incident payload.
+   * @returns {Promise<Reports>} The created incident.
+   */
+  static async createIncident(spaceId, data) {
+    return this.#createReport(spaceId, REPORT_TYPES.INCIDENT, data);
   }
 }
 
