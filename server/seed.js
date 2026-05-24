@@ -1,9 +1,12 @@
+import bcrypt from 'bcrypt';
 import { faker } from '@faker-js/faker';
 
 import sequelize from './src/database/connection.js';
 import Users from './src/database/models/Users.js';
 import Roles from './src/database/models/Roles.js';
 import GreenSpaces from './src/database/models/GreenSpaces.js';
+import MaintenanceTasks from './src/database/models/MaintenanceTasks.js';
+import { PERMISSIONS } from './src/constants/permissions.js';
 
 const DATA_SCALE = 1;
 
@@ -19,6 +22,7 @@ const generateSystemOwner = async () => {
 
   const adminRole = await Roles.create({
     name: 'Admin',
+    permissions: Object.values(PERMISSIONS),
     created_by: 'system',
     updated_by: 'system',
   });
@@ -30,7 +34,7 @@ const generateSystemOwner = async () => {
       lastName: systemOwnerLastName,
       provider: 'cm-viladoconde.pt',
     }),
-    password_hash: faker.internet.password(),
+    password_hash: await bcrypt.hash("123456789a", 12),
     role_id: adminRole.id,
     created_by: 'system',
     updated_by: 'system',
@@ -67,7 +71,7 @@ const generateUsers = async () => {
         lastName,
         provider: 'cm-viladoconde.pt',
       }),
-      password_hash: faker.internet.password(),
+      password_hash: await bcrypt.hash("123456789a", 12),
       role_id: i % 2 === 0 ? managerRole.id : tecnicalRole.id,
       created_by: systemOwner.id,
       updated_by: systemOwner.id,
@@ -96,7 +100,44 @@ const generateGreenSpaces = async () => {
   await GreenSpaces.bulkCreate(greenSpaces);
 };
 
+const generateMaintenanceTasks = async () => {
+  const tasksCount = 100 * DATA_SCALE;
+
+  const greenSpaces = await GreenSpaces.findAll({ attributes: ['id'] });
+  const greenSpaceIds = greenSpaces.map((gs) => gs.id);
+
+  const types = ['pruning', 'irrigation', 'fertilization', 'pest_control', 'mowing', 'cleaning'];
+  const statuses = ['pending', 'in_progress', 'completed', 'cancelled'];
+
+  const tasks = [];
+
+  for (let i = 0; i < tasksCount; i++) {
+    const status = faker.helpers.arrayElement(statuses);
+    const scheduledDate = faker.date.between({
+      from: '2024-01-01',
+      to: '2026-03-31',
+    });
+
+    tasks.push({
+      green_spaces_id: faker.helpers.arrayElement(greenSpaceIds),
+      type: faker.helpers.arrayElement(types),
+      description: faker.lorem.sentence(),
+      status,
+      scheduled_date: scheduledDate,
+      completed_at:
+        status === 'completed'
+          ? faker.date.between({ from: scheduledDate, to: new Date() })
+          : null,
+      created_by: systemOwner.id,
+      updated_by: systemOwner.id,
+    });
+  }
+
+  await MaintenanceTasks.bulkCreate(tasks);
+};
+
 await generateSystemOwner();
 await generateRoles();
 await generateUsers();
 await generateGreenSpaces();
+await generateMaintenanceTasks();

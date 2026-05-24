@@ -1,6 +1,6 @@
 export default {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('maintenance-tasks', {
+    await queryInterface.createTable('maintenance_tasks', {
       id: {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4,
@@ -39,6 +39,6 @@ export default {
   },
 
   async down (queryInterface) {
-    await queryInterface.dropTable('maintenance-tasks');
+    await queryInterface.dropTable('maintenance_tasks');
   }
 };

@@ -1,3 +1,5 @@
+'use client'
+
 import { NavLink } from "react-router-dom"
 import {
   SquaresFour,
@@ -8,26 +10,39 @@ import {
   ChartBar,
   ShieldCheck,
   Leaf,
+  Tree,
   CaretUpDown,
 } from "@phosphor-icons/react"
+import { useAuth } from "#/hooks/use-auth"
 
 const navItems = [
-  { title: "Visão geral", to: "/dashboard", icon: SquaresFour },
-  { title: "Alertas", to: "/dashboard/alertas", icon: Warning },
-  { title: "Manutenção", to: "/dashboard/manutencao", icon: Clipboard },
-  { title: "Sensores", to: "/dashboard/sensores", icon: SlidersHorizontal },
-  { title: "Utilizadores", to: "/dashboard/utilizadores", icon: Users },
-  { title: "Relatorios", to: "/dashboard/relatorios", icon: ChartBar },
-  { title: "Roles", to: "/dashboard/roles", icon: ShieldCheck },
+  { title: "Visão geral", to: "/admin", icon: SquaresFour },
+  { title: "Alertas", to: "/admin/alertas", icon: Warning },
+  { title: "Espaços", to: "/admin/espacos", icon: Tree },
+  { title: "Manutenção", to: "/admin/manutencao", icon: Clipboard },
+  { title: "Sensores", to: "/admin/sensores", icon: SlidersHorizontal },
+  { title: "Utilizadores", to: "/admin/utilizadores", icon: Users },
+  { title: "Relatorios", to: "/admin/relatorios", icon: ChartBar },
+  { title: "Roles", to: "/admin/roles", icon: ShieldCheck },
 ]
 
-const user = {
-  name: "Paulo Portas",
-  email: "paulo@vilaverde.pt",
-  initials: "PP",
+function getInitials(name) {
+  if (!name) return "?"
+  return name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0].toUpperCase())
+    .join("")
 }
 
 export function AppSidebar() {
+  const { user } = useAuth()
+
+  const name = user?.fullName
+  const email = user?.email
+  const initials = getInitials(user?.fullName)
+
   return (
     <aside className="flex h-svh w-60 shrink-0 flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border">
       <div className="flex items-center gap-3 px-4 py-5">
@@ -46,7 +61,7 @@ export function AppSidebar() {
             <li key={to}>
               <NavLink
                 to={to}
-                end={to === "/dashboard"}
+                end={to === "/admin"}
                 className={({ isActive }) =>
                   [
                     "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors",
@@ -65,19 +80,26 @@ export function AppSidebar() {
       </nav>
 
       <div className="border-t border-sidebar-border px-3 py-3">
-        <button
-          type="button"
-          className="flex w-full items-center gap-3 rounded-md px-2 py-2 text-sm hover:bg-sidebar-accent/50 transition-colors"
+        <NavLink
+          to="/admin/conta"
+          className={({ isActive }) =>
+            [
+              "flex w-full items-center gap-3 rounded-md px-2 py-2 text-sm transition-colors",
+              isActive
+                ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                : "hover:bg-sidebar-accent/50",
+            ].join(" ")
+          }
         >
           <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-sidebar-primary text-sidebar-primary-foreground text-xs font-semibold">
-            {user.initials}
+            {initials}
           </div>
           <div className="flex flex-1 flex-col text-left leading-tight min-w-0">
-            <span className="truncate text-sm font-medium text-sidebar-foreground">{user.name}</span>
-            <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+            <span className="truncate text-sm font-medium text-sidebar-foreground">{name}</span>
+            <span className="truncate text-xs text-muted-foreground">{email}</span>
           </div>
           <CaretUpDown className="size-4 shrink-0 text-muted-foreground" />
-        </button>
+        </NavLink>
       </div>
     </aside>
   )

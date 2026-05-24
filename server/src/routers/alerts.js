@@ -1,10 +1,14 @@
 import { Router } from 'express';
 
-import AlertController from '../controllers/alerts.js';
+import AlertsController from '../controllers/alerts.js';
+import requireAuth from '../middleware/auth.js';
 
-const alertRouter = Router({ mergeParams: true });
+const alertsRouter = Router({ mergeParams: true });
 
-alertRouter.get('/', AlertController.getAlerts);
-alertRouter.patch('/:incidentId', AlertController.updateAlert);
+alertsRouter.get('/summary', AlertsController.getSummary);
+alertsRouter.patch('/:alertId/acknowledge', AlertsController.acknowledgeAlert);
 
-export default alertRouter;
+alertsRouter.get('/', requireAuth, AlertsController.getAlerts);
+alertsRouter.patch('/:incidentId', requireAuth, AlertsController.updateAlert);
+
+export default alertsRouter;

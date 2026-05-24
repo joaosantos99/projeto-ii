@@ -6,31 +6,112 @@ import MaintenanceService from '../services/maintenance.js';
  */
 class MaintenanceController {
   /**
-   * Get all maintenance tasks.
+   * Get maintenance tasks. Filtered by space when nested, paginated globally otherwise.
    * @param {Object} req - The request object.
    * @param {Object} res - The response object.
    */
   static async getTasks(req, res) {
     try {
-      const tasks = await MaintenanceService.getTasks(req.params.maintenanceId);
+      if (req.params.spaceId) {
+        const tasks = await MaintenanceService.getTasksBySpace(req.params.spaceId);
+        return res.json(MaintenanceSerializer.serialize(tasks));
+      }
 
-      res.json(MaintenanceSerializer.serialize(tasks));
+      const page = Math.max(1, parseInt(req.query.page) || 1);
+      const limit = Math.max(1, parseInt(req.query.limit) || 20);
+
+      const { tasks, total } = await MaintenanceService.getTasks({ page, limit });
+
+      res.json(MaintenanceSerializer.serializePaginated(tasks, { page, limit, total }));
     } catch (error) {
-      res.status(error.statusCode || 500).json({ error: error.message });
+      res.status(error.statusCode || 500).json({ description: error.message });
     }
   }
 
   /**
-  * Delete a task.
-  * @param {Object} req - The request object.
-  * @param {Object} res - The response object.
-  */
+   * Delete a task.
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   */
   static async deleteTask(req, res) {
     try {
       await MaintenanceService.deleteTask(req.params.maintenanceId);
       res.status(204).send();
     } catch (error) {
       res.status(error.statusCode || 500).json({ error: error.message });
+    }
+  }
+
+  /**
+   * Create a new maintenance task.
+   * POST /api/maintenance/tasks
+   */
+  static async createTask(req, res) {
+    try {
+      const task = await MaintenanceService.createTask({
+        ...req.body,
+        created_by: req.user?.id,
+      });
+
+      res.status(201).json(MaintenanceSerializer.serializeWithLinks(task));
+    } catch (error) {
+      res.status(error.statusCode || 500).json({
+        description: error.message,
+        ...(error.errors && { errors: error.errors }),
+      });
+    }
+  }
+
+  /**
+   * Update the status of a maintenance task.
+   * PATCH /api/maintenance/tasks/:taskId/status
+   */
+  static async updateTaskStatus(req, res) {
+    try {
+      const task = await MaintenanceService.updateTaskStatus(
+        req.params.taskId,
+        req.body.status,
+        req.user?.id,
+      );
+
+      res.json(MaintenanceSerializer.serializeStatusUpdate(task));
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ description: error.message });
+    }
+  }
+
+  /**
+   * Full update of a maintenance task.
+   * PUT /api/maintenance/tasks/:taskId
+   */
+  static async updateTask(req, res) {
+    try {
+      const task = await MaintenanceService.updateTask(req.params.taskId, {
+        ...req.body,
+        updated_by: req.user?.id,
+      });
+
+      res.json(MaintenanceSerializer.serializeWithLinks(task));
+    } catch (error) {
+      res.status(error.statusCode || 500).json({
+        description: error.message,
+        ...(error.errors && { errors: error.errors }),
+      });
+    }
+  }
+
+  /**
+   * Get a summary of maintenance tasks.
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   */
+  static async getSummary(req, res) {
+    try {
+      const summary = await MaintenanceService.getSummary();
+
+      res.json(MaintenanceSerializer.serializeSummary(summary));
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ description: error.message });
     }
   }
 }

@@ -57,11 +57,6 @@ const Alerts = sequelize.define(
 );
 
 Alerts.associate = (models) => {
-  Alerts.hasOne(models.AlertRules, {
-    foreignKey: 'alerts_id',
-    as: 'alertRule',
-  });
-
   Alerts.belongsTo(models.Sensors, {
     foreignKey: 'sensor_id',
     as: 'sensor',

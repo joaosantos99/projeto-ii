@@ -1,24 +1,25 @@
 import { useState, useMemo } from "react"
-import { Alarm, CheckCircle } from "@phosphor-icons/react"
+import { Alarm, CheckCircle, MagnifyingGlass } from "@phosphor-icons/react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#/components/ui/card"
 import { Button } from "#/components/ui/button"
 import { Badge } from "#/components/ui/badge"
 import { cn } from "#/lib/utils"
+import { Input } from "#/components/ui/input"
 
-const alerts = [
-  { id: "ALR-8812", rule: "Ruido elevado prolongado", space: "Parque Florestal de Monsanto", severity: "critical", happenedAt: "2026-03-23 09:10", acknowledged: false },
-  { id: "ALR-8798", rule: "Humidade abaixo de 35%", space: "Parque da Cidade", severity: "critical", happenedAt: "2026-03-22 22:19", acknowledged: false },
-  { id: "ALR-8806", rule: "Temperatura acima do limite", space: "Mata Nacional do Bucaco", severity: "warning", happenedAt: "2026-03-23 08:24", acknowledged: true },
+const spaces = [
+  { id: 1, name: "Parque Florestal de Monsanto", city: "Lisboa", zones: 4, sensors: 4, spaces: 3, status: "Ativo" },
+  { id: 2, name: "Mata Nacional do Bucaco", city: "Mealhada", zones: 2, sensors: 4, spaces: 2, status: "Ativo" },
+  { id: 3, name: "Jardins do Palacio de Cristal", city: "Porto", zones: 2, sensors: 4, spaces: 0, status: "Manutencao" },
 ]
 
 const PAGE_SIZE = 4
 
-export function AlertasWidget() {
+export function SpacesWidget() {
   const [page, setPage] = useState(1)
 
   const sorted = useMemo(() => {
     const rank = { critical: 3, warning: 2, normal: 1 }
-    return [...alerts].sort((a, b) => (rank[b.severity] ?? 0) - (rank[a.severity] ?? 0))
+    return [...spaces].sort((a, b) => (rank[b.severity] ?? 0) - (rank[a.severity] ?? 0))
   }, [])
 
   const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE))
@@ -30,55 +31,53 @@ export function AlertasWidget() {
       <Card>
         <CardHeader className="flex flex-row items-center justify-between gap-3">
           <div className="flex flex-col gap-1">
-            <CardTitle>Alertas ativos</CardTitle>
-            <CardDescription>Lista priorizada por severidade com acao imediata</CardDescription>
+            <CardTitle>Espaços Verdes</CardTitle>
+            <CardDescription>Filtre por perfil e estado, depois faça a gestao de acessos.</CardDescription>
           </div>
-          <Button variant="outline" size="sm">
-            <Alarm className="size-3.5" />
-            Ver todos
-          </Button>
+          <div className="grid grid-cols-1 md:flex gap-2 items-center">
+            <div className="relative">
+                <MagnifyingGlass className="absolute left-2 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
+                <Input placeholder="Pesquisar por nome ou cidade" className="pl-7" />
+            </div>
+            <div className="md:flex gap-2">
+                <Button variant="outline" size="sm">
+                    <Alarm className="size-3.5" />
+                    Filtros
+                </Button>
+                <Button size="sm">
+                    <Alarm className="size-3.5" />
+                    Novo espaço
+                </Button>
+            </div>
+
+          </div>
+
         </CardHeader>
         <CardContent className="flex flex-col gap-3">
           <div className="overflow-x-auto">
             <table className="w-full text-xs">
               <thead>
                 <tr className="border-b border-border text-left text-muted-foreground">
-                  <th className="pb-2 pr-4 font-medium">Regra</th>
-                  <th className="pb-2 pr-4 font-medium">Espaco</th>
-                  <th className="pb-2 pr-4 font-medium">Severidade</th>
-                  <th className="pb-2 pr-4 font-medium">Data</th>
-                  <th className="pb-2 text-right font-medium">Acao</th>
+                  <th className="pb-2 pr-4 font-medium">Nome</th>
+                  <th className="pb-2 pr-4 font-medium">Cidade</th>
+                  <th className="pb-2 pr-4 font-medium">Zonas</th>
+                  <th className="pb-2 pr-4 font-medium">Sensores</th>
+                  <th className="pb-2 text-right font-medium">Alertas activos</th>
+                  <th className="pb-2 text-right font-medium">Estado</th>
                 </tr>
               </thead>
               <tbody>
-                {paginated.map((alert) => (
-                  <tr key={alert.id} className="border-b border-border last:border-0">
-                    <td className="py-2.5 pr-4">{alert.rule}</td>
-                    <td className="py-2.5 pr-4 text-muted-foreground">{alert.space}</td>
+                {paginated.map((space) => (
+                  <tr key={space.id} className="border-b border-border last:border-0">
+                    <td className="py-2.5 pr-4">{space.name}</td>
+                    <td className="py-2.5 pr-4 text-muted-foreground">{space.city}</td>
+                    <td className="py-2.5 pr-4 text-muted-foreground">{space.zones}</td>
+                    <td className="py-2.5 pr-4 text-muted-foreground">{space.sensors}</td>
+                    <td className="py-2.5 pr-4 text-muted-foreground">{space.spaces}</td>
                     <td className="py-2.5 pr-4">
-                      <Badge variant={alert.severity === "critical" ? "destructive" : "warning"}>
-                        {alert.severity === "critical" ? "Critico" : "Warning"}
-                      </Badge>
-                    </td>
-                    <td className="py-2.5 pr-4 text-muted-foreground">{alert.happenedAt}</td>
-                    <td className="py-2.5 text-right">
-                      <Button
-                        size="xs"
-                        variant={alert.acknowledged ? "secondary" : "outline"}
-                        className={alert.acknowledged ? "bg-green-50 text-green-700 ring-1 ring-green-200 hover:bg-green-100" : ""}
-                      >
-                        {alert.acknowledged ? (
-                          <>
-                            <CheckCircle className="size-3" />
-                            Confirmado
-                          </>
-                        ) : (
-                          <>
-                            <Alarm className="size-3" />
-                            Confirmar
-                          </>
-                        )}
-                      </Button>
+                        <Badge variant={space.status === "Ativo" ? "default" : "secondary"}>
+                            {space.status}
+                        </Badge>
                     </td>
                   </tr>
                 ))}
@@ -87,7 +86,7 @@ export function AlertasWidget() {
           </div>
           <div className="flex items-center justify-between gap-2">
             <p className="text-xs text-muted-foreground">
-              {sorted.length} alerta(s) encontrados - pagina {currentPage} de {totalPages}
+              {sorted.length} espaço(s) encontrados - pagina {currentPage} de {totalPages}
             </p>
             <div className="flex items-center gap-1 text-xs">
               <button

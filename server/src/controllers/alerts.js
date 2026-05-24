@@ -4,7 +4,7 @@ import AlertsService from '../services/alerts.js';
 /**
  * Controller for the alerts routes.
  */
-class AlertController {
+class AlertsController {
   /**
    * Get all alerts.
    * @param {Object} req - The request object.
@@ -33,14 +33,46 @@ class AlertController {
 
       const alert = await AlertsService.getAlertById(req.params.incidentId);
       const { severity, message, is_notified } = req.body;
-      const updatedAlert = await alert.update({ severity, message, is_notified  });
+      const updatedAlert = await alert.update({ severity, message, is_notified });
 
       res.json(AlertsSerializer.serialize(updatedAlert));
     } catch (error) {
       res.status(error.statusCode || 500).json({ error: error.message });
     }
   }
-  
+
+  /**
+   * Get a summary of alerts stats.
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   */
+  static async getSummary(req, res) {
+    try {
+      const summary = await AlertsService.getSummary();
+
+      res.json(AlertsSerializer.serializeSummary(summary));
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ error: error.message });
+    }
+  }
+
+  /**
+   * Acknowledge an alert.
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   */
+  static async acknowledgeAlert(req, res) {
+    try {
+      const alert = await AlertsService.acknowledgeAlert(
+        req.params.alertId,
+        req.user?.id,
+      );
+
+      res.json(AlertsSerializer.serializeAcknowledge(alert));
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ error: error.message });
+    }
+  }
 }
 
-export default AlertController;
+export default AlertsController;
