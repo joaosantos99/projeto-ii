@@ -16,6 +16,8 @@ import { EspacoDetalhePage } from "#/pages/espaco-detalhe"
 import { PermissoesPage } from "#/pages/permissoes"
 import { PermissaoDetalhePage } from "#/pages/permissao-detalhe"
 import { AlertasPage } from "#/pages/alertas"
+import { LandingPage } from "#/pages/landing-page"
+import { SpacePage } from "#/pages/space-page"
 import { RequireAuth, RedirectIfAuth } from "#/components/auth-guards"
 import { AuthProvider } from "#/hooks/use-auth"
 import "#/styles.css"
@@ -31,6 +33,8 @@ export default function App({ initialUser = null, initialUrl = "/" }) {
     <Router {...routerProps}>
       <AuthProvider initialUser={initialUser} initialStatus={initialStatus}>
         <Routes>
+          <Route path="/lp" element={<LandingPage />} />
+          <Route path="/space-public-page" element={<SpacePage />} />
           <Route path="/" element={<Navigate to="/admin" replace />} />
           <Route element={<RedirectIfAuth />}>
             <Route path="/login" element={<LoginPage />} />
