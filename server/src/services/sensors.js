@@ -1,5 +1,8 @@
 import GreenSpaceZones from '../database/models/GreenSpaceZones.js';
+import GreenSpaces from '../database/models/GreenSpaces.js';
 import Sensors from '../database/models/Sensors.js';
+
+const SENSOR_TYPES = ['temperature', 'humidity', 'light', 'sound'];
 
 /**
  * Service for the sensors routes.
@@ -22,10 +25,6 @@ class SensorsService {
       ],
       order: [['created_at', 'DESC']],
     });
-  }
-
-  static async createSensor(data) {
-    return Sensors.create(data);
   }
 
   static async getZoneById(zoneId) {
@@ -64,6 +63,71 @@ class SensorsService {
       offline,
       totalSensors,
     };
+  }
+
+  /**
+   * Get a paginated and optionally sorted list of sensors.
+   * @returns {Promise<Object>} Object with sensors array and total count.
+   */
+  static async getSensors({ page = 1, limit = 20, sort } = {}) {
+    const offset = (page - 1) * limit;
+
+    let order = [['created_at', 'DESC']];
+    if (sort) {
+      const [field, direction] = sort.split(':');
+      const allowedFields = ['created_at'];
+      const allowedDirections = ['asc', 'desc'];
+      if (allowedFields.includes(field) && allowedDirections.includes(direction?.toLowerCase())) {
+        order = [[field, direction.toUpperCase()]];
+      }
+    }
+
+    const { count: total, rows: sensors } = await Sensors.findAndCountAll({
+      order,
+      limit,
+      offset,
+    });
+
+    return { sensors, total };
+  }
+
+  /**
+   * Register a new sensor.
+   * Supports both the nested-spaces signature (spaceId, data) and the
+   * flat signature (data) used by the in-space controller.
+   * @returns {Promise<Sensors>} The created sensor.
+   */
+  static async createSensor(spaceIdOrData, maybeData) {
+    if (typeof spaceIdOrData === 'string') {
+      const spaceId = spaceIdOrData;
+      const data = maybeData ?? {};
+
+      const space = await GreenSpaces.findByPk(spaceId);
+      if (!space) {
+        const error = new Error('Space not found');
+        error.statusCode = 404;
+        throw error;
+      }
+
+      if (!SENSOR_TYPES.includes(data.type)) {
+        const error = new Error(`Invalid type. Must be one of: ${SENSOR_TYPES.join(', ')}`);
+        error.statusCode = 400;
+        throw error;
+      }
+
+      return Sensors.create({
+        green_space_zone_id: data.green_space_zone_id,
+        type: data.type,
+        parameter: data.parameter,
+        min_value: data.min_value ?? null,
+        max_value: data.max_value ?? null,
+        is_active: data.is_active ?? true,
+        created_by: data.created_by,
+        updated_by: data.created_by,
+      });
+    }
+
+    return Sensors.create(spaceIdOrData);
   }
 }
 

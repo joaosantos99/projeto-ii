@@ -37,15 +37,35 @@ class SensorsController {
     }
   }
 
+  /**
+   * Get sensors. Paginated globally or filtered by space when nested under spaces.
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   */
   static async getSensors(req, res) {
     try {
-      const sensors = await SensorsService.getSensorsBySpace(req.params.spaceId);
-      res.json(SensorSerializer.serialize(sensors));
+      if (req.params.spaceId) {
+        const sensors = await SensorsService.getSensorsBySpace(req.params.spaceId);
+        return res.json(SensorSerializer.serialize(sensors));
+      }
+
+      const page = Math.max(1, parseInt(req.query.page) || 1);
+      const limit = Math.max(1, parseInt(req.query.limit) || 20);
+      const sort = req.query.sort;
+
+      const { sensors, total } = await SensorsService.getSensors({ page, limit, sort });
+
+      res.json(SensorSerializer.serializePaginated(sensors, { page, limit, total }));
     } catch (error) {
       res.status(error.statusCode || 500).json({ error: error.message });
     }
   }
 
+  /**
+   * Register a new sensor for a space.
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   */
   static async createSensor(req, res) {
     try {
       const { zoneId, type, parameter, minValue, maxValue, isActive } = req.body ?? {};
