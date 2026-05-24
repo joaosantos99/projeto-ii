@@ -48,6 +48,23 @@ class SensorsService {
       lowBattery: 0,
     };
   }
+
+  /**
+   * Get the distribution of sensors by status.
+   * @returns {Promise<Object>} The distribution object.
+   */
+  static async getDistribution() {
+    const totalSensors = await Sensors.count();
+    const online = await Sensors.count({ where: { is_active: true } });
+    const offline = await Sensors.count({ where: { is_active: false } });
+
+    return {
+      online,
+      degraded: 0,
+      offline,
+      totalSensors,
+    };
+  }
 }
 
 export default SensorsService;

@@ -42,6 +42,25 @@ class SensorSerializer extends BaseSerializer {
       },
     };
   }
+
+  /**
+   * Serialize the sensors distribution.
+   * @param {Object} distribution - The distribution data.
+   * @returns {Object} The serialized distribution.
+   */
+  static serializeDistribution(distribution) {
+    return {
+      data: {
+        online: distribution.online,
+        degraded: distribution.degraded,
+        offline: distribution.offline,
+        totalSensors: distribution.totalSensors,
+      },
+      _links: {
+        self: { href: '/api/sensors/distribution' },
+      },
+    };
+  }
 }
 
 export default SensorSerializer;

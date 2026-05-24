@@ -21,6 +21,22 @@ class SensorsController {
     }
   }
 
+  /**
+   * Get sensor distribution by status.
+   * GET /api/sensors/distribution
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   */
+  static async getDistribution(req, res) {
+    try {
+      const distribution = await SensorsService.getDistribution();
+
+      res.json(SensorSerializer.serializeDistribution(distribution));
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ error: error.message });
+    }
+  }
+
   static async getSensors(req, res) {
     try {
       const sensors = await SensorsService.getSensorsBySpace(req.params.spaceId);
