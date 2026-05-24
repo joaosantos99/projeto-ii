@@ -75,6 +75,31 @@ class AlertsService {
       totalAlerts,
     };
   }
+
+  /**
+   * Acknowledge an alert by ID.
+   * @param {string} alertId - The alert UUID.
+   * @param {string} userId - The user performing the action.
+   * @returns {Promise<Alerts>} The updated alert.
+   */
+  static async acknowledgeAlert(alertId, userId) {
+    const alert = await Alerts.findByPk(alertId);
+
+    if (!alert) {
+      const error = new Error('Alert not found!');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    await alert.update({
+      status: ALERT_STATUS.ACKNOWLEDGED,
+      is_notified: true,
+      updated_at: new Date(),
+      updated_by: userId,
+    });
+
+    return alert;
+  }
 }
 
 export default AlertsService;

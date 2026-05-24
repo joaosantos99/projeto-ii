@@ -55,6 +55,24 @@ class AlertsController {
       res.status(error.statusCode || 500).json({ error: error.message });
     }
   }
+
+  /**
+   * Acknowledge an alert.
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   */
+  static async acknowledgeAlert(req, res) {
+    try {
+      const alert = await AlertsService.acknowledgeAlert(
+        req.params.alertId,
+        req.user?.id,
+      );
+
+      res.json(AlertsSerializer.serializeAcknowledge(alert));
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ error: error.message });
+    }
+  }
 }
 
 export default AlertsController;
