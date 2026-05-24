@@ -24,6 +24,25 @@ class AlertsSerializer extends BaseSerializer {
       created: new Date(alert.created_at).toDateString()
     };
   }
+
+  /**
+   * Serialize alerts summary.
+   * @param {Object} summary - The summary data.
+   * @returns {Object} Serialized summary.
+   */
+  static serializeSummary(summary) {
+    return {
+      data: {
+        totalActiveRules: summary.totalActiveRules,
+        totalToRecognize: summary.totalToRecognize,
+        totalCriticalAlerts: summary.totalCriticalAlerts,
+        totalAlerts: summary.totalAlerts,
+      },
+      _links: {
+        self: { href: '/api/alerts/summary' },
+      },
+    };
+  }
 }
 
 export default AlertsSerializer;
