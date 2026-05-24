@@ -26,6 +26,16 @@ class DashboardController {
       res.status(error.statusCode || 500).json({ error: error.message });
     }
   }
+
+  static async getIrrigationLighting(req, res) {
+    try {
+      const spaces = await DashboardService.getIrrigationLighting();
+
+      res.json(DashboardSerializer.serializeIrrigationLighting(spaces));
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ error: error.message });
+    }
+  }
 }
 
 export default DashboardController;

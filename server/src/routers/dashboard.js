@@ -10,4 +10,7 @@ dashboardRouter.get('/summary', DashboardController.getSummary);
 // GET /api/dashboard/citizen-incidents
 dashboardRouter.get('/citizen-incidents', DashboardController.getCitizenIncidents);
 
+// GET /api/dashboard/irrigation-lighting
+dashboardRouter.get('/irrigation-lighting', DashboardController.getIrrigationLighting);
+
 export default dashboardRouter;
