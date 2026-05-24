@@ -12,5 +12,6 @@ reportsRouter.post('/generate', requireAuth, requirePermission('reports:create')
 reportsRouter.get('/:reportId/export', requireAuth, requirePermission('reports:read'), ReportsController.exportReport);
 
 reportsRouter.post('/:spaceId/incident', ReportsController.createIncident);
+reportsRouter.post('/:spaceId/comment', ReportsController.createComment);
 
 export default reportsRouter;

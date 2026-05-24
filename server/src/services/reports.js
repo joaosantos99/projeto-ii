@@ -151,6 +151,16 @@ class ReportsService {
   static async createIncident(spaceId, data) {
     return this.#createReport(spaceId, REPORT_TYPES.INCIDENT, data);
   }
+
+  /**
+   * Creates a comment report for a given space.
+   * @param {string} spaceId - The green space UUID.
+   * @param {Object} data - The comment payload.
+   * @returns {Promise<Reports>} The created comment.
+   */
+  static async createComment(spaceId, data) {
+    return this.#createReport(spaceId, REPORT_TYPES.COMMENT, data);
+  }
 }
 
 export default ReportsService;
