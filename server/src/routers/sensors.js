@@ -5,7 +5,7 @@ import requireAuth from '../middleware/auth.js';
 
 const sensorsRouter = Router({ mergeParams: true });
 
-sensorsRouter.get('/summary', requireAuth, SensorsController.getSpacesSummary);
+sensorsRouter.get('/summary', SensorsController.getSummary);
 sensorsRouter.get('/', requireAuth, SensorsController.getSensors);
 sensorsRouter.post('/', requireAuth, SensorsController.createSensor);
 sensorsRouter.put('/:sensorId', requireAuth, SensorsController.updateSensor);

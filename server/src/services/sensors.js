@@ -31,6 +31,23 @@ class SensorsService {
   static async getZoneById(zoneId) {
     return GreenSpaceZones.findByPk(zoneId);
   }
+
+  /**
+   * Get a summary of sensor stats.
+   * @returns {Promise<Object>} The summary object.
+   */
+  static async getSummary() {
+    const totalSensors = await Sensors.count();
+    const totalActive = await Sensors.count({ where: { is_active: true } });
+    const totalNeedsAttention = await Sensors.count({ where: { is_active: false } });
+
+    return {
+      totalSensors,
+      totalActive,
+      totalNeedsAttention,
+      lowBattery: 0,
+    };
+  }
 }
 
 export default SensorsService;

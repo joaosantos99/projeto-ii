@@ -1,7 +1,26 @@
 import SensorSerializer from '../serializers/SensorSerializer.js';
 import SensorsService from '../services/sensors.js';
 
+/**
+ * Controller for the sensors routes.
+ */
 class SensorsController {
+  /**
+   * Get a summary of sensor stats.
+   * GET /api/sensors/summary
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   */
+  static async getSummary(req, res) {
+    try {
+      const summary = await SensorsService.getSummary();
+
+      res.json(SensorSerializer.serializeSummary(summary));
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ error: error.message });
+    }
+  }
+
   static async getSensors(req, res) {
     try {
       const sensors = await SensorsService.getSensorsBySpace(req.params.spaceId);

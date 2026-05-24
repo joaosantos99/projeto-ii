@@ -23,6 +23,25 @@ class SensorSerializer extends BaseSerializer {
       updatedAt: sensor.updated_at ? new Date(sensor.updated_at).toISOString() : null,
     };
   }
+
+  /**
+   * Serialize the sensors summary.
+   * @param {Object} summary - The summary data.
+   * @returns {Object} The serialized summary.
+   */
+  static serializeSummary(summary) {
+    return {
+      data: {
+        totalSensors: summary.totalSensors,
+        totalActive: summary.totalActive,
+        totalNeedsAttention: summary.totalNeedsAttention,
+        lowBattery: summary.lowBattery,
+      },
+      _links: {
+        self: { href: '/api/sensors/summary' },
+      },
+    };
+  }
 }
 
 export default SensorSerializer;
