@@ -14,6 +14,7 @@ import { RelatoriosPage } from "#/pages/relatorios"
 import { EspacosPage } from "#/pages/espacos"
 import { EspacoDetalhePage } from "#/pages/espaco-detalhe"
 import { PermissoesPage } from "#/pages/permissoes"
+import { PermissaoDetalhePage } from "#/pages/permissao-detalhe"
 import { RequireAuth, RedirectIfAuth } from "#/components/auth-guards"
 import { AuthProvider } from "#/hooks/use-auth"
 import "#/styles.css"
@@ -46,6 +47,7 @@ export default function App({ initialUser = null, initialUrl = "/" }) {
               <Route path="/admin/espacos" element={<EspacosPage />} />
               <Route path="/admin/espacos/:id" element={<EspacoDetalhePage />} />
               <Route path="/admin/roles" element={<PermissoesPage />} />
+              <Route path="/admin/roles/:id" element={<PermissaoDetalhePage />} />
             </Route>
           </Route>
           <Route path="*" element={<Navigate to="/admin" replace />} />
