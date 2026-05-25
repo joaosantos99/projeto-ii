@@ -1,4 +1,5 @@
 import RolesService from '../services/roles.js';
+import { PERMISSIONS } from '../constants/permissions.js';
 
 /**
  * Controller for the roles routes.
@@ -51,6 +52,24 @@ class RolesController {
         permissionsDump: role.permissions,
         createdAt: new Date(role.created_at).toISOString(),
       });
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ description: error.message });
+    }
+  }
+
+  /**
+   * Return the list of all known permission identifiers.
+   * Shape: [{ id: 'users:read', resource: 'users', action: 'read' }, ...]
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   */
+  static async getPermissionsCatalog(req, res) {
+    try {
+      const catalog = Object.values(PERMISSIONS).map((id) => {
+        const [resource, action] = id.split(':');
+        return { id, resource, action };
+      });
+      res.json(catalog);
     } catch (error) {
       res.status(error.statusCode || 500).json({ description: error.message });
     }
