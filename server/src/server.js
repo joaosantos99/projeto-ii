@@ -1,9 +1,11 @@
 import express, { Router } from 'express';
 import cors from "cors";
+import swaggerUi from 'swagger-ui-express';
 
 import sequelize from './database/connection.js';
 import './database/models/index.js';
 import env from './env.js';
+import openapiSpec from './openapi.js';
 
 import usersRouter from './routers/users.js'
 import spacesRouter from './routers/spaces.js'
@@ -21,6 +23,10 @@ app.use(express.json());
 
 const apiRouter = Router();
 app.use('/api', apiRouter);
+
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(openapiSpec));
+app.get('/docs.json', (_req, res) => res.json(openapiSpec));
+
 apiRouter.use('/auth', authRouter);
 apiRouter.use('/users', usersRouter);
 apiRouter.use('/spaces', spacesRouter);
