@@ -6,8 +6,8 @@ import BaseSerializer from "./BaseSerializer.js";
 class SpaceSerializer extends BaseSerializer {
 
   /**
-   * Serialize a single user.
-   * @param {Object} space - The user to serialize.
+   * Serialize a single space.
+   * @param {Object} space - The space to serialize.
    * @param {Object} extraData - The extra data to serialize.
    * @returns {Object} The serialized space.
    */

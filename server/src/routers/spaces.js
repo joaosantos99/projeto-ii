@@ -12,6 +12,10 @@ import reportsRouter from './reports.js';
 
 const spacesRouter = Router();
 
+// Rotas públicas
+spacesRouter.get('/public', SpacesController.getPublicSpaces);
+
+// Rotas privadas
 spacesRouter.get('/summary', requireAuth, requirePermission(PERMISSIONS.SPACES_READ), SpacesController.getSpacesSummary);
 spacesRouter.get('/', requireAuth, requirePermission(PERMISSIONS.SPACES_READ), SpacesController.getSpaces);
 spacesRouter.get('/:spaceId', requireAuth, requirePermission(PERMISSIONS.SPACES_READ), SpacesController.getSpaceById);

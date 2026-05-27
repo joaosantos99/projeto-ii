@@ -8,6 +8,41 @@ import ZonesService from '../services/zones.js';
  */
 class SpacesController {
   /**
+   * Get paginated and filtered public spaces.
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   */
+  static async getPublicSpaces(req, res) {
+    try {
+      const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+      const perPage = Math.max(1, parseInt(req.query.perPage, 10) || 10);
+      const { query, city } = req.query;
+
+      const { spaces, total } = await SpacesService.getSpaces({ page, perPage, query, city });
+      const totalPages = Math.max(1, Math.ceil(total / perPage));
+
+      res.json({
+        spaces: spaces.map((space) => ({
+          id: space.id,
+          name: space.name,
+          city: space.city,
+          postalCode: space.postal_code,
+          latitude: space.latitude,
+          longitude: space.longitude,
+        })),
+        pagination: {
+          page,
+          perPage,
+          total,
+          totalPages,
+        },
+      });
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ error: error.message });
+    }
+  }
+
+  /**
    * Get paginated and filtered spaces.
    * @param {Object} req - The request object.
    * @param {Object} res - The response object.
