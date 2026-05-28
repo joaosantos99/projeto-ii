@@ -1,4 +1,5 @@
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet"
+import "leaflet/dist/leaflet.css"
 
 export function MapWidget({ spaces }) {
     return (
