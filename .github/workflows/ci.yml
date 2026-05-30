@@ -28,3 +28,32 @@ jobs:
 
       - name: Run tests
         run: bun run vitest run --passWithNoTests
+
+  lighthouse:
+    name: lighthouse (web)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - uses: browser-actions/setup-chrome@v1
+        id: setup-chrome
+        with:
+          chrome-version: stable
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build
+        run: bun run build
+
+      - name: Run Lighthouse CI
+        run: bunx lhci autorun
+        env:
+          CHROME_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
