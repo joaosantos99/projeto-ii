@@ -1,8 +1,9 @@
 import GreenSpaceZones from '../database/models/GreenSpaceZones.js';
 import GreenSpaces from '../database/models/GreenSpaces.js';
 import Sensors from '../database/models/Sensors.js';
+import { SENSOR_UNITS } from '../constants/sensorUnits.js';
 
-const SENSOR_TYPES = ['temperature', 'humidity', 'light', 'sound'];
+const SENSOR_TYPES = Object.keys(SENSOR_UNITS);
 
 /**
  * Service for the sensors routes.
