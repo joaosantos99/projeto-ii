@@ -68,7 +68,7 @@ class SensorsController {
    */
   static async createSensor(req, res) {
     try {
-      const { zoneId, type, parameter, minValue, maxValue, isActive } = req.body ?? {};
+      const { zoneId, type, parameter, unit, minValue, maxValue, isActive } = req.body ?? {};
       const errors = {};
 
       if (!zoneId) errors.zoneId = ['Zona é obrigatória.'];
@@ -87,6 +87,7 @@ class SensorsController {
         green_space_zone_id: zoneId,
         type,
         parameter: parameter ?? type,
+        unit,
         min_value: minValue ?? 0,
         max_value: maxValue ?? 0,
         is_active: isActive ?? true,

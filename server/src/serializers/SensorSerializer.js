@@ -23,6 +23,7 @@ class SensorSerializer extends BaseSerializer {
       spaceId: zone?.green_spaces_id ?? null,
       type: sensor.type,
       parameter: sensor.parameter,
+      unit: sensor.unit ?? null,
       minValue: sensor.min_value,
       maxValue: sensor.max_value,
       isActive: sensor.is_active,

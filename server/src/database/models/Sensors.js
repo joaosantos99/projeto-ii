@@ -27,6 +27,10 @@ const Sensors = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    unit: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     min_value: {
       type: DataTypes.FLOAT,
       allowNull: false,

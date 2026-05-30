@@ -1,8 +1,7 @@
 import GreenSpaceZones from '../database/models/GreenSpaceZones.js';
 import GreenSpaces from '../database/models/GreenSpaces.js';
 import Sensors from '../database/models/Sensors.js';
-
-const SENSOR_TYPES = ['temperature', 'humidity', 'light', 'sound'];
+import { SENSOR_TYPES, normalizeSensorUnits } from '../lib/units.js';
 
 /**
  * Service for the sensors routes.
@@ -115,19 +114,43 @@ class SensorsService {
         throw error;
       }
 
+      const normalized = normalizeSensorUnits({
+        type: data.type,
+        unit: data.unit,
+        min_value: data.min_value ?? null,
+        max_value: data.max_value ?? null,
+      });
+
       return Sensors.create({
         green_space_zone_id: data.green_space_zone_id,
         type: data.type,
         parameter: data.parameter,
-        min_value: data.min_value ?? null,
-        max_value: data.max_value ?? null,
+        unit: normalized.unit,
+        min_value: normalized.min_value,
+        max_value: normalized.max_value,
         is_active: data.is_active ?? true,
         created_by: data.created_by,
         updated_by: data.created_by,
       });
     }
 
-    return Sensors.create(spaceIdOrData);
+    const data = spaceIdOrData;
+    if (data?.type) {
+      const normalized = normalizeSensorUnits({
+        type: data.type,
+        unit: data.unit,
+        min_value: data.min_value,
+        max_value: data.max_value,
+      });
+      return Sensors.create({
+        ...data,
+        unit: normalized.unit,
+        min_value: normalized.min_value,
+        max_value: normalized.max_value,
+      });
+    }
+
+    return Sensors.create(data);
   }
 }
 
