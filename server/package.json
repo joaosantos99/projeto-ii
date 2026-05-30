@@ -6,6 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "nodemon src/server.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
     "lint": "biome lint src",
     "lint:fix": "biome lint src --fix",
     "db:migrate": "sequelize db:migrate",
@@ -28,6 +30,7 @@
     "@biomejs/biome": "2.4.6",
     "@faker-js/faker": "^10.4.0",
     "nodemon": "^3.1.14",
-    "sequelize-cli": "^6.6.5"
+    "sequelize-cli": "^6.6.5",
+    "vitest": "^4.1.7"
   }
 }
