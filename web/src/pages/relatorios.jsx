@@ -17,40 +17,86 @@ import { VolumeChart } from "#/components/relatorios/volume-chart"
 import { ReportsTable } from "#/components/relatorios/reports-table"
 import { ReportsPagination } from "#/components/relatorios/reports-pagination"
 import { GenerateReportDialog } from "#/components/relatorios/generate-report-dialog"
-import {
-  REPORTS_PER_PAGE,
-  paginateReports,
-  reportsSeed,
-} from "#/data/relatorios"
+import { REPORTS_PER_PAGE, paginateReports } from "#/data/relatorios"
+import { api } from "#/lib/api"
+
+const TYPE_MAP = {
+  operational: "operacional",
+  environmental: "ambiental",
+  incidents: "incidentes",
+  incident: "incidentes",
+}
+
+const STATUS_MAP = {
+  generated: "gerado",
+  scheduled: "agendado",
+}
+
+function formatDateTime(value) {
+  if (!value) return "—"
+  const d = new Date(value)
+  if (Number.isNaN(d.getTime())) return "—"
+  const pad = (n) => String(n).padStart(2, "0")
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
+function periodLabel(value) {
+  if (!value) return "—"
+  const d = new Date(value)
+  if (Number.isNaN(d.getTime())) return "—"
+  return d.toLocaleDateString("pt-PT", { month: "short", year: "numeric" })
+}
+
+function normalizeReport(report) {
+  return {
+    id: report.id,
+    type: TYPE_MAP[report.type] ?? report.type,
+    scope: report.scope ?? "—",
+    period: periodLabel(report.createdAt),
+    createdAt: formatDateTime(report.createdAt),
+    status: STATUS_MAP[report.status] ?? report.status,
+  }
+}
 
 export function RelatoriosPage() {
   const { setTitle } = useOutletContext()
-  const [reports, setReports] = useState(reportsSeed)
+  const [reports, setReports] = useState([])
+  const [loading, setLoading] = useState(true)
   const [generateOpen, setGenerateOpen] = useState(false)
   const [page, setPage] = useState(1)
+  const [refresh, setRefresh] = useState(0)
 
   useEffect(() => {
     setTitle("Relatórios e exportações")
   }, [setTitle])
 
+  useEffect(() => {
+    setLoading(true)
+    api.get("/reports", { params: { limit: 1000 } })
+      .then((res) => setReports((res.data?.data ?? []).map(normalizeReport)))
+      .catch(() => setReports([]))
+      .finally(() => setLoading(false))
+  }, [refresh])
+
   const totalPages = Math.max(1, Math.ceil(reports.length / REPORTS_PER_PAGE))
   const currentPage = Math.min(page, totalPages)
   const paginatedReports = paginateReports(reports, currentPage)
 
-  const handleGenerate = ({ rangeStart, rangeEnd, type }) => {
-    setReports((current) => [
-      {
-        id: `REP-${331 + current.length}`,
-        type,
-        scope: "Todos os espacos",
-        period: `${rangeStart} a ${rangeEnd}`,
-        createdAt: "2026-03-23 11:20",
-        status: "agendado",
-      },
-      ...current,
-    ])
-    setPage(1)
-    setGenerateOpen(false)
+  const handleGenerate = (payload) => {
+    return api.post("/reports/generate", payload).then(() => {
+      setPage(1)
+      setGenerateOpen(false)
+      setRefresh((n) => n + 1)
+    })
+  }
+
+  const handleExport = (reportId) => {
+    api.get(`/reports/${reportId}/export`)
+      .then((res) => {
+        const url = res.data?.url
+        if (url) window.open(url, "_blank", "noopener")
+      })
+      .catch(() => {})
   }
 
   return (
@@ -74,18 +120,24 @@ export function RelatoriosPage() {
         </CardHeader>
 
         <CardContent className="flex flex-col gap-4">
-          <ReportsTable reports={paginatedReports} />
-          <div className="border-t" />
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-xs text-muted-foreground">
-              {reports.length} relatório(s) — página {currentPage} de {totalPages}
-            </p>
-            <ReportsPagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setPage}
-            />
-          </div>
+          {loading ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">A carregar…</p>
+          ) : (
+            <>
+              <ReportsTable reports={paginatedReports} onExport={handleExport} />
+              <div className="border-t" />
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-xs text-muted-foreground">
+                  {reports.length} relatório(s) — página {currentPage} de {totalPages}
+                </p>
+                <ReportsPagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setPage}
+                />
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
 

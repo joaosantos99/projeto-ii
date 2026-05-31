@@ -5,7 +5,7 @@ import { Badge } from "#/components/ui/badge"
 import { Button } from "#/components/ui/button"
 import { statusLabels, typeLabels } from "#/data/relatorios"
 
-export function ReportsTable({ reports }) {
+export function ReportsTable({ reports, onExport }) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
@@ -36,7 +36,7 @@ export function ReportsTable({ reports }) {
                 </Badge>
               </td>
               <td className="px-3 py-2 text-right">
-                <Button size="sm" variant="ghost">
+                <Button size="sm" variant="ghost" onClick={() => onExport?.(report.id)}>
                   <Download />
                   CSV
                 </Button>

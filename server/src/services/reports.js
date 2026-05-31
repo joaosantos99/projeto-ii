@@ -1,8 +1,10 @@
-import { fn, col } from 'sequelize';
+import { fn, col, Op } from 'sequelize';
 
 import Reports from '../database/models/Reports.js';
 import GreenSpaces from '../database/models/GreenSpaces.js';
 import GreenSpaceZones from '../database/models/GreenSpaceZones.js';
+
+const GENERATED_STATUSES = ['generated', 'scheduled'];
 
 const REPORT_TYPES = {
   INCIDENT: 'incident',
@@ -33,6 +35,28 @@ class ReportsService {
       : null;
 
     return { total, generated, scheduled, lastCreatedAt };
+  }
+
+  /**
+   * Return the generated/scheduled reports history (paginated).
+   * Excludes citizen incident/comment reports.
+   * @param {Object} options
+   * @param {number} options.page
+   * @param {number} options.limit
+   * @returns {Promise<Object>} Reports array and total count.
+   */
+  static async getReports({ page = 1, limit = 20 } = {}) {
+    const offset = (page - 1) * limit;
+
+    const { count: total, rows: reports } = await Reports.findAndCountAll({
+      where: { status: { [Op.in]: GENERATED_STATUSES } },
+      include: [{ model: GreenSpaces, as: 'greenSpace', attributes: ['name'] }],
+      order: [['created_at', 'DESC']],
+      limit,
+      offset,
+    });
+
+    return { reports, total };
   }
 
   /**

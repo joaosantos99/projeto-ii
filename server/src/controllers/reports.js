@@ -10,6 +10,19 @@ class ReportsController {
    * @param {Object} req - The request object.
    * @param {Object} res - The response object.
    */
+  static async getReports(req, res) {
+    try {
+      const page = Math.max(1, parseInt(req.query.page) || 1);
+      const limit = Math.max(1, parseInt(req.query.limit) || 20);
+
+      const { reports, total } = await ReportsService.getReports({ page, limit });
+
+      res.json(ReportSerializer.serializePaginated(reports, { page, limit, total }));
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ description: error.message });
+    }
+  }
+
   static async getSummary(req, res) {
     try {
       const summary = await ReportsService.getSummary();

@@ -24,6 +24,45 @@ class ReportSerializer extends BaseSerializer {
       createdAt: new Date(report.created_at).toISOString(),
     };
   }
+
+  /**
+   * Serialize a generated report row for the history list.
+   * @param {Object} report - The report (with greenSpace association).
+   * @returns {Object} The serialized row.
+   */
+  static serializeRow(report) {
+    this.baseValidation(report);
+
+    return {
+      id: report.id,
+      type: report.type,
+      status: report.status,
+      scope: report.greenSpace?.name ?? null,
+      greenSpaceId: report.green_space_id,
+      createdAt: new Date(report.created_at).toISOString(),
+    };
+  }
+
+  /**
+   * Serialize the generated reports history (paginated).
+   * @param {Array} reports - The reports array.
+   * @param {Object} pagination - Pagination metadata.
+   * @returns {Object} Serialized paginated response.
+   */
+  static serializePaginated(reports, { page, limit, total }) {
+    return {
+      data: reports.map((report) => this.serializeRow(report)),
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+      _links: {
+        self: { href: `/api/reports?page=${page}&limit=${limit}` },
+      },
+    };
+  }
 }
 
 export default ReportSerializer;
