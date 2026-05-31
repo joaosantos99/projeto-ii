@@ -17,50 +17,89 @@ import { Button } from "#/components/ui/button"
 import { KpiCard, KpiCardGrid } from "#/components/ui/kpi-card"
 import { Widget, WidgetTile } from "#/components/ui/widget"
 import { cn } from "#/lib/utils"
-
-const kpis = [
-  { label: "Alertas criticos", value: "2", hint: "+2 nas ultimas 24h", Icon: Warning },
-  { label: "Manutencao em atraso", value: "0", hint: "Prioridade de despacho", Icon: WarningCircle },
-  { label: "Sensores offline", value: "1", hint: "Intervencao recomendada", Icon: Broadcast },
-  { label: "Tempo medio de resposta", value: "41 min", hint: "-8% face a semana passada", Icon: Gauge },
-]
-
-const incidents = [
-  { id: "INC-2041", space: "Parque da Cidade", issue: "Iluminacao intermitente", age: "Ha 42 min" },
-  { id: "INC-2038", space: "Monsanto", issue: "Aspersor danificado", age: "Ha 1h 11m" },
-  { id: "INC-2032", space: "Bucaco", issue: "Ruido elevado noturno", age: "Ha 2h 03m" },
-]
-
-const regaSpaces = Array.from({ length: 7 }, () => ({
-  space: "Monsanto",
-  irrigation: true,
-  lighting: true,
-}))
-
-const alerts = [
-  { id: "ALR-8812", rule: "Ruido elevado prolongado", space: "Parque Florestal de Monsanto", severity: "critical", happenedAt: "2026-03-23 09:10", acknowledged: false },
-  { id: "ALR-8798", rule: "Humidade abaixo de 35%", space: "Parque da Cidade", severity: "critical", happenedAt: "2026-03-22 22:19", acknowledged: false },
-  { id: "ALR-8806", rule: "Temperatura acima do limite", space: "Mata Nacional do Bucaco", severity: "warning", happenedAt: "2026-03-23 08:24", acknowledged: true },
-]
+import { api } from "#/lib/api"
+import { formatDateTime, relativeAge } from "#/lib/format-date"
 
 const PAGE_SIZE = 4
 
+const SEVERITY_RANK = { critical: 3, warning: 2, normal: 1 }
+
 export function DashboardPage() {
   const { setTitle } = useOutletContext()
+
+  const [summary, setSummary] = useState(null)
+  const [alerts, setAlerts] = useState([])
+  const [spaces, setSpaces] = useState([])
+  const [incidents, setIncidents] = useState([])
+  const [page, setPage] = useState(1)
+  const [acknowledgingId, setAcknowledgingId] = useState(null)
 
   useEffect(() => {
     setTitle("Visão geral")
   }, [setTitle])
 
-  const [page, setPage] = useState(1)
-  const sortedAlerts = useMemo(() => {
-    const rank = { critical: 3, warning: 2, normal: 1 }
-    return [...alerts].sort((a, b) => (rank[b.severity] ?? 0) - (rank[a.severity] ?? 0))
+  useEffect(() => {
+    api.get("/dashboard/summary")
+      .then((res) => setSummary(res.data?.data ?? res.data))
+      .catch(() => setSummary(null))
+
+    api.get("/alerts")
+      .then((res) => setAlerts(Array.isArray(res.data) ? res.data : []))
+      .catch(() => setAlerts([]))
+
+    api.get("/dashboard/irrigation-lighting")
+      .then((res) => setSpaces(res.data?.data ?? []))
+      .catch(() => setSpaces([]))
+
+    api.get("/dashboard/citizen-incidents", { params: { limit: 3 } })
+      .then((res) => setIncidents(res.data?.data ?? []))
+      .catch(() => setIncidents([]))
   }, [])
+
+  const spaceNameById = useMemo(() => {
+    const map = new Map()
+    for (const s of spaces) map.set(s.greenSpaceId, s.name)
+    return map
+  }, [spaces])
+
+  const kpis = useMemo(() => [
+    { label: "Alertas criticos", value: String(summary?.totalAlerts ?? 0), hint: "Total de alertas registados", Icon: Warning },
+    { label: "Manutencao em atraso", value: String(summary?.totalLateMaintenance ?? 0), hint: "Prioridade de despacho", Icon: WarningCircle },
+    { label: "Sensores offline", value: String(summary?.totalOfflineSensors ?? 0), hint: "Intervencao recomendada", Icon: Broadcast },
+    { label: "Tempo medio de resposta", value: `${summary?.averageResponseTime ?? 0} min`, hint: "Media de confirmacao", Icon: Gauge },
+  ], [summary])
+
+  const sortedAlerts = useMemo(() => {
+    return [...alerts].sort(
+      (a, b) => (SEVERITY_RANK[b.severity] ?? 0) - (SEVERITY_RANK[a.severity] ?? 0),
+    )
+  }, [alerts])
 
   const totalPages = Math.max(1, Math.ceil(sortedAlerts.length / PAGE_SIZE))
   const currentPage = Math.min(page, totalPages)
   const paginatedAlerts = sortedAlerts.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+
+  const handleAcknowledge = (alertId) => {
+    setAcknowledgingId(alertId)
+    api.patch(`/alerts/${alertId}/acknowledge`)
+      .then((res) => {
+        setAlerts((current) =>
+          current.map((item) =>
+            item.id === alertId
+              ? {
+                  ...item,
+                  status: res.data?.status ?? "confirmed",
+                  isNotified: true,
+                  updatedAt: res.data?.updatedAt ?? item.updatedAt,
+                  updatedBy: res.data?.updatedBy ?? item.updatedBy,
+                }
+              : item,
+          ),
+        )
+      })
+      .catch(() => {})
+      .finally(() => setAcknowledgingId(null))
+  }
 
   return (
     <div className="flex flex-col gap-4">
@@ -98,37 +137,45 @@ export function DashboardPage() {
               </tr>
             </thead>
             <tbody>
-              {paginatedAlerts.map((alert) => (
-                <tr key={alert.id} className="border-b border-border last:border-0">
-                  <td className="py-2.5 pr-4">{alert.rule}</td>
-                  <td className="py-2.5 pr-4 text-muted-foreground">{alert.space}</td>
-                  <td className="py-2.5 pr-4">
-                    <Badge variant={alert.severity === "critical" ? "destructive" : "warning"}>
-                      {alert.severity === "critical" ? "Critico" : "Warning"}
-                    </Badge>
-                  </td>
-                  <td className="py-2.5 pr-4 text-muted-foreground">{alert.happenedAt}</td>
-                  <td className="py-2.5 text-right">
-                    <Button
-                      size="xs"
-                      variant={alert.acknowledged ? "secondary" : "outline"}
-                      className={alert.acknowledged ? "bg-green-50 text-green-700 ring-1 ring-green-200 hover:bg-green-100" : ""}
-                    >
-                      {alert.acknowledged ? (
-                        <>
-                          <CheckCircle className="size-3" />
-                          Confirmado
-                        </>
-                      ) : (
-                        <>
-                          <Alarm className="size-3" />
-                          Confirmar
-                        </>
-                      )}
-                    </Button>
-                  </td>
-                </tr>
-              ))}
+              {paginatedAlerts.map((alert) => {
+                const acknowledged = alert.status === "confirmed" || alert.isNotified
+                const isBusy = acknowledgingId === alert.id
+                return (
+                  <tr key={alert.id} className="border-b border-border last:border-0">
+                    <td className="py-2.5 pr-4">{alert.message}</td>
+                    <td className="py-2.5 pr-4 text-muted-foreground">
+                      {spaceNameById.get(alert.greenSpaceId) ?? "—"}
+                    </td>
+                    <td className="py-2.5 pr-4">
+                      <Badge variant={alert.severity === "critical" ? "destructive" : "warning"}>
+                        {alert.severity === "critical" ? "Critico" : "Warning"}
+                      </Badge>
+                    </td>
+                    <td className="py-2.5 pr-4 text-muted-foreground">{formatDateTime(alert.createdAt)}</td>
+                    <td className="py-2.5 text-right">
+                      <Button
+                        size="xs"
+                        variant={acknowledged ? "secondary" : "outline"}
+                        disabled={acknowledged || isBusy}
+                        onClick={() => handleAcknowledge(alert.id)}
+                        className={acknowledged ? "bg-green-50 text-green-700 ring-1 ring-green-200 hover:bg-green-100" : ""}
+                      >
+                        {acknowledged ? (
+                          <>
+                            <CheckCircle className="size-3" />
+                            Confirmado
+                          </>
+                        ) : (
+                          <>
+                            <Alarm className="size-3" />
+                            {isBusy ? "A confirmar..." : "Confirmar"}
+                          </>
+                        )}
+                      </Button>
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>
@@ -175,21 +222,25 @@ export function DashboardPage() {
           description="Indicadores por espaco"
         >
           <div className="grid grid-cols-2 gap-2">
-            {regaSpaces.map((space, index) => (
-              <WidgetTile key={index}>
-                <p className="text-xs font-medium">{space.space}</p>
-                <div className="mt-1 flex items-center gap-2">
-                  <Badge variant={space.irrigation ? "secondary" : "outline"}>
-                    <Heartbeat className="size-3" />
-                    Rega {space.irrigation ? "ON" : "OFF"}
-                  </Badge>
-                  <Badge variant={space.lighting ? "secondary" : "outline"}>
-                    <Lightning className="size-3" />
-                    Luz {space.lighting ? "ON" : "OFF"}
-                  </Badge>
-                </div>
-              </WidgetTile>
-            ))}
+            {spaces.map((space) => {
+              const irrigation = space.irrigationStatus === "ON"
+              const lighting = space.lightingStatus === "ON"
+              return (
+                <WidgetTile key={space.greenSpaceId}>
+                  <p className="text-xs font-medium">{space.name}</p>
+                  <div className="mt-1 flex items-center gap-2">
+                    <Badge variant={irrigation ? "secondary" : "outline"}>
+                      <Heartbeat className="size-3" />
+                      Rega {irrigation ? "ON" : "OFF"}
+                    </Badge>
+                    <Badge variant={lighting ? "secondary" : "outline"}>
+                      <Lightning className="size-3" />
+                      Luz {lighting ? "ON" : "OFF"}
+                    </Badge>
+                  </div>
+                </WidgetTile>
+              )
+            })}
           </div>
         </Widget>
 
@@ -201,11 +252,13 @@ export function DashboardPage() {
           {incidents.map((incident) => (
             <WidgetTile key={incident.id}>
               <div className="flex items-center justify-between gap-2">
-                <p className="text-xs font-medium">{incident.id}</p>
-                <Badge variant="outline">{incident.age}</Badge>
+                <p className="text-xs font-medium">{incident.name ?? incident.id}</p>
+                <Badge variant="outline">{relativeAge(incident.createdAt)}</Badge>
               </div>
-              <p className="mt-1 text-xs">{incident.issue}</p>
-              <p className="text-xs text-muted-foreground">{incident.space}</p>
+              <p className="mt-1 text-xs">{incident.description}</p>
+              <p className="text-xs text-muted-foreground">
+                {spaceNameById.get(incident.greenSpaceId) ?? "—"}
+              </p>
             </WidgetTile>
           ))}
           <Button size="sm" variant="default">
