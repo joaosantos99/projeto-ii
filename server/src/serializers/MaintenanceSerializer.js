@@ -26,6 +26,20 @@ class MaintenanceSerializer extends BaseSerializer {
   }
 
   /**
+   * Serialize a single task with HATEOAS links.
+   * @param {Object} task - The task to serialize.
+   * @returns {Object} The serialized task with links.
+   */
+  static serializeWithLinks(task) {
+    return {
+      data: this.serializeOne(task),
+      _links: {
+        self: { href: `/api/maintenance/${task.id}` },
+      },
+    };
+  }
+
+  /**
    * Serialize maintenance tasks (paginated).
    * @param {Array} tasks - The tasks array.
    * @param {Object} pagination - Pagination metadata.

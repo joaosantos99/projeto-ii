@@ -87,20 +87,12 @@ export function ManutencaoPage() {
     })
   }, [tasks, query, zoneFilter, priorityFilter])
 
-  const handleCreate = ({ title, zone, priority }) => {
-    setTasks((current) => [
-      {
-        id: `MT-${1200 + current.length + 10}`,
-        title,
-        zone,
-        technician: "Por atribuir",
-        priority,
-        dueDate: "2026-03-26",
-        status: "pendente",
-      },
-      ...current,
-    ])
-    setCreateOpen(false)
+  const handleCreate = (payload) => {
+    return api.post("/maintenance", payload).then((res) => {
+      const created = normalizeTask(res.data?.data ?? res.data)
+      if (created) setTasks((current) => [created, ...current])
+      setCreateOpen(false)
+    })
   }
 
   return (

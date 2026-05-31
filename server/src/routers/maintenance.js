@@ -8,6 +8,7 @@ const maintenanceRouter = Router({ mergeParams: true });
 maintenanceRouter.get('/summary', MaintenanceController.getSummary);
 
 maintenanceRouter.get('/', requireAuth, MaintenanceController.getTasks);
+maintenanceRouter.post('/', requireAuth, MaintenanceController.createTask);
 maintenanceRouter.delete('/:maintenanceId', requireAuth, MaintenanceController.deleteTask);
 
 export default maintenanceRouter;

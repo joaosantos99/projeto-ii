@@ -57,6 +57,15 @@ export const selectClass =
 
 export const zoneOptions = ["Zona Norte", "Zona Sul", "Entrada Principal"]
 
+export const typeOptions = [
+  { value: "pruning", label: "Poda" },
+  { value: "irrigation", label: "Rega" },
+  { value: "fertilization", label: "Fertilização" },
+  { value: "pest_control", label: "Controlo de pragas" },
+  { value: "mowing", label: "Corte de relva" },
+  { value: "cleaning", label: "Limpeza" },
+]
+
 export const priorityOptions = [
   { value: "normal", label: "Normal" },
   { value: "warning", label: "Aviso" },
