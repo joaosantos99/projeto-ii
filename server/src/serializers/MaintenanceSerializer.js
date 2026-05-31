@@ -26,6 +26,27 @@ class MaintenanceSerializer extends BaseSerializer {
   }
 
   /**
+   * Serialize maintenance tasks (paginated).
+   * @param {Array} tasks - The tasks array.
+   * @param {Object} pagination - Pagination metadata.
+   * @returns {Object} Serialized paginated response.
+   */
+  static serializePaginated(tasks, { page, limit, total }) {
+    return {
+      data: this.serialize(tasks),
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+      _links: {
+        self: { href: `/api/maintenance?page=${page}&limit=${limit}` },
+      },
+    };
+  }
+
+  /**
    * Serialize maintenance summary.
    * @param {Object} summary - The summary data.
    * @returns {Object} Serialized summary.
