@@ -24,10 +24,17 @@ export function ProfileFormCard({
 }) {
   const [fullName, setFullName] = useState(initialName)
   const [email, setEmail] = useState(initialEmail)
+  const [saving, setSaving] = useState(false)
+  const [feedback, setFeedback] = useState(null)
 
   const handleSave = () => {
     if (!fullName.trim() || !email.trim()) return
-    onSave?.({ name: fullName.trim(), email: email.trim() })
+    setSaving(true)
+    setFeedback(null)
+    Promise.resolve(onSave?.({ name: fullName.trim(), email: email.trim() }))
+      .then(() => setFeedback({ type: "ok", text: "Dados atualizados." }))
+      .catch(() => setFeedback({ type: "error", text: "Não foi possível guardar os dados." }))
+      .finally(() => setSaving(false))
   }
 
   return (
@@ -39,12 +46,17 @@ export function ProfileFormCard({
             Nome completo e email associados ao registo.
           </CardDescription>
         </div>
-        <Button type="button" size="sm" className="shrink-0" onClick={handleSave}>
-          Guardar dados
+        <Button type="button" size="sm" className="shrink-0" onClick={handleSave} disabled={saving}>
+          {saving ? "A guardar…" : "Guardar dados"}
         </Button>
       </CardHeader>
       <CardContent>
         <FieldGroup>
+          {feedback ? (
+            <p className={feedback.type === "ok" ? "text-sm text-green-600" : "text-sm text-destructive"}>
+              {feedback.text}
+            </p>
+          ) : null}
           <Field>
             <FieldLabel htmlFor="user-full-name">Nome completo</FieldLabel>
             <Input

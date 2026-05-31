@@ -22,21 +22,36 @@ export function PasswordFormCard({ onChangePassword }) {
   const [next, setNext] = useState("")
   const [confirm, setConfirm] = useState("")
   const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
+  const [saving, setSaving] = useState(false)
 
   const handleSubmit = () => {
     setError("")
+    setSuccess("")
     if (!current || !next || !confirm) {
       setError("Preencha todos os campos.")
+      return
+    }
+    if (next.length < 10) {
+      setError("A nova palavra-passe deve ter pelo menos 10 caracteres.")
       return
     }
     if (next !== confirm) {
       setError("A confirmação não coincide com a nova palavra-passe.")
       return
     }
-    onChangePassword?.({ current, next })
-    setCurrent("")
-    setNext("")
-    setConfirm("")
+    setSaving(true)
+    Promise.resolve(onChangePassword?.({ current, next }))
+      .then(() => {
+        setSuccess("Palavra-passe alterada com sucesso.")
+        setCurrent("")
+        setNext("")
+        setConfirm("")
+      })
+      .catch((err) => {
+        setError(err?.response?.data?.description ?? "Não foi possível alterar a palavra-passe.")
+      })
+      .finally(() => setSaving(false))
   }
 
   return (
@@ -48,8 +63,8 @@ export function PasswordFormCard({ onChangePassword }) {
             Substituição da palavra-passe (armazenada como hash).
           </CardDescription>
         </div>
-        <Button type="button" size="sm" className="shrink-0" onClick={handleSubmit}>
-          Alterar palavra-passe
+        <Button type="button" size="sm" className="shrink-0" onClick={handleSubmit} disabled={saving}>
+          {saving ? "A alterar…" : "Alterar palavra-passe"}
         </Button>
       </CardHeader>
       <CardContent>
@@ -90,6 +105,7 @@ export function PasswordFormCard({ onChangePassword }) {
             />
           </Field>
           {error ? <p className="text-sm text-destructive">{error}</p> : null}
+          {success ? <p className="text-sm text-green-600">{success}</p> : null}
         </FieldGroup>
       </CardContent>
     </Card>

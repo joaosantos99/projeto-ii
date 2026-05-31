@@ -33,6 +33,59 @@ class AuthService {
   }
 
   /**
+   * Update the authenticated user's profile (full name and email).
+   * @param {string} userId - The authenticated user's id.
+   * @param {Object} data - { fullName, email }.
+   * @returns {Promise<User>} - The updated user with role eager-loaded.
+   */
+  static async updateProfile(userId, { fullName, email }) {
+    const user = await Users.findByPk(userId);
+
+    if (!user) {
+      const error = new Error('Utilizador não encontrado');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const existing = await Users.findOne({ where: { email } });
+    if (existing && existing.id !== userId) {
+      const error = new Error('Email já está em uso');
+      error.statusCode = 409;
+      throw error;
+    }
+
+    await user.update({ full_name: fullName, email });
+
+    return this.getMe(userId);
+  }
+
+  /**
+   * Change the authenticated user's password after verifying the current one.
+   * @param {string} userId - The authenticated user's id.
+   * @param {string} currentPassword - The current plain-text password.
+   * @param {string} newPassword - The new plain-text password.
+   */
+  static async changePassword(userId, currentPassword, newPassword) {
+    const user = await Users.findByPk(userId);
+
+    if (!user) {
+      const error = new Error('Utilizador não encontrado');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const passwordMatch = await bcrypt.compare(currentPassword, user.password_hash);
+    if (!passwordMatch) {
+      const error = new Error('Palavra-passe atual incorreta');
+      error.statusCode = 401;
+      throw error;
+    }
+
+    const hashed = await bcrypt.hash(newPassword, 12);
+    await user.update({ password_hash: hashed });
+  }
+
+  /**
    * Authenticate a user by email and password.
    * Creates a new session and returns the token alongside the user.
    * @param {string} email

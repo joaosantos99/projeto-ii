@@ -36,6 +36,14 @@ export function AuthProvider({ children, initialUser = null, initialStatus = nul
     setStatus("anonymous")
   }, [])
 
+  const updateUser = useCallback((partial) => {
+    setUser((current) => {
+      const next = { ...(current ?? {}), ...partial }
+      if (isBrowser) localStorage.setItem("user", JSON.stringify(next))
+      return next
+    })
+  }, [])
+
   const login = useCallback((nextToken, nextUser) => {
     setCookie("token", nextToken, SESSION_MAX_AGE)
     if (isBrowser) localStorage.setItem("user", JSON.stringify(nextUser))
@@ -79,9 +87,10 @@ export function AuthProvider({ children, initialUser = null, initialStatus = nul
       isAuthenticated: status === "authenticated",
       isLoading: status === "loading",
       login,
+      updateUser,
       logout: clearSession,
     }),
-    [token, user, status, login, clearSession],
+    [token, user, status, login, updateUser, clearSession],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

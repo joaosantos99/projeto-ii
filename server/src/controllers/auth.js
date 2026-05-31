@@ -26,6 +26,76 @@ class AuthController {
   }
 
   /**
+   * Update the authenticated user's profile.
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   */
+  static async updateMe(req, res) {
+    try {
+      const { fullName, email } = req.body ?? {};
+      const errors = {};
+
+      if (!fullName || !fullName.trim()) {
+        errors.fullName = ['Full name is mandatory.'];
+      }
+
+      if (!email) {
+        errors.email = ['Email is mandatory.'];
+      } else if (!VALID_EMAIL_RE.test(email)) {
+        errors.email = ['Email must contain @.'];
+      }
+
+      if (Object.keys(errors).length > 0) {
+        return res.status(400).json({ description: 'Invalid request parameters.', errors });
+      }
+
+      const user = await AuthService.updateProfile(req.user.id, {
+        fullName: fullName.trim(),
+        email,
+      });
+      const roles = user.role ? [user.role] : [];
+
+      res.json(UserSerializer.serialize(user, { roles }));
+    } catch (error) {
+      const statusCode = error.statusCode || 500;
+      res.status(statusCode).json({ description: error.message });
+    }
+  }
+
+  /**
+   * Change the authenticated user's password (verifies the current one).
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   */
+  static async changePassword(req, res) {
+    try {
+      const { currentPassword, newPassword } = req.body ?? {};
+      const errors = {};
+
+      if (!currentPassword) {
+        errors.currentPassword = ['Current password is mandatory.'];
+      }
+
+      if (!newPassword) {
+        errors.newPassword = ['New password is mandatory.'];
+      } else if (newPassword.length < 10) {
+        errors.newPassword = ['Password must be at least 10 characters.'];
+      }
+
+      if (Object.keys(errors).length > 0) {
+        return res.status(400).json({ description: 'Invalid request parameters.', errors });
+      }
+
+      await AuthService.changePassword(req.user.id, currentPassword, newPassword);
+
+      res.json({ message: 'Palavra-passe alterada com sucesso.' });
+    } catch (error) {
+      const statusCode = error.statusCode || 500;
+      res.status(statusCode).json({ description: error.message });
+    }
+  }
+
+  /**
    * Authenticate a user with email and password, returning a session token.
    * @param {Object} req - The request object.
    * @param {Object} res - The response object.

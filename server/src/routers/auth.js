@@ -9,5 +9,7 @@ authRouter.post('/login', AuthController.login);
 authRouter.post('/forgot-password', AuthController.forgotPassword);
 authRouter.patch('/update-password', AuthController.updatePassword);
 authRouter.get('/me', requireAuth, AuthController.getMe);
+authRouter.patch('/me', requireAuth, AuthController.updateMe);
+authRouter.patch('/change-password', requireAuth, AuthController.changePassword);
 
 export default authRouter;
