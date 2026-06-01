@@ -12,8 +12,8 @@
     "test:watch": "vitest",
     "lint": "biome lint src",
     "lint:fix": "biome lint src --fix",
-    "db:migrate": "sequelize db:migrate",
-    "db:migrate:undo": "sequelize db:migrate:undo",
+    "db:migrate": "bun src/database/migrate.js",
+    "db:migrate:undo": "bun src/database/migrate.js --down",
     "db:create-migration": "sequelize migration:generate --name "
   },
   "author": "",
@@ -26,7 +26,8 @@
     "mysql2": "^3.19.1",
     "nodemailer": "^8.0.7",
     "sequelize": "^6.37.8",
-    "swagger-ui-express": "^5.0.1"
+    "swagger-ui-express": "^5.0.1",
+    "umzug": "^3.8.3"
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.6",

@@ -1,6 +1,17 @@
-.PHONY: setup up down reset migrate seed dev dev-server dev-web load-test
+.PHONY: setup up down reset migrate seed dev dev-server dev-web load-test prod prod-down prod-logs
 
 setup: up migrate seed
+
+# ── Production (Hetzner single server) ──────────────────
+# Reads .env. Builds + boots mysql, server, web, caddy. Migrations run on server boot.
+prod:
+	docker compose -f docker-compose.prod.yml up -d --build --remove-orphans
+
+prod-down:
+	docker compose -f docker-compose.prod.yml down
+
+prod-logs:
+	docker compose -f docker-compose.prod.yml logs -f
 
 up:
 	docker compose up -d

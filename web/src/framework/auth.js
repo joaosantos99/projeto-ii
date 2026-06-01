@@ -1,4 +1,7 @@
-const API_TARGET = import.meta.env.VITE_API_URL || process.env.VITE_API_URL
+// Server-side (RSC) only. Prefer the internal URL to avoid hairpinning through
+// the public api.domain.com; falls back to the public/build-time value.
+const API_TARGET =
+  process.env.API_INTERNAL_URL || import.meta.env.VITE_API_URL || process.env.VITE_API_URL
 const AUTH_ROUTES = ["/admin/login", "/admin/recuperar-password", "/admin/redefinir-password"]
 const PUBLIC_ROUTES = ["/", "/space-public-page", "/403"]
 

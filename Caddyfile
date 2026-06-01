@@ -1,0 +1,55 @@
+{
+	email {$ACME_EMAIL}
+}
+
+# ── API (subdomain) ─────────────────────────────────────
+{$API_DOMAIN} {
+	encode gzip zstd
+
+	# Express serves /api/* and /docs
+	reverse_proxy server:3000
+}
+
+# ── Public site (apex domain) ───────────────────────────
+{$DOMAIN} {
+	encode gzip zstd
+
+	# Admin lives on its own subdomain — bounce /admin* there (keeps path).
+	handle /admin* {
+		redir https://{$ADMIN_DOMAIN}{uri} permanent
+	}
+
+	# API moved to its own subdomain.
+	handle /api* {
+		redir https://{$API_DOMAIN}{uri} permanent
+	}
+	handle /docs* {
+		redir https://{$API_DOMAIN}{uri} permanent
+	}
+
+	# Everything else → web (RSC vite preview)
+	handle {
+		reverse_proxy web:4173
+	}
+}
+
+# ── Admin (subdomain) ───────────────────────────────────
+{$ADMIN_DOMAIN} {
+	encode gzip zstd
+
+	# Bare subdomain lands on the dashboard
+	handle / {
+		redir /admin 302
+	}
+
+	handle /api* {
+		redir https://{$API_DOMAIN}{uri} permanent
+	}
+	handle /docs* {
+		redir https://{$API_DOMAIN}{uri} permanent
+	}
+
+	handle {
+		reverse_proxy web:4173
+	}
+}

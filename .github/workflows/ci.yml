@@ -6,16 +6,13 @@ on:
   pull_request:
 
 jobs:
-  test:
-    name: test (${{ matrix.app }})
+  # ── Server ──────────────────────────────────────────────
+  server-unit:
+    name: server · unit tests
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        app: [server, web]
     defaults:
       run:
-        working-directory: ${{ matrix.app }}
+        working-directory: server
     steps:
       - uses: actions/checkout@v4
 
@@ -26,11 +23,61 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Run tests
+      - name: Run unit tests
         run: bun run vitest run --passWithNoTests
 
-  lighthouse:
-    name: lighthouse (web)
+  # ── Web ─────────────────────────────────────────────────
+  web-unit:
+    name: web · unit tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run unit tests
+        run: bun run vitest run --passWithNoTests
+
+  web-e2e:
+    name: web · e2e tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Install Playwright browsers
+        run: bunx playwright install --with-deps chromium
+
+      - name: Run Playwright tests
+        run: bun run test:e2e
+
+      - name: Upload Playwright report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: web/playwright-report
+          retention-days: 7
+
+  web-lighthouse:
+    name: web · lighthouse
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -57,3 +104,103 @@ jobs:
         run: bunx lhci autorun
         env:
           CHROME_PATH: ${{ steps.setup-chrome.outputs.chrome-path }}
+
+  # ── Build & push images ─────────────────────────────────
+  build:
+    name: build · ${{ matrix.service }} image
+    needs: [server-unit, web-unit, web-e2e, web-lighthouse]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      matrix:
+        service: [server, web]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./${{ matrix.service }}
+          push: true
+          tags: |
+            ghcr.io/joaosantos99/projeto-ii-${{ matrix.service }}:latest
+            ghcr.io/joaosantos99/projeto-ii-${{ matrix.service }}:${{ github.sha }}
+          # Baked into the web client bundle; ignored by the server build.
+          build-args: |
+            VITE_API_URL=https://${{ vars.API_DOMAIN }}
+
+  # ── Deploy ──────────────────────────────────────────────
+  deploy:
+    name: deploy → hetzner
+    needs: [build]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy compose + Caddyfile to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          source: "docker-compose.prod.yml,Caddyfile"
+          target: /opt/projeto-ii
+
+      - name: Pull images + restart
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          envs: GHCR_USER,GHCR_TOKEN,DOMAIN,ADMIN_DOMAIN,API_DOMAIN,ACME_EMAIL,DB_NAME,DB_USER,DB_PASSWORD,SMTP_HOST,SMTP_PORT,SMTP_SECURE,SMTP_USER,SMTP_PASS,SMTP_FROM
+          script: |
+            set -e
+            echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
+            mkdir -p /opt/projeto-ii
+            cd /opt/projeto-ii
+            {
+              echo "DOMAIN=$DOMAIN"
+              echo "ADMIN_DOMAIN=$ADMIN_DOMAIN"
+              echo "API_DOMAIN=$API_DOMAIN"
+              echo "ACME_EMAIL=$ACME_EMAIL"
+              echo "DB_NAME=$DB_NAME"
+              echo "DB_USER=$DB_USER"
+              echo "DB_PASSWORD=$DB_PASSWORD"
+              echo "SMTP_HOST=$SMTP_HOST"
+              echo "SMTP_PORT=$SMTP_PORT"
+              echo "SMTP_SECURE=$SMTP_SECURE"
+              echo "SMTP_USER=$SMTP_USER"
+              echo "SMTP_PASS=$SMTP_PASS"
+              echo "SMTP_FROM=$SMTP_FROM"
+            } > .env
+            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml up -d --remove-orphans
+            docker image prune -f
+        env:
+          GHCR_USER: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DOMAIN: ${{ vars.DOMAIN }}
+          ADMIN_DOMAIN: ${{ vars.ADMIN_DOMAIN }}
+          API_DOMAIN: ${{ vars.API_DOMAIN }}
+          ACME_EMAIL: ${{ vars.ACME_EMAIL }}
+          DB_NAME: ${{ vars.DB_NAME }}
+          DB_USER: ${{ vars.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          SMTP_HOST: ${{ vars.SMTP_HOST }}
+          SMTP_PORT: ${{ vars.SMTP_PORT }}
+          SMTP_SECURE: ${{ vars.SMTP_SECURE }}
+          SMTP_USER: ${{ vars.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          SMTP_FROM: ${{ vars.SMTP_FROM }}
