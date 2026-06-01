@@ -16,7 +16,7 @@ test.describe('protected route access without a token', () => {
     })
 
     await test.step('Then they are redirected to /login and see the login form', async () => {
-      await expect(page).toHaveURL(/\/login/)
+      await expect(page).toHaveURL(/\/admin\/login/)
       await expect(page.getByText('Bem-vindo de volta')).toBeVisible()
     })
   })
@@ -32,7 +32,7 @@ test.describe('protected route access without a token', () => {
       })
 
       await test.step('Then they are redirected to /login', async () => {
-        await expect(page).toHaveURL(/\/login/)
+        await expect(page).toHaveURL(/\/admin\/login/)
       })
     })
   }
@@ -44,11 +44,11 @@ test.describe('protected route access without a token', () => {
 
     await test.step('When they try to open the users management endpoint', async () => {
       await page.goto('/admin/utilizadores')
-      await page.waitForURL(/\/login/)
+      await page.waitForURL(/\/admin\/login/)
     })
 
-    await test.step('Then no /admin URL is exposed and the login form is shown', async () => {
-      await expect(page).not.toHaveURL(/\/admin/)
+    await test.step('Then the protected page is not exposed and the login form is shown', async () => {
+      await expect(page).toHaveURL(/\/admin\/login/)
       await expect(page.locator('#email')).toBeVisible()
       await expect(page.locator('#password')).toBeVisible()
     })
@@ -74,7 +74,7 @@ test.describe('protected route access without a token', () => {
     })
 
     await test.step('Then the session is cleared and they land on /login', async () => {
-      await expect(page).toHaveURL(/\/login/)
+      await expect(page).toHaveURL(/\/admin\/login/)
       await expect(page.getByText('Bem-vindo de volta')).toBeVisible()
     })
   })

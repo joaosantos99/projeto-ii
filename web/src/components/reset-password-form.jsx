@@ -60,7 +60,7 @@ export function ResetPasswordForm({ token, className, ...props }) {
           </CardHeader>
           <CardContent>
             <Button className="w-full" asChild>
-              <Link to="/login">Iniciar sessão</Link>
+              <Link to="/admin/login">Iniciar sessão</Link>
             </Button>
           </CardContent>
         </Card>
@@ -128,7 +128,7 @@ export function ResetPasswordForm({ token, className, ...props }) {
                 </Button>
                 <FieldDescription className="text-center">
                   <Link
-                    to="/login"
+                    to="/admin/login"
                     className="text-primary underline-offset-4 hover:underline"
                   >
                     Voltar ao início de sessão

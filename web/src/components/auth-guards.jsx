@@ -6,7 +6,7 @@ import { useAuth } from "#/hooks/use-auth"
 export function RequireAuth() {
   const { status } = useAuth()
   if (status === "loading") return null
-  if (status === "anonymous") return <Navigate to="/login" replace />
+  if (status === "anonymous") return <Navigate to="/admin/login" replace />
   return <Outlet />
 }
 

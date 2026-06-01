@@ -1,5 +1,6 @@
 const API_TARGET = import.meta.env.VITE_API_URL || process.env.VITE_API_URL
-const AUTH_ROUTES = ["/login", "/recuperar-password", "/redefinir-password"]
+const AUTH_ROUTES = ["/admin/login", "/admin/recuperar-password", "/admin/redefinir-password"]
+const PUBLIC_ROUTES = ["/", "/space-public-page"]
 
 function readToken(cookieHeader) {
   if (!cookieHeader) return null
@@ -24,12 +25,13 @@ export async function resolveAuth(request) {
 
 export function resolveRedirect(pathname, user) {
   const isAuthRoute = AUTH_ROUTES.includes(pathname)
+  const isPublicRoute = PUBLIC_ROUTES.includes(pathname)
   const isAdminRoute = pathname === "/admin" || pathname.startsWith("/admin/")
-  const isKnown = pathname === "/" || isAuthRoute || isAdminRoute
+  const isKnown = isPublicRoute || isAdminRoute
 
-  if (pathname === "/") return user ? "/admin" : "/login"
-  if (!isKnown) return user ? "/admin" : "/login"
-  if (isAdminRoute && !user) return "/login"
-  if (isAuthRoute && user) return "/admin"
+  if (isPublicRoute) return null
+  if (!isKnown) return user ? "/admin" : "/admin/login"
+  if (isAuthRoute) return user ? "/admin" : null
+  if (isAdminRoute && !user) return "/admin/login"
   return null
 }

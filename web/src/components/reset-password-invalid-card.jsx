@@ -25,10 +25,10 @@ export function ResetPasswordInvalidCard({ className, ...props }) {
         </CardHeader>
         <CardContent className="flex flex-col gap-3">
           <Button className="w-full" asChild>
-            <Link to="/recuperar-password">Pedir novo link</Link>
+            <Link to="/admin/recuperar-password">Pedir novo link</Link>
           </Button>
           <Button variant="outline" className="w-full" asChild>
-            <Link to="/login">Iniciar sessão</Link>
+            <Link to="/admin/login">Iniciar sessão</Link>
           </Button>
         </CardContent>
       </Card>

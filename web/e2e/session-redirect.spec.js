@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test'
 import { stubApi } from './helpers/api'
 
 test.describe('redirect to login when there is no session', () => {
-  test('redirects the root path "/" to /login', async ({ page }) => {
+  test('serves the public landing page at the root path "/"', async ({ page }) => {
     await test.step('Given a visitor with no session token', async () => {
       await stubApi(page)
     })
@@ -11,9 +11,9 @@ test.describe('redirect to login when there is no session', () => {
       await page.goto('/')
     })
 
-    await test.step('Then they land on /login with the login form', async () => {
-      await expect(page).toHaveURL(/\/login/)
-      await expect(page.getByText('Bem-vindo de volta')).toBeVisible()
+    await test.step('Then they stay on "/" and see the landing page', async () => {
+      await expect(page).toHaveURL(/\/$/)
+      await expect(page.getByText('Portal de monitorização de')).toBeVisible()
     })
   })
 
@@ -27,7 +27,7 @@ test.describe('redirect to login when there is no session', () => {
     })
 
     await test.step('Then they land on /login', async () => {
-      await expect(page).toHaveURL(/\/login/)
+      await expect(page).toHaveURL(/\/admin\/login/)
     })
   })
 
@@ -40,9 +40,8 @@ test.describe('redirect to login when there is no session', () => {
       await page.goto('/admin/relatorios')
     })
 
-    await test.step('Then they land on /login without seeing protected content', async () => {
-      await expect(page).toHaveURL(/\/login/)
-      await expect(page).not.toHaveURL(/\/admin/)
+    await test.step('Then they land on /admin/login without seeing protected content', async () => {
+      await expect(page).toHaveURL(/\/admin\/login/)
       await expect(page.locator('#email')).toBeVisible()
     })
   })
@@ -74,7 +73,7 @@ test.describe('redirect to login when there is no session', () => {
     })
 
     await test.step('Then they are redirected back to /login', async () => {
-      await expect(page).toHaveURL(/\/login/)
+      await expect(page).toHaveURL(/\/admin\/login/)
     })
   })
 })

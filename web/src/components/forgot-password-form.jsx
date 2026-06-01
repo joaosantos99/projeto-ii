@@ -37,7 +37,7 @@ export function ForgotPasswordForm({ className, ...props }) {
               dentro de alguns minutos.
             </FieldDescription>
             <Button variant="outline" className="w-full" asChild>
-              <Link to="/login">Voltar ao início de sessão</Link>
+              <Link to="/admin/login">Voltar ao início de sessão</Link>
             </Button>
           </CardContent>
         </Card>
@@ -77,7 +77,7 @@ export function ForgotPasswordForm({ className, ...props }) {
                 </Button>
                 <FieldDescription className="text-center">
                   <Link
-                    to="/login"
+                    to="/admin/login"
                     className="text-primary underline-offset-4 hover:underline"
                   >
                     Voltar ao início de sessão

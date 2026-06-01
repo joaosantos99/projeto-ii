@@ -6,7 +6,7 @@ const USER = { id: 1, email: 'user@municipio.pt', fullName: 'Test User', role: '
 
 /** Navigate and wait for the client bundle to hydrate before interacting. */
 async function gotoLogin(page) {
-  await page.goto('/login')
+  await page.goto('/admin/login')
   await page.waitForLoadState('networkidle')
 }
 
@@ -36,7 +36,7 @@ test.describe('login with invalid and valid credentials', () => {
 
     await test.step('Then an error message is shown and they stay on /login', async () => {
       await expect(page.getByRole('alert')).toHaveText('Credenciais inválidas.')
-      await expect(page).toHaveURL(/\/login/)
+      await expect(page).toHaveURL(/\/admin\/login/)
     })
   })
 
@@ -81,7 +81,7 @@ test.describe('login with invalid and valid credentials', () => {
 
     await test.step('Then a generic error is shown and they stay on /login', async () => {
       await expect(page.getByRole('alert')).toHaveText('Erro ao iniciar sessão.')
-      await expect(page).toHaveURL(/\/login/)
+      await expect(page).toHaveURL(/\/admin\/login/)
     })
   })
 })

@@ -33,13 +33,12 @@ export default function App({ initialUser = null, initialUrl = "/" }) {
     <Router {...routerProps}>
       <AuthProvider initialUser={initialUser} initialStatus={initialStatus}>
         <Routes>
-          <Route path="/lp" element={<LandingPage />} />
+          <Route path="/" element={<LandingPage />} />
           <Route path="/space-public-page" element={<SpacePage />} />
-          <Route path="/" element={<Navigate to="/admin" replace />} />
           <Route element={<RedirectIfAuth />}>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/recuperar-password" element={<RecuperarPage />} />
-            <Route path="/redefinir-password" element={<RedefinirPage />} />
+            <Route path="/admin/login" element={<LoginPage />} />
+            <Route path="/admin/recuperar-password" element={<RecuperarPage />} />
+            <Route path="/admin/redefinir-password" element={<RedefinirPage />} />
           </Route>
           <Route element={<RequireAuth />}>
             <Route element={<DashboardLayout />}>
@@ -56,7 +55,7 @@ export default function App({ initialUser = null, initialUrl = "/" }) {
               <Route path="/admin/alertas" element={<AlertasPage />} />
             </Route>
           </Route>
-          <Route path="*" element={<Navigate to="/admin" replace />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AuthProvider>
     </Router>
