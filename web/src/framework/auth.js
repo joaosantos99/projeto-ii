@@ -1,6 +1,6 @@
 const API_TARGET = import.meta.env.VITE_API_URL || process.env.VITE_API_URL
 const AUTH_ROUTES = ["/admin/login", "/admin/recuperar-password", "/admin/redefinir-password"]
-const PUBLIC_ROUTES = ["/", "/space-public-page"]
+const PUBLIC_ROUTES = ["/", "/space-public-page", "/403"]
 
 function readToken(cookieHeader) {
   if (!cookieHeader) return null
@@ -27,11 +27,10 @@ export function resolveRedirect(pathname, user) {
   const isAuthRoute = AUTH_ROUTES.includes(pathname)
   const isPublicRoute = PUBLIC_ROUTES.includes(pathname)
   const isAdminRoute = pathname === "/admin" || pathname.startsWith("/admin/")
-  const isKnown = isPublicRoute || isAdminRoute
 
   if (isPublicRoute) return null
-  if (!isKnown) return user ? "/admin" : "/admin/login"
   if (isAuthRoute) return user ? "/admin" : null
   if (isAdminRoute && !user) return "/admin/login"
+  // Unknown paths render the client 404 page instead of redirecting.
   return null
 }

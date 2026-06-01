@@ -17,7 +17,7 @@ test.describe('redirect to login when there is no session', () => {
     })
   })
 
-  test('redirects an unknown path to /login', async ({ page }) => {
+  test('shows the 404 page for an unknown path', async ({ page }) => {
     await test.step('Given a visitor with no session token', async () => {
       await stubApi(page)
     })
@@ -26,8 +26,10 @@ test.describe('redirect to login when there is no session', () => {
       await page.goto('/qualquer-coisa-inexistente')
     })
 
-    await test.step('Then they land on /login', async () => {
-      await expect(page).toHaveURL(/\/admin\/login/)
+    await test.step('Then they stay on that path and see the 404 page', async () => {
+      await expect(page).toHaveURL(/\/qualquer-coisa-inexistente/)
+      await expect(page).not.toHaveURL(/\/admin\/login/)
+      await expect(page.getByText('Página não encontrada')).toBeVisible()
     })
   })
 

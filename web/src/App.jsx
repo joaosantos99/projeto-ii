@@ -1,6 +1,6 @@
 'use client'
 
-import { BrowserRouter, StaticRouter, Routes, Route, Navigate } from "react-router-dom"
+import { BrowserRouter, StaticRouter, Routes, Route } from "react-router-dom"
 import { LoginPage } from "#/pages/login"
 import { RecuperarPage } from "#/pages/recuperar-password"
 import { RedefinirPage } from "#/pages/redefinir-password"
@@ -18,6 +18,8 @@ import { PermissaoDetalhePage } from "#/pages/permissao-detalhe"
 import { AlertasPage } from "#/pages/alertas"
 import { LandingPage } from "#/pages/landing-page"
 import { SpacePage } from "#/pages/space-page"
+import { NotFoundPage } from "#/pages/not-found"
+import { ForbiddenPage } from "#/pages/forbidden"
 import { RequireAuth, RedirectIfAuth } from "#/components/auth-guards"
 import { AuthProvider } from "#/hooks/use-auth"
 import "#/styles.css"
@@ -35,6 +37,7 @@ export default function App({ initialUser = null, initialUrl = "/" }) {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/space-public-page" element={<SpacePage />} />
+          <Route path="/403" element={<ForbiddenPage />} />
           <Route element={<RedirectIfAuth />}>
             <Route path="/admin/login" element={<LoginPage />} />
             <Route path="/admin/recuperar-password" element={<RecuperarPage />} />
@@ -55,7 +58,7 @@ export default function App({ initialUser = null, initialUrl = "/" }) {
               <Route path="/admin/alertas" element={<AlertasPage />} />
             </Route>
           </Route>
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </AuthProvider>
     </Router>
