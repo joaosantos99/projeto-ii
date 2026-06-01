@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from "react"
+import "leaflet/dist/leaflet.css"
 
 // react-leaflet pulls in leaflet, which touches `window` at module load and
 // crashes during SSR. Load it lazily in the browser only.
