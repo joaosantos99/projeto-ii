@@ -18,7 +18,7 @@ export function Footer() {
 
                 <div className="flex gap-4 ">
                     <Link to="/" className="text-sm">Início</Link>
-                    <Link to="/portal" className="text-sm">Portal do município</Link>
+                    <Link to="/admin" className="text-sm">Portal do município</Link>
                 </div>
             </div>
 

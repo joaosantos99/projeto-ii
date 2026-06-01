@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom"
 import { Button } from "#/components/ui/button"
 import logo from "#/assets/logo.svg"
 
@@ -14,7 +15,9 @@ export function Navbar() {
                 </div>
             </div>
 
-            <Button variant="default" size="default">Portal do municipio</Button>
+            <Button asChild variant="default" size="default">
+                <Link to="/admin">Portal do municipio</Link>
+            </Button>
         </nav>
     )
 }
