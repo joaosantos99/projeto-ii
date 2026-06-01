@@ -49,3 +49,14 @@ export function apiPatch(baseUrl, path, token, body) {
     body: JSON.stringify(body ?? {}),
   });
 }
+
+export function apiPost(baseUrl, path, token, body) {
+  return fetch(`${baseUrl}${path}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(body ?? {}),
+  });
+}
