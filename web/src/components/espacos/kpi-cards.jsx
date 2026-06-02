@@ -1,7 +1,6 @@
 'use client'
 
-import { MapPin, Tree } from "@phosphor-icons/react"
-import { Badge } from "#/components/ui/badge"
+import { Buildings, Cpu, MapPin, Tree } from "@phosphor-icons/react"
 import { KpiCard, KpiCardGrid } from "#/components/ui/kpi-card"
 
 export function KpiCards({ summary }) {
@@ -15,7 +14,7 @@ export function KpiCards({ summary }) {
       <KpiCard
         label="Espaços registados"
         value={spacesCount}
-        icon={<MapPin className="size-4 text-chart-1" aria-hidden />}
+        icon={<MapPin className="size-4 text-muted-foreground" aria-hidden />}
         hint="Total na plataforma"
       />
       <KpiCard
@@ -27,13 +26,13 @@ export function KpiCards({ summary }) {
       <KpiCard
         label="Sensores ativos"
         value={activeCount}
-        icon={<Badge variant="secondary">{activeCount}</Badge>}
+        icon={<Cpu className="size-4 text-muted-foreground" aria-hidden />}
         hint="A reportar dados"
       />
       <KpiCard
         label="Cidades"
         value={districtsCount}
-        icon={<Badge variant="outline">{districtsCount}</Badge>}
+        icon={<Buildings className="size-4 text-muted-foreground" aria-hidden />}
         hint="Cobertura geográfica"
       />
     </KpiCardGrid>
