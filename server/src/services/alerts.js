@@ -6,6 +6,23 @@ const ALERT_STATUS = {
 };
 
 /**
+ * Build the Sequelize where clause for alert listing/counting.
+ * @param {Object} options
+ * @param {string} [options.severity] - Filter by severity.
+ * @param {boolean} [options.unacknowledgedOnly] - Exclude confirmed alerts.
+ * @returns {Object|undefined} The where clause.
+ */
+function buildAlertsWhere({ severity, unacknowledgedOnly } = {}) {
+  const where = {};
+
+  if (severity) where.severity = severity;
+
+  if (unacknowledgedOnly) where.is_notified = false;
+
+  return Object.keys(where).length ? where : undefined;
+}
+
+/**
  * Service for the alerts routes.
  */
 class AlertsService {
@@ -25,10 +42,11 @@ class AlertsService {
    * Count alerts, optionally filtered by severity.
    * @param {Object} options
    * @param {string} [options.severity] - Filter by severity.
+   * @param {boolean} [options.unacknowledgedOnly] - Exclude confirmed alerts.
    * @returns {Promise<number>} The matching alert count.
    */
-  static async countAlerts({ severity } = {}) {
-    return Alerts.count({ where: severity ? { severity } : undefined });
+  static async countAlerts({ severity, unacknowledgedOnly } = {}) {
+    return Alerts.count({ where: buildAlertsWhere({ severity, unacknowledgedOnly }) });
   }
 
   /**
@@ -37,13 +55,14 @@ class AlertsService {
    * @param {number} options.page
    * @param {number} options.limit
    * @param {string} [options.severity] - Filter by severity.
+   * @param {boolean} [options.unacknowledgedOnly] - Exclude confirmed alerts.
    * @returns {Promise<Object>} Alerts array and total count.
    */
-  static async getAlerts({ page = 1, limit = 20, severity } = {}) {
+  static async getAlerts({ page = 1, limit = 20, severity, unacknowledgedOnly } = {}) {
     const offset = (page - 1) * limit;
 
     const { count: total, rows: alerts } = await Alerts.findAndCountAll({
-      where: severity ? { severity } : undefined,
+      where: buildAlertsWhere({ severity, unacknowledgedOnly }),
       order: [['created_at', 'DESC']],
       limit,
       offset,

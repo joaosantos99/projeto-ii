@@ -18,16 +18,22 @@ class AlertsController {
       }
 
       const severity = req.query.severity;
+      const unacknowledgedOnly = req.query.unacknowledgedOnly === 'true';
 
       if (req.query.onlyCount === 'true') {
-        const total = await AlertsService.countAlerts({ severity });
+        const total = await AlertsService.countAlerts({ severity, unacknowledgedOnly });
         return res.json({ meta: { total } });
       }
 
       const page = Math.max(1, parseInt(req.query.page) || 1);
       const limit = Math.max(1, parseInt(req.query.limit) || 20);
 
-      const { alerts, total } = await AlertsService.getAlerts({ page, limit, severity });
+      const { alerts, total } = await AlertsService.getAlerts({
+        page,
+        limit,
+        severity,
+        unacknowledgedOnly,
+      });
 
       res.json(AlertsSerializer.serializePaginated(alerts, { page, limit, total }));
     } catch (error) {

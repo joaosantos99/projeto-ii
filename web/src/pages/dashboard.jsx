@@ -31,12 +31,14 @@ export function DashboardPage() {
   const [alerts, setAlerts] = useState([])
   const [alertsTotal, setAlertsTotal] = useState(0)
   const [alertsTotalPages, setAlertsTotalPages] = useState(1)
+  const [allAlertsTotal, setAllAlertsTotal] = useState(0)
   const [spaces, setSpaces] = useState([])
   const [incidents, setIncidents] = useState([])
   const [offlineSensors, setOfflineSensors] = useState(0)
   const [lateMaintenance, setLateMaintenance] = useState(0)
   const [averageResponseTime, setAverageResponseTime] = useState(0)
   const [page, setPage] = useState(1)
+  const [refresh, setRefresh] = useState(0)
   const [acknowledgingId, setAcknowledgingId] = useState(null)
 
   useEffect(() => {
@@ -47,6 +49,10 @@ export function DashboardPage() {
     api.get("/sensors", { params: { offlineOnly: true, limit: 1 } })
       .then((res) => setOfflineSensors(res.data?.meta?.total ?? 0))
       .catch(() => setOfflineSensors(0))
+
+    api.get("/alerts", { params: { onlyCount: true } })
+      .then((res) => setAllAlertsTotal(res.data?.meta?.total ?? 0))
+      .catch(() => setAllAlertsTotal(0))
 
     api.get("/maintenance", { params: { status: "atraso", limit: 1 } })
       .then((res) => setLateMaintenance(res.data?.meta?.total ?? 0))
@@ -63,10 +69,10 @@ export function DashboardPage() {
     api.get("/dashboard/citizen-incidents", { params: { limit: 3 } })
       .then((res) => setIncidents(res.data?.data ?? []))
       .catch(() => setIncidents([]))
-  }, [])
+  }, [refresh])
 
   useEffect(() => {
-    api.get("/alerts", { params: { page, limit: PAGE_SIZE } })
+    api.get("/alerts", { params: { page, limit: PAGE_SIZE, unacknowledgedOnly: true } })
       .then((res) => {
         setAlerts(res.data?.data ?? [])
         setAlertsTotal(res.data?.meta?.total ?? 0)
@@ -77,7 +83,7 @@ export function DashboardPage() {
         setAlertsTotal(0)
         setAlertsTotalPages(1)
       })
-  }, [page])
+  }, [page, refresh])
 
   const spaceNameById = useMemo(() => {
     const map = new Map()
@@ -86,11 +92,11 @@ export function DashboardPage() {
   }, [spaces])
 
   const kpis = useMemo(() => [
-    { label: "Alertas", value: String(alertsTotal), hint: "Total de alertas registados", Icon: Warning },
+    { label: "Alertas", value: String(allAlertsTotal), hint: "Total de alertas registados", Icon: Warning },
     { label: "Manutenção em atraso", value: String(lateMaintenance), hint: "Prioridade de despacho", Icon: WarningCircle },
     { label: "Sensores offline", value: String(offlineSensors), hint: "Intervenção recomendada", Icon: Broadcast },
     { label: "Tempo médio de resposta", value: `${averageResponseTime} min`, hint: "Média de confirmação", Icon: Gauge },
-  ], [alertsTotal, lateMaintenance, offlineSensors, averageResponseTime])
+  ], [allAlertsTotal, lateMaintenance, offlineSensors, averageResponseTime])
 
   const paginatedAlerts = useMemo(() => {
     return [...alerts].sort(
@@ -104,21 +110,7 @@ export function DashboardPage() {
   const handleAcknowledge = (alertId) => {
     setAcknowledgingId(alertId)
     api.patch(`/alerts/${alertId}/acknowledge`)
-      .then((res) => {
-        setAlerts((current) =>
-          current.map((item) =>
-            item.id === alertId
-              ? {
-                  ...item,
-                  status: res.data?.status ?? "confirmed",
-                  isNotified: true,
-                  updatedAt: res.data?.updatedAt ?? item.updatedAt,
-                  updatedBy: res.data?.updatedBy ?? item.updatedBy,
-                }
-              : item,
-          ),
-        )
-      })
+      .then(() => setRefresh((n) => n + 1))
       .catch(() => {})
       .finally(() => setAcknowledgingId(null))
   }

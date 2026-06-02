@@ -61,9 +61,10 @@ class AlertsSerializer extends BaseSerializer {
 
     return {
       id: alert.id,
-      status: alert.status,
-      updatedAt: new Date(alert.updated_at).toISOString(),
-      updatedBy: alert.updated_by,
+      isNotified: alert.is_notified,
+      status: alert.status ?? null,
+      updatedAt: alert.updated_at ? new Date(alert.updated_at).toISOString() : null,
+      updatedBy: alert.updated_by ?? null,
     };
   }
 
