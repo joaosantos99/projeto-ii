@@ -17,11 +17,12 @@ class SpacesController {
       const page = Math.max(1, parseInt(req.query.page, 10) || 1);
       const perPage = Math.max(1, parseInt(req.query.perPage, 10) || 10);
       const { query, city } = req.query;
+      const includeSummary = req.query.summary === 'true';
 
       const { spaces, total } = await SpacesService.getSpaces({ page, perPage, query, city });
       const totalPages = Math.max(1, Math.ceil(total / perPage));
 
-      res.json({
+      const body = {
         spaces: spaces.map((space) => ({
           id: space.id,
           name: space.name,
@@ -40,7 +41,13 @@ class SpacesController {
           total,
           totalPages,
         },
-      });
+      };
+
+      if (includeSummary) {
+        body.summary = await SpacesController.buildSummary();
+      }
+
+      res.json(body);
     } catch (error) {
       res.status(error.statusCode || 500).json({ error: error.message });
     }
@@ -104,30 +111,25 @@ class SpacesController {
   }
 
   /**
-   * Get spaces summary.
-   * @param {Object} req - The request object.
-   * @param {Object} res - The response object.
+   * Build a statistical summary of spaces.
+   * @returns {Promise<{spacesCount, zonesCount, activeCount, districtsCount, cities}>}
    */
-  static async getSpacesSummary(req, res) {
-    try {
-      const [spacesCount, zonesCount, activeCount, districtsCount, cities] = await Promise.all([
-        SpacesService.count(),
-        ZonesService.count(),
-        SensorsService.count({ where: { is_active: true } }),
-        SpacesService.count({ distinct: true, col: 'city' }),
-        SpacesService.getCities(),
-      ]);
+  static async buildSummary() {
+    const [spacesCount, zonesCount, activeCount, districtsCount, cities] = await Promise.all([
+      SpacesService.count(),
+      ZonesService.count(),
+      SensorsService.count({ where: { is_active: true } }),
+      SpacesService.count({ distinct: true, col: 'city' }),
+      SpacesService.getCities(),
+    ]);
 
-      res.json({
-        spacesCount,
-        zonesCount,
-        activeCount,
-        districtsCount,
-        cities,
-      });
-    } catch (error) {
-      res.status(error.statusCode || 500).json({ error: error.message });
-    }
+    return {
+      spacesCount,
+      zonesCount,
+      activeCount,
+      districtsCount,
+      cities,
+    };
   }
 
   /**

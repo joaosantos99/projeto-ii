@@ -41,26 +41,23 @@ export function EspacosPage() {
   }, [setTitle])
 
   useEffect(() => {
-    api.get("/spaces/summary")
-      .then((res) => setSummary(res.data))
-      .catch(() => setSummary(null))
-  }, [refresh])
-
-  useEffect(() => {
     setLoading(true)
     const params = {
       page,
       perPage: PER_PAGE,
+      summary: true,
       ...(query && { query }),
     }
     api.get("/spaces", { params })
       .then((res) => {
         setSpaces(res.data.spaces)
         setPagination(res.data.pagination)
+        setSummary(res.data.summary ?? null)
       })
       .catch(() => {
         setSpaces([])
         setPagination({ page: 1, perPage: PER_PAGE, total: 0, totalPages: 1 })
+        setSummary(null)
       })
       .finally(() => setLoading(false))
   }, [page, query, refresh])

@@ -12,7 +12,6 @@ import reportsRouter from './reports.js';
 
 const spacesRouter = Router();
 
-spacesRouter.get('/summary', requireAuth, requirePermission(PERMISSIONS.SPACES_READ), SpacesController.getSpacesSummary);
 spacesRouter.get('/', requireAuth, requirePermission(PERMISSIONS.SPACES_READ), SpacesController.getSpaces);
 spacesRouter.get('/:spaceId', requireAuth, requirePermission(PERMISSIONS.SPACES_READ), SpacesController.getSpaceById);
 spacesRouter.post('/', requireAuth, requirePermission(PERMISSIONS.SPACES_CREATE), SpacesController.createSpace);

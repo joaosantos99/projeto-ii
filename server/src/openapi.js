@@ -409,11 +409,12 @@ export default {
       get: {
         tags: ['Spaces'],
         summary: 'List spaces (paginated, filterable).',
-        description: 'Requires permission `spaces:read`.',
+        description: 'Requires permission `spaces:read`. Pass `summary=true` to include the spaces statistics summary.',
         parameters: [
           ...pageParams,
           queryParam('query', { type: 'string' }, 'Search term.'),
           queryParam('city', { type: 'string' }, 'Filter by city.'),
+          queryParam('summary', { type: 'boolean' }, 'Include spaces statistics summary when true.'),
         ],
         responses: {
           200: ok('Paginated spaces.', {
@@ -421,6 +422,17 @@ export default {
             properties: {
               spaces: { type: 'array', items: ref('Space') },
               pagination: ref('Pagination'),
+              summary: {
+                type: 'object',
+                description: 'Present only when summary=true.',
+                properties: {
+                  spacesCount: { type: 'integer' },
+                  zonesCount: { type: 'integer' },
+                  activeCount: { type: 'integer' },
+                  districtsCount: { type: 'integer' },
+                  cities: { type: 'array', items: { type: 'string' } },
+                },
+              },
             },
           }),
           401: Unauthorized,
@@ -446,27 +458,6 @@ export default {
           }),
         },
         responses: { 201: ok('Created space.', ref('Space')), 400: ValidationError, 401: Unauthorized, 403: Forbidden },
-      },
-    },
-    '/spaces/summary': {
-      get: {
-        tags: ['Spaces'],
-        summary: 'Spaces statistics summary.',
-        description: 'Requires permission `spaces:read`.',
-        responses: {
-          200: ok('Summary.', {
-            type: 'object',
-            properties: {
-              spacesCount: { type: 'integer' },
-              zonesCount: { type: 'integer' },
-              activeCount: { type: 'integer' },
-              districtsCount: { type: 'integer' },
-              cities: { type: 'array', items: { type: 'string' } },
-            },
-          }),
-          401: Unauthorized,
-          403: Forbidden,
-        },
       },
     },
     '/spaces/{spaceId}': {
