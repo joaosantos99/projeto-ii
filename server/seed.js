@@ -10,6 +10,7 @@ import GreenSpaceZones from './src/database/models/GreenSpaceZones.js';
 import Sensors from './src/database/models/Sensors.js';
 import SensorReadingMetas from './src/database/models/SensorReadingMetas.js';
 import Alerts from './src/database/models/Alerts.js';
+import Reports from './src/database/models/Reports.js';
 import { PERMISSIONS } from './src/constants/permissions.js';
 
 const DATA_SCALE = 1;
@@ -253,6 +254,38 @@ const generateAlerts = async (sensors) => {
   await Alerts.bulkCreate(alerts);
 };
 
+const generateReports = async () => {
+  const reportsCount = 50 * DATA_SCALE;
+
+  const zones = await GreenSpaceZones.findAll({
+    attributes: ['id', 'green_spaces_id'],
+  });
+  const users = await Users.findAll({ attributes: ['id'] });
+  const userIds = users.map((u) => u.id);
+
+  const types = ['incident', 'inspection', 'damage', 'request'];
+  const statuses = ['open', 'in_review', 'resolved', 'rejected'];
+
+  const reports = [];
+
+  for (let i = 0; i < reportsCount; i++) {
+    const zone = faker.helpers.arrayElement(zones);
+
+    reports.push({
+      user_id: faker.helpers.arrayElement(userIds),
+      green_space_id: zone.green_spaces_id,
+      green_spaces_zone_id: zone.id,
+      name: faker.lorem.words(3),
+      type: faker.helpers.arrayElement(types),
+      description: faker.lorem.paragraph(),
+      status: faker.helpers.arrayElement(statuses),
+      updated_by: systemOwner.id,
+    });
+  }
+
+  await Reports.bulkCreate(reports);
+};
+
 await generateSystemOwner();
 await generateRoles();
 await generateUsers();
@@ -262,3 +295,4 @@ await generateGreenSpaceZones();
 const seededSensors = await generateSensors();
 await generateSensorReadingMetas(seededSensors);
 await generateAlerts(seededSensors);
+await generateReports();
