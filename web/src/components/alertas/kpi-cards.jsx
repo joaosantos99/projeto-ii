@@ -20,19 +20,19 @@ export function AlertsKpiCards({ summary }) {
         hint="Monitorização automática"
       />
       <KpiCard
-        label="Por reconhecer"
+        label="Por confirmar"
         value={totalToRecognize}
         icon={<WarningCircle className="size-4 text-muted-foreground" aria-hidden />}
-        hint="Aguardam validação"
+        hint="Aguardam confirmação"
       />
       <KpiCard
         label="Críticos em aberto"
         value={totalCriticalAlerts}
         icon={<Warning className="size-4 text-muted-foreground" aria-hidden />}
-        hint="Sem reconhecimento"
+        hint="Sem confirmação"
       />
       <KpiCard
-        label="Disparos registados"
+        label="Alertas registados"
         value={totalAlerts}
         icon={<Bell className="size-4 text-muted-foreground" aria-hidden />}
         hint="Histórico na plataforma"

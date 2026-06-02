@@ -2,7 +2,10 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { useOutletContext } from "react-router-dom"
+import { SlidersHorizontal } from "@phosphor-icons/react"
 
+import { Badge } from "#/components/ui/badge"
+import { Button } from "#/components/ui/button"
 import {
   Card,
   CardContent,
@@ -13,15 +16,8 @@ import {
 import { Pagination, PER_PAGE } from "#/components/ui/pagination"
 import { AlertsKpiCards } from "#/components/alertas/kpi-cards"
 import { AlertsTable } from "#/components/alertas/alerts-table"
-import { selectClass } from "#/data/manutencao"
+import { FiltersSheet } from "#/components/alertas/filters-sheet"
 import { api } from "#/lib/api"
-
-const severityOptions = [
-  { value: "todas", label: "Todas as severidades" },
-  { value: "critical", label: "Crítico" },
-  { value: "warning", label: "Aviso" },
-  { value: "normal", label: "Normal" },
-]
 
 export function AlertasPage() {
   const { setTitle } = useOutletContext()
@@ -29,6 +25,8 @@ export function AlertasPage() {
   const [summary, setSummary] = useState(null)
   const [loading, setLoading] = useState(true)
   const [severityFilter, setSeverityFilter] = useState("todas")
+  const [statusFilter, setStatusFilter] = useState("todos")
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [page, setPage] = useState(1)
   const [refresh, setRefresh] = useState(0)
   const [acknowledgingId, setAcknowledgingId] = useState(null)
@@ -53,12 +51,26 @@ export function AlertasPage() {
 
   useEffect(() => {
     setPage(1)
-  }, [severityFilter])
+  }, [severityFilter, statusFilter])
+
+  const activeFilterCount = [
+    severityFilter !== "todas",
+    statusFilter !== "todos",
+  ].filter(Boolean).length
 
   const filtered = useMemo(() => {
-    if (severityFilter === "todas") return alerts
-    return alerts.filter((a) => a.severity === severityFilter)
-  }, [alerts, severityFilter])
+    return alerts.filter((a) => {
+      if (severityFilter !== "todas" && a.severity !== severityFilter) {
+        return false
+      }
+      if (statusFilter !== "todos") {
+        const confirmed = a.status === "confirmed" || a.isNotified
+        if (statusFilter === "confirmed" && !confirmed) return false
+        if (statusFilter === "pending" && confirmed) return false
+      }
+      return true
+    })
+  }, [alerts, severityFilter, statusFilter])
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE))
   const currentPage = Math.min(page, totalPages)
@@ -99,23 +111,21 @@ export function AlertasPage() {
           <div className="flex flex-col gap-1">
             <CardTitle>Alertas disparados</CardTitle>
             <CardDescription>
-              Filtre por severidade e reconheça ocorrências para a equipa.
+              Filtre por severidade e confirme as ocorrências.
             </CardDescription>
           </div>
-          <div className="w-full sm:w-56">
-            <select
-              aria-label="Filtrar por severidade"
-              className={selectClass}
-              value={severityFilter}
-              onChange={(event) => setSeverityFilter(event.target.value)}
-            >
-              {severityOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            className="shrink-0"
+            onClick={() => setIsFilterOpen(true)}
+          >
+            <SlidersHorizontal />
+            Filtros
+            {activeFilterCount > 0 ? (
+              <Badge variant="secondary">{activeFilterCount}</Badge>
+            ) : null}
+          </Button>
         </CardHeader>
 
         <CardContent className="flex flex-col gap-4">
@@ -127,14 +137,16 @@ export function AlertasPage() {
                 alerts={paginated}
                 onAcknowledge={handleAcknowledge}
                 acknowledgingId={acknowledgingId}
+                filterActive={activeFilterCount > 0}
               />
               {filtered.length > 0 ? (
                 <>
                   <div className="border-t" />
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <p className="text-xs text-muted-foreground">
-                      {filtered.length} alerta(s) — página {currentPage} de{" "}
-                      {totalPages}
+                      {filtered.length}{" "}
+                      {filtered.length === 1 ? "alerta" : "alertas"} — página{" "}
+                      {currentPage} de {totalPages}
                     </p>
                     <Pagination
                       currentPage={currentPage}
@@ -148,6 +160,15 @@ export function AlertasPage() {
           )}
         </CardContent>
       </Card>
+
+      <FiltersSheet
+        open={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+        severityFilter={severityFilter}
+        onSeverityFilterChange={setSeverityFilter}
+        statusFilter={statusFilter}
+        onStatusFilterChange={setStatusFilter}
+      />
     </div>
   )
 }
