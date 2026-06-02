@@ -72,7 +72,7 @@ export function SensorsTab({ spaceId, spaceName }) {
               <Broadcast className="size-8 text-muted-foreground" />
               <p className="text-sm font-medium">Sem sensores neste espaço</p>
               <p className="max-w-sm text-xs text-muted-foreground">
-                Adicione sensores com o botão acima. É necessário pelo menos uma
+                Adicione sensores com o botão acima. É necessária pelo menos uma
                 zona na aba “Zonas”.
               </p>
             </div>
