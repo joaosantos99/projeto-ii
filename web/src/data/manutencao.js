@@ -48,8 +48,8 @@ export const maintenanceTasksSeed = [
 
 export const boardColumns = [
   { id: "pendente", title: "Pendentes" },
-  { id: "em_execucao", title: "Em execucao" },
-  { id: "concluida", title: "Concluidas" },
+  { id: "em_execucao", title: "Em execução" },
+  { id: "concluida", title: "Concluídas" },
 ]
 
 export const selectClass =
