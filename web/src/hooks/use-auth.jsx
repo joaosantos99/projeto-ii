@@ -59,7 +59,7 @@ export function AuthProvider({ children, initialUser = null, initialStatus = nul
     let cancelled = false
     setStatus("loading")
     api
-      .get("/auth/me")
+      .get("/users/me")
       .then(({ data }) => {
         if (cancelled) return
         localStorage.setItem("user", JSON.stringify(data))

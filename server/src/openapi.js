@@ -197,7 +197,7 @@ export default {
     },
 
     // ---------- Auth ----------
-    '/auth/login': {
+    '/users/login': {
       post: {
         tags: ['Auth'],
         summary: 'Authenticate and obtain a JWT.',
@@ -234,7 +234,7 @@ export default {
         },
       },
     },
-    '/auth/forgot-password': {
+    '/users/forgot-password': {
       post: {
         tags: ['Auth'],
         summary: 'Request a password reset email.',
@@ -253,7 +253,7 @@ export default {
         },
       },
     },
-    '/auth/update-password': {
+    '/users/update-password': {
       patch: {
         tags: ['Auth'],
         summary: 'Reset password using a reset token.',
@@ -273,7 +273,7 @@ export default {
         responses: { 200: ok('Password updated.'), 400: ValidationError },
       },
     },
-    '/auth/me': {
+    '/users/me': {
       get: {
         tags: ['Auth'],
         summary: 'Get the authenticated user.',
@@ -296,7 +296,7 @@ export default {
         responses: { 200: ok('Updated user.', ref('User')), 400: ValidationError, 401: Unauthorized },
       },
     },
-    '/auth/change-password': {
+    '/users/change-password': {
       patch: {
         tags: ['Auth'],
         summary: 'Change password (verifies the current one).',

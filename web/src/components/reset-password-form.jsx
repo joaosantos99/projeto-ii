@@ -42,7 +42,7 @@ export function ResetPasswordForm({ token, className, ...props }) {
       return
     }
 
-    // Replace with fetch('/api/auth/reset-password', …)
+    // Replace with fetch('/api/users/reset-password', …)
     await Promise.resolve({ token, password })
     setSubmitted(true)
   }

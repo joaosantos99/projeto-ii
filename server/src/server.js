@@ -27,7 +27,7 @@ app.use('/api', apiRouter);
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(openapiSpec));
 app.get('/docs.json', (_req, res) => res.json(openapiSpec));
 
-apiRouter.use('/auth', authRouter);
+apiRouter.use('/users', authRouter);
 apiRouter.use('/users', usersRouter);
 apiRouter.use('/spaces', spacesRouter);
 apiRouter.use('/roles', rolesRouter);

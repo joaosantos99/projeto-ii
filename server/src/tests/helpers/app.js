@@ -12,7 +12,7 @@ export async function buildApp() {
   const apiRouter = Router();
   app.use('/api', apiRouter);
 
-  apiRouter.use('/auth', authRouter);
+  apiRouter.use('/users', authRouter);
   apiRouter.use('/users', usersRouter);
   apiRouter.use('/roles', rolesRouter);
 

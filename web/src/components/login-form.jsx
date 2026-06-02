@@ -23,7 +23,7 @@ export function LoginForm({ className, ...props }) {
     setError("")
     setSubmitting(true)
     try {
-      const { data } = await api.post("/auth/login", { email, password })
+      const { data } = await api.post("/users/login", { email, password })
       login(data.token, data.user)
       navigate("/admin")
     } catch (err) {

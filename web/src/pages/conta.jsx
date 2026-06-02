@@ -16,13 +16,13 @@ export function ContaPage() {
   }, [setTitle])
 
   const handleSaveProfile = ({ name, email }) =>
-    api.patch("/auth/me", { fullName: name, email }).then((res) => {
+    api.patch("/users/me", { fullName: name, email }).then((res) => {
       const data = res.data ?? {}
       updateUser({ fullName: data.fullName ?? name, email: data.email ?? email })
     })
 
   const handleChangePassword = ({ current, next }) =>
-    api.patch("/auth/change-password", {
+    api.patch("/users/change-password", {
       currentPassword: current,
       newPassword: next,
     })

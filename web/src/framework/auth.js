@@ -16,7 +16,7 @@ export async function resolveAuth(request) {
   const token = readToken(cookieHeader)
   if (!token) return { user: null }
   try {
-    const res = await fetch(`${API_TARGET}/api/auth/me`, {
+    const res = await fetch(`${API_TARGET}/api/users/me`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     if (!res.ok) return { user: null }
