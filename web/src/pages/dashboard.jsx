@@ -63,10 +63,10 @@ export function DashboardPage() {
   }, [spaces])
 
   const kpis = useMemo(() => [
-    { label: "Alertas criticos", value: String(summary?.totalAlerts ?? 0), hint: "Total de alertas registados", Icon: Warning },
-    { label: "Manutencao em atraso", value: String(summary?.totalLateMaintenance ?? 0), hint: "Prioridade de despacho", Icon: WarningCircle },
-    { label: "Sensores offline", value: String(summary?.totalOfflineSensors ?? 0), hint: "Intervencao recomendada", Icon: Broadcast },
-    { label: "Tempo medio de resposta", value: `${summary?.averageResponseTime ?? 0} min`, hint: "Media de confirmacao", Icon: Gauge },
+    { label: "Alertas", value: String(summary?.totalAlerts ?? 0), hint: "Total de alertas registados", Icon: Warning },
+    { label: "Manutenção em atraso", value: String(summary?.totalLateMaintenance ?? 0), hint: "Prioridade de despacho", Icon: WarningCircle },
+    { label: "Sensores offline", value: String(summary?.totalOfflineSensors ?? 0), hint: "Intervenção recomendada", Icon: Broadcast },
+    { label: "Tempo médio de resposta", value: `${summary?.averageResponseTime ?? 0} min`, hint: "Média de confirmação", Icon: Gauge },
   ], [summary])
 
   const sortedAlerts = useMemo(() => {
@@ -117,7 +117,7 @@ export function DashboardPage() {
 
       <Widget
         title="Alertas ativos"
-        description="Lista priorizada por severidade com acao imediata"
+        description="Lista priorizada por severidade com ação imediata"
         action={
           <Button variant="outline" size="sm">
             <Alarm className="size-3.5" />
@@ -130,10 +130,10 @@ export function DashboardPage() {
             <thead>
               <tr className="border-b border-border text-left text-muted-foreground">
                 <th className="pb-2 pr-4 font-medium">Regra</th>
-                <th className="pb-2 pr-4 font-medium">Espaco</th>
+                <th className="pb-2 pr-4 font-medium">Espaço</th>
                 <th className="pb-2 pr-4 font-medium">Severidade</th>
                 <th className="pb-2 pr-4 font-medium">Data</th>
-                <th className="pb-2 text-right font-medium">Acao</th>
+                <th className="pb-2 text-right font-medium">Ação</th>
               </tr>
             </thead>
             <tbody>
@@ -148,7 +148,7 @@ export function DashboardPage() {
                     </td>
                     <td className="py-2.5 pr-4">
                       <Badge variant={alert.severity === "critical" ? "destructive" : "warning"}>
-                        {alert.severity === "critical" ? "Critico" : "Warning"}
+                        {alert.severity === "critical" ? "Crítico" : "Aviso"}
                       </Badge>
                     </td>
                     <td className="py-2.5 pr-4 text-muted-foreground">{formatDateTime(alert.createdAt)}</td>
@@ -181,7 +181,7 @@ export function DashboardPage() {
         </div>
         <div className="flex items-center justify-between gap-2">
           <p className="text-xs text-muted-foreground">
-            {sortedAlerts.length} alerta(s) encontrados - pagina {currentPage} de {totalPages}
+            {sortedAlerts.length} alerta(s) encontrado(s) - página {currentPage} de {totalPages}
           </p>
           <div className="flex items-center gap-1 text-xs">
             <button
@@ -218,7 +218,7 @@ export function DashboardPage() {
 
       <section className="grid gap-4 xl:grid-cols-2">
         <Widget
-          title="Estado de rega e iluminacao"
+          title="Estado de rega e iluminação"
           description="Indicadores por espaco"
         >
           <div className="grid grid-cols-2 gap-2">
@@ -245,8 +245,8 @@ export function DashboardPage() {
         </Widget>
 
         <Widget
-          title="Incidentes de cidadaos por rever"
-          description="Ocorrencias mais recentes sem validacao"
+          title="Incidentes de cidadãos por rever"
+          description="Ocorrências mais recentes sem validação"
           contentClassName="flex flex-col gap-2"
         >
           {incidents.map((incident) => (
