@@ -409,12 +409,13 @@ export default {
       get: {
         tags: ['Spaces'],
         summary: 'List spaces (paginated, filterable).',
-        description: 'Requires permission `spaces:read`. Pass `summary=true` to include the spaces statistics summary.',
+        description: 'Requires permission `spaces:read`. Pass `summary=true` to include the spaces statistics summary. Pass `sensoresStatus=true` to include, per space, the latest-reading status of each sensor type.',
         parameters: [
           ...pageParams,
           queryParam('query', { type: 'string' }, 'Search term.'),
           queryParam('city', { type: 'string' }, 'Filter by city.'),
           queryParam('summary', { type: 'boolean' }, 'Include spaces statistics summary when true.'),
+          queryParam('sensoresStatus', { type: 'boolean' }, 'Include per-type sensor status (from the latest reading) on each space when true.'),
         ],
         responses: {
           200: ok('Paginated spaces.', {
@@ -890,14 +891,6 @@ export default {
           queryParam('sort', { type: 'string' }, 'Sort expression.'),
         ],
         responses: { 200: ok('Citizen incidents.', { type: 'object' }) },
-      },
-    },
-    '/dashboard/irrigation-lighting': {
-      get: {
-        tags: ['Dashboard'],
-        summary: 'Irrigation and lighting status by space.',
-        security: [],
-        responses: { 200: ok('Irrigation/lighting.', { type: 'object' }) },
       },
     },
   },

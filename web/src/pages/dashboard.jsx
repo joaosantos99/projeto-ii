@@ -6,9 +6,11 @@ import {
   Alarm,
   Broadcast,
   CheckCircle,
+  Drop,
   Gauge,
-  Heartbeat,
   Lightning,
+  SpeakerHigh,
+  Thermometer,
   Warning,
   WarningCircle,
 } from "@phosphor-icons/react"
@@ -23,6 +25,13 @@ import { formatDateTime, relativeAge } from "#/lib/format-date"
 const PAGE_SIZE = 10
 
 const SEVERITY_RANK = { critical: 3, warning: 2, normal: 1 }
+
+const SENSOR_TYPE_META = [
+  { type: "temperature", label: "Temp", Icon: Thermometer },
+  { type: "humidity", label: "Humidade", Icon: Drop },
+  { type: "light", label: "Luz", Icon: Lightning },
+  { type: "sound", label: "Som", Icon: SpeakerHigh },
+]
 
 export function DashboardPage() {
   const { setTitle } = useOutletContext()
@@ -62,8 +71,8 @@ export function DashboardPage() {
       .then((res) => setAverageResponseTime(res.data?.meta?.averageResponseTime ?? 0))
       .catch(() => setAverageResponseTime(0))
 
-    api.get("/dashboard/irrigation-lighting")
-      .then((res) => setSpaces(res.data?.data ?? []))
+    api.get("/spaces", { params: { sensoresStatus: true, perPage: 6 } })
+      .then((res) => setSpaces(res.data?.spaces ?? []))
       .catch(() => setSpaces([]))
 
     api.get("/reports", { params: { type: "incident", status: "open", limit: 3 } })
@@ -84,12 +93,6 @@ export function DashboardPage() {
         setAlertsTotalPages(1)
       })
   }, [page, refresh])
-
-  const spaceNameById = useMemo(() => {
-    const map = new Map()
-    for (const s of spaces) map.set(s.greenSpaceId, s.name)
-    return map
-  }, [spaces])
 
   const kpis = useMemo(() => [
     { label: "Alertas", value: String(allAlertsTotal), hint: "Total de alertas registados", Icon: Warning },
@@ -158,7 +161,7 @@ export function DashboardPage() {
                   <tr key={alert.id} className="border-b border-border last:border-0">
                     <td className="py-2.5 pr-4">{alert.message}</td>
                     <td className="py-2.5 pr-4 text-muted-foreground">
-                      {spaceNameById.get(alert.greenSpaceId) ?? "—"}
+                      {alert.greenSpaceName ?? "—"}
                     </td>
                     <td className="py-2.5 pr-4">
                       <Badge variant={alert.severity === "critical" ? "destructive" : "warning"}>
@@ -212,25 +215,22 @@ export function DashboardPage() {
           description="Indicadores por espaco"
         >
           <div className="grid grid-cols-2 gap-2">
-            {spaces.map((space) => {
-              const irrigation = space.irrigationStatus === "ON"
-              const lighting = space.lightingStatus === "ON"
-              return (
-                <WidgetTile key={space.greenSpaceId}>
-                  <p className="text-xs font-medium">{space.name}</p>
-                  <div className="mt-1 flex items-center gap-2">
-                    <Badge variant={irrigation ? "secondary" : "outline"}>
-                      <Heartbeat className="size-3" />
-                      Rega {irrigation ? "ON" : "OFF"}
-                    </Badge>
-                    <Badge variant={lighting ? "secondary" : "outline"}>
-                      <Lightning className="size-3" />
-                      Luz {lighting ? "ON" : "OFF"}
-                    </Badge>
-                  </div>
-                </WidgetTile>
-              )
-            })}
+            {spaces.map((space) => (
+              <WidgetTile key={space.id}>
+                <p className="text-xs font-medium">{space.name}</p>
+                <div className="mt-1 flex flex-wrap items-center gap-2">
+                  {SENSOR_TYPE_META.map(({ type, label, Icon }) => {
+                    const on = space.sensoresStatus?.[type]?.isActive === true
+                    return (
+                      <Badge key={type} variant={on ? "secondary" : "outline"}>
+                        <Icon className="size-3" />
+                        {label} {on ? "ON" : "OFF"}
+                      </Badge>
+                    )
+                  })}
+                </div>
+              </WidgetTile>
+            ))}
           </div>
         </Widget>
 
@@ -247,7 +247,7 @@ export function DashboardPage() {
               </div>
               <p className="mt-1 text-xs">{incident.description}</p>
               <p className="text-xs text-muted-foreground">
-                {incident.scope ?? spaceNameById.get(incident.greenSpaceId) ?? "—"}
+                {incident.scope ?? "—"}
               </p>
             </WidgetTile>
           ))}

@@ -3,7 +3,9 @@ import { Op, fn, col, literal } from 'sequelize';
 import GreenSpaces from '../database/models/GreenSpaces.js';
 import GreenSpaceZones from '../database/models/GreenSpaceZones.js';
 import Sensors from '../database/models/Sensors.js';
+import SensorReadingMetas from '../database/models/SensorReadingMetas.js';
 import Alerts from '../database/models/Alerts.js';
+import { SENSOR_TYPES } from '../lib/units.js';
 
 /**
  * Service for the spaces routes.
@@ -131,6 +133,68 @@ class SpacesService {
 
   static async count(options = {}) {
     return GreenSpaces.count(options);
+  }
+
+  /**
+   * Per-space status of each sensor type, derived from the latest reading.
+   *
+   * For every space and every sensor type, the sensor with the most recent
+   * reading (max recorded_at) wins; its `is_active` flag becomes the type's
+   * status. Types with no readings report `isActive: false` / `lastReadingAt: null`.
+   * @param {Array<string>} ids - Green space ids.
+   * @returns {Promise<Map<string, Object>>} Map of space id to a `{type: {isActive, lastReadingAt}}` object.
+   */
+  static async getSensoresStatusBySpaceIds(ids) {
+    const statusMap = new Map();
+    if (!ids || ids.length === 0) return statusMap;
+
+    // Last reading time per (space, sensor) — bounded by the number of sensors.
+    const lastReadings = await SensorReadingMetas.findAll({
+      attributes: [
+        'green_space_id',
+        'sensor_id',
+        [fn('MAX', col('recorded_at')), 'last_reading_at'],
+      ],
+      where: { green_space_id: { [Op.in]: ids } },
+      group: ['green_space_id', 'sensor_id'],
+      raw: true,
+    });
+
+    const sensorIds = [...new Set(lastReadings.map((r) => r.sensor_id))];
+    const sensors = sensorIds.length
+      ? await Sensors.findAll({
+          attributes: ['id', 'type', 'is_active'],
+          where: { id: { [Op.in]: sensorIds } },
+          raw: true,
+        })
+      : [];
+    const sensorMap = new Map(sensors.map((s) => [s.id, s]));
+
+    // Pick the latest-read sensor per (space, type).
+    const picked = new Map();
+    for (const row of lastReadings) {
+      const sensor = sensorMap.get(row.sensor_id);
+      if (!sensor) continue;
+      const key = `${row.green_space_id}|${sensor.type}`;
+      const current = picked.get(key);
+      if (!current || new Date(row.last_reading_at) > new Date(current.recordedAt)) {
+        picked.set(key, { recordedAt: row.last_reading_at, isActive: Boolean(sensor.is_active) });
+      }
+    }
+
+    for (const id of ids) {
+      const status = {};
+      for (const type of SENSOR_TYPES) {
+        const hit = picked.get(`${id}|${type}`);
+        status[type] = {
+          isActive: hit ? hit.isActive : false,
+          lastReadingAt: hit ? new Date(hit.recordedAt).toISOString() : null,
+        };
+      }
+      statusMap.set(id, status);
+    }
+
+    return statusMap;
   }
 }
 

@@ -18,6 +18,7 @@ class AlertsSerializer extends BaseSerializer {
       sensorId: alert.sensor_id,
       spaceId: alert.green_space_id,
       greenSpaceId: alert.green_space_id,
+      greenSpaceName: alert.greenSpace?.name ?? null,
       severity: alert.severity,
       message: alert.message,
       isNotified: alert.is_notified,

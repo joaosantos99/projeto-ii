@@ -18,6 +18,7 @@ class SpacesController {
       const perPage = Math.max(1, parseInt(req.query.perPage, 10) || 10);
       const { query, city } = req.query;
       const includeSummary = req.query.summary === 'true';
+      const includeSensoresStatus = req.query.sensoresStatus === 'true';
 
       const { spaces, total } = await SpacesService.getSpaces({ page, perPage, query, city });
       const totalPages = Math.max(1, Math.ceil(total / perPage));
@@ -45,6 +46,15 @@ class SpacesController {
 
       if (includeSummary) {
         body.summary = await SpacesController.buildSummary();
+      }
+
+      if (includeSensoresStatus) {
+        const statusMap = await SpacesService.getSensoresStatusBySpaceIds(
+          body.spaces.map((s) => s.id),
+        );
+        body.spaces.forEach((s) => {
+          s.sensoresStatus = statusMap.get(s.id) ?? null;
+        });
       }
 
       res.json(body);

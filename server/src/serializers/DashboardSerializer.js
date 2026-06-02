@@ -40,25 +40,6 @@ class DashboardSerializer extends BaseSerializer {
       },
     };
   }
-
-  /**
-   * Serialize irrigation and lighting status per green space.
-   * @param {Array} spaces - The green spaces with sensor status.
-   * @returns {Object} Serialized irrigation-lighting response.
-   */
-  static serializeIrrigationLighting(spaces) {
-    return {
-      data: spaces.map((space) => ({
-        greenSpaceId: space.green_space_id,
-        name: space.name,
-        irrigationStatus: space.irrigation_status,
-        lightingStatus: space.lighting_status,
-      })),
-      _links: {
-        self: { href: '/api/dashboard/irrigation-lighting' },
-      },
-    };
-  }
 }
 
 export default DashboardSerializer;

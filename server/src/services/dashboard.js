@@ -1,11 +1,4 @@
-import GreenSpaces from '../database/models/GreenSpaces.js';
 import Reports from '../database/models/Reports.js';
-import Sensors from '../database/models/Sensors.js';
-
-const SENSOR_TYPES = {
-  IRRIGATION: 'irrigation',
-  LIGHTING: 'lighting',
-};
 
 class DashboardService {
 
@@ -38,40 +31,6 @@ class DashboardService {
     });
 
     return { incidents, total };
-  }
-
-  /**
-   * Get irrigation and lighting status per green space.
-   * Derives ON/OFF from active sensors of each type.
-   * @returns {Promise<Array>} Array of spaces with irrigation/lighting status.
-   */
-  static async getIrrigationLighting() {
-    const spaces = await GreenSpaces.findAll({
-      attributes: ['id', 'name'],
-      include: [
-        {
-          model: Sensors,
-          as: 'sensors',
-          attributes: ['type', 'is_active'],
-          where: { type: [SENSOR_TYPES.IRRIGATION, SENSOR_TYPES.LIGHTING] },
-          required: false,
-        },
-      ],
-    });
-
-    return spaces.map((space) => {
-      const sensors = space.sensors ?? [];
-
-      const irrigationSensor = sensors.find((s) => s.type === SENSOR_TYPES.IRRIGATION);
-      const lightingSensor = sensors.find((s) => s.type === SENSOR_TYPES.LIGHTING);
-
-      return {
-        green_space_id: space.id,
-        name: space.name,
-        irrigation_status: irrigationSensor?.is_active ? 'ON' : 'OFF',
-        lighting_status: lightingSensor?.is_active ? 'ON' : 'OFF',
-      };
-    });
   }
 }
 

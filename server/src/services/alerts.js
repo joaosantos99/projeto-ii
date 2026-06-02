@@ -1,4 +1,5 @@
 import Alerts from '../database/models/Alerts.js';
+import GreenSpaces from '../database/models/GreenSpaces.js';
 
 const ALERT_STATUS = {
   ACKNOWLEDGED: 'confirmed',
@@ -63,6 +64,7 @@ class AlertsService {
 
     const { count: total, rows: alerts } = await Alerts.findAndCountAll({
       where: buildAlertsWhere({ severity, unacknowledgedOnly }),
+      include: [{ model: GreenSpaces, as: 'greenSpace', attributes: ['name'] }],
       order: [['created_at', 'DESC']],
       limit,
       offset,
