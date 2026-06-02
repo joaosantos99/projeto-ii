@@ -817,9 +817,11 @@ export default {
       get: {
         tags: ['Maintenance'],
         summary: 'List maintenance tasks (paginated).',
+        description: 'Pass `summary=true` to include the maintenance statistics summary.',
         parameters: [
           queryParam('page', { type: 'integer', minimum: 1, default: 1 }, 'Page number.'),
           queryParam('limit', { type: 'integer', minimum: 1, default: 20 }, 'Items per page.'),
+          queryParam('summary', { type: 'boolean' }, 'Include maintenance statistics summary when true.'),
         ],
         responses: {
           200: ok('Paginated tasks.', {
@@ -827,6 +829,16 @@ export default {
             properties: {
               tasks: { type: 'array', items: { type: 'object' } },
               pagination: ref('Pagination'),
+              summary: {
+                type: 'object',
+                description: 'Present only when summary=true.',
+                properties: {
+                  totalActiveRules: { type: 'integer' },
+                  totalInProgressTasks: { type: 'integer' },
+                  totalCriticalTasks: { type: 'integer' },
+                  totalLateTasks: { type: 'integer' },
+                },
+              },
             },
           }),
           401: Unauthorized,
@@ -837,14 +849,6 @@ export default {
         summary: 'Create a maintenance task.',
         requestBody: { required: true, content: json({ type: 'object' }) },
         responses: { 201: ok('Created task.', { type: 'object' }), 400: ValidationError, 401: Unauthorized },
-      },
-    },
-    '/maintenance/summary': {
-      get: {
-        tags: ['Maintenance'],
-        summary: 'Maintenance statistics summary.',
-        security: [],
-        responses: { 200: ok('Summary.', { type: 'object' }) },
       },
     },
     '/maintenance/{maintenanceId}': {

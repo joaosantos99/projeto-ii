@@ -22,7 +22,14 @@ class MaintenanceController {
 
       const { tasks, total } = await MaintenanceService.getTasks({ page, limit });
 
-      res.json(MaintenanceSerializer.serializePaginated(tasks, { page, limit, total }));
+      const payload = MaintenanceSerializer.serializePaginated(tasks, { page, limit, total });
+
+      if (req.query.summary === 'true') {
+        const summary = await MaintenanceService.getSummary();
+        payload.summary = MaintenanceSerializer.serializeSummary(summary);
+      }
+
+      res.json(payload);
     } catch (error) {
       res.status(error.statusCode || 500).json({ description: error.message });
     }
@@ -100,20 +107,6 @@ class MaintenanceController {
     }
   }
 
-  /**
-   * Get a summary of maintenance tasks.
-   * @param {Object} req - The request object.
-   * @param {Object} res - The response object.
-   */
-  static async getSummary(req, res) {
-    try {
-      const summary = await MaintenanceService.getSummary();
-
-      res.json(MaintenanceSerializer.serializeSummary(summary));
-    } catch (error) {
-      res.status(error.statusCode || 500).json({ description: error.message });
-    }
-  }
 }
 
 export default MaintenanceController;

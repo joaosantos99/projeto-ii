@@ -67,15 +67,10 @@ class MaintenanceSerializer extends BaseSerializer {
    */
   static serializeSummary(summary) {
     return {
-      data: {
-        totalActiveRules: summary.totalActiveRules,
-        totalInProgressTasks: summary.totalInProgressTasks,
-        totalCriticalTasks: summary.totalCriticalTasks,
-        totalLateTasks: summary.totalLateTasks,
-      },
-      _links: {
-        self: { href: '/api/maintenance/summary' },
-      },
+      totalActiveRules: summary.totalActiveRules,
+      totalInProgressTasks: summary.totalInProgressTasks,
+      totalCriticalTasks: summary.totalCriticalTasks,
+      totalLateTasks: summary.totalLateTasks,
     };
   }
 }
