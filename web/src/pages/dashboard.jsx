@@ -27,10 +27,14 @@ const SEVERITY_RANK = { critical: 3, warning: 2, normal: 1 }
 export function DashboardPage() {
   const { setTitle } = useOutletContext()
 
-  const [summary, setSummary] = useState(null)
   const [alerts, setAlerts] = useState([])
+  const [alertsTotal, setAlertsTotal] = useState(0)
+  const [alertsTotalPages, setAlertsTotalPages] = useState(1)
   const [spaces, setSpaces] = useState([])
   const [incidents, setIncidents] = useState([])
+  const [offlineSensors, setOfflineSensors] = useState(0)
+  const [lateMaintenance, setLateMaintenance] = useState(0)
+  const [averageResponseTime, setAverageResponseTime] = useState(0)
   const [page, setPage] = useState(1)
   const [acknowledgingId, setAcknowledgingId] = useState(null)
 
@@ -39,13 +43,17 @@ export function DashboardPage() {
   }, [setTitle])
 
   useEffect(() => {
-    api.get("/dashboard/summary")
-      .then((res) => setSummary(res.data?.data ?? res.data))
-      .catch(() => setSummary(null))
+    api.get("/sensors", { params: { offlineOnly: true, limit: 1 } })
+      .then((res) => setOfflineSensors(res.data?.meta?.total ?? 0))
+      .catch(() => setOfflineSensors(0))
 
-    api.get("/alerts")
-      .then((res) => setAlerts(Array.isArray(res.data) ? res.data : []))
-      .catch(() => setAlerts([]))
+    api.get("/maintenance", { params: { status: "atraso", limit: 1 } })
+      .then((res) => setLateMaintenance(res.data?.meta?.total ?? 0))
+      .catch(() => setLateMaintenance(0))
+
+    api.get("/maintenance", { params: { includeAverageResponseTime: true, limit: 1 } })
+      .then((res) => setAverageResponseTime(res.data?.meta?.averageResponseTime ?? 0))
+      .catch(() => setAverageResponseTime(0))
 
     api.get("/dashboard/irrigation-lighting")
       .then((res) => setSpaces(res.data?.data ?? []))
@@ -56,6 +64,20 @@ export function DashboardPage() {
       .catch(() => setIncidents([]))
   }, [])
 
+  useEffect(() => {
+    api.get("/alerts", { params: { page, limit: PAGE_SIZE } })
+      .then((res) => {
+        setAlerts(res.data?.data ?? [])
+        setAlertsTotal(res.data?.meta?.total ?? 0)
+        setAlertsTotalPages(res.data?.meta?.totalPages ?? 1)
+      })
+      .catch(() => {
+        setAlerts([])
+        setAlertsTotal(0)
+        setAlertsTotalPages(1)
+      })
+  }, [page])
+
   const spaceNameById = useMemo(() => {
     const map = new Map()
     for (const s of spaces) map.set(s.greenSpaceId, s.name)
@@ -63,21 +85,20 @@ export function DashboardPage() {
   }, [spaces])
 
   const kpis = useMemo(() => [
-    { label: "Alertas", value: String(summary?.totalAlerts ?? 0), hint: "Total de alertas registados", Icon: Warning },
-    { label: "Manutenção em atraso", value: String(summary?.totalLateMaintenance ?? 0), hint: "Prioridade de despacho", Icon: WarningCircle },
-    { label: "Sensores offline", value: String(summary?.totalOfflineSensors ?? 0), hint: "Intervenção recomendada", Icon: Broadcast },
-    { label: "Tempo médio de resposta", value: `${summary?.averageResponseTime ?? 0} min`, hint: "Média de confirmação", Icon: Gauge },
-  ], [summary])
+    { label: "Alertas", value: String(alertsTotal), hint: "Total de alertas registados", Icon: Warning },
+    { label: "Manutenção em atraso", value: String(lateMaintenance), hint: "Prioridade de despacho", Icon: WarningCircle },
+    { label: "Sensores offline", value: String(offlineSensors), hint: "Intervenção recomendada", Icon: Broadcast },
+    { label: "Tempo médio de resposta", value: `${averageResponseTime} min`, hint: "Média de confirmação", Icon: Gauge },
+  ], [alertsTotal, lateMaintenance, offlineSensors, averageResponseTime])
 
-  const sortedAlerts = useMemo(() => {
+  const paginatedAlerts = useMemo(() => {
     return [...alerts].sort(
       (a, b) => (SEVERITY_RANK[b.severity] ?? 0) - (SEVERITY_RANK[a.severity] ?? 0),
     )
   }, [alerts])
 
-  const totalPages = Math.max(1, Math.ceil(sortedAlerts.length / PAGE_SIZE))
+  const totalPages = Math.max(1, alertsTotalPages)
   const currentPage = Math.min(page, totalPages)
-  const paginatedAlerts = sortedAlerts.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
 
   const handleAcknowledge = (alertId) => {
     setAcknowledgingId(alertId)
@@ -182,7 +203,7 @@ export function DashboardPage() {
         <div className="border-t" />
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-muted-foreground">
-            {sortedAlerts.length} alerta(s) — página {currentPage} de {totalPages}
+            {alertsTotal} alerta(s) — página {currentPage} de {totalPages}
           </p>
           <Pagination
             currentPage={currentPage}
