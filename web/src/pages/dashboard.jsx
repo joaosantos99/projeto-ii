@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useMemo } from "react"
-import { useOutletContext } from "react-router-dom"
+import { useNavigate, useOutletContext } from "react-router-dom"
 import {
   Alarm,
   Broadcast,
@@ -26,6 +26,7 @@ const SEVERITY_RANK = { critical: 3, warning: 2, normal: 1 }
 
 export function DashboardPage() {
   const { setTitle } = useOutletContext()
+  const navigate = useNavigate()
 
   const [alerts, setAlerts] = useState([])
   const [alertsTotal, setAlertsTotal] = useState(0)
@@ -140,7 +141,7 @@ export function DashboardPage() {
         title="Alertas ativos"
         description="Lista priorizada por severidade com ação imediata"
         action={
-          <Button variant="outline" size="sm">
+          <Button variant="outline" size="sm" onClick={() => navigate("/admin/alertas")}>
             <Alarm className="size-3.5" />
             Ver todos
           </Button>
