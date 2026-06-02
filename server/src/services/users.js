@@ -3,6 +3,13 @@ import bcrypt from 'bcrypt';
 import Users from '../database/models/Users.js';
 import Roles from '../database/models/Roles.js';
 import Sessions from '../database/models/Sessions.js';
+import CacheService from './cache.js';
+
+const sessionCache = new CacheService({
+  namespace: 'session',
+  indexNamespace: 'user-sessions',
+  label: 'session-cache',
+});
 
 /**
  * Service for the users routes.
@@ -98,6 +105,8 @@ class UsersService {
 
     await user.update({ deleted_by: deletedBy });
     await user.destroy();
+
+    await sessionCache.invalidateIndex(userId);
   }
 
   /**
@@ -138,7 +147,7 @@ class UsersService {
       changes.password_hash = await bcrypt.hash(data.password, 12);
     }
 
-    if (data.role !== undefined) {
+    if (!data?.role) {
       const role = await Roles.findOne({ where: { name: data.role } });
       if (!role) {
         const error = new Error('Perfil não encontrado.');
@@ -149,6 +158,10 @@ class UsersService {
     }
 
     await user.update(changes);
+
+    if (!changes?.role_id) {
+      await sessionCache.invalidateIndex(userId);
+    }
 
     return user.reload({ include: [{ model: Roles, as: 'role' }] });
   }

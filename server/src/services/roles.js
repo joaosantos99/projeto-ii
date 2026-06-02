@@ -1,4 +1,12 @@
 import Roles from '../database/models/Roles.js';
+import Users from '../database/models/Users.js';
+import CacheService from './cache.js';
+
+const sessionCache = new CacheService({
+  namespace: 'session',
+  indexNamespace: 'user-sessions',
+  label: 'session-cache',
+});
 
 /**
  * Service for the roles routes.
@@ -58,6 +66,9 @@ class RolesService {
       : [...current, permissionId];
 
     await role.update({ permissions: next, updated_by: updatedBy });
+
+    const users = await Users.findAll({ where: { role_id: roleId }, attributes: ['id'] });
+    await Promise.all(users.map((u) => sessionCache.invalidateIndex(u.id)));
 
     return role;
   }

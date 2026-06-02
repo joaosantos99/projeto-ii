@@ -12,3 +12,13 @@ services:
       MYSQL_DATABASE: ${DB_NAME}
       MYSQL_USER: ${DB_USER}
       MYSQL_PASSWORD: ${DB_PASSWORD}
+
+  dragonfly:
+    image: docker.dragonflydb.io/dragonflydb/dragonfly:latest
+    restart: always
+    ulimits:
+      memlock: -1
+    ports:
+      - "${CACHE_PORT:-6379}:6379"
+    volumes:
+      - './.data/dragonfly:/data'

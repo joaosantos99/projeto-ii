@@ -113,10 +113,11 @@ class AuthService {
     }
 
     const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + SESSION_TTL_MS);
     await Sessions.create({
       user_id: user.id,
       token,
-      expires_at: new Date(Date.now() + SESSION_TTL_MS),
+      expires_at: expiresAt,
       ip_address: meta.ip_address ?? null,
       user_agent: meta.user_agent ?? null,
     });
