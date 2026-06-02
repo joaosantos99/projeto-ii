@@ -45,8 +45,8 @@ export function AlertasPage() {
 
   useEffect(() => {
     setLoading(true)
-    api.get("/alerts")
-      .then((res) => setAlerts(Array.isArray(res.data) ? res.data : []))
+    api.get("/alerts", { params: { limit: 1000 } })
+      .then((res) => setAlerts(res.data?.data ?? []))
       .catch(() => setAlerts([]))
       .finally(() => setLoading(false))
   }, [refresh])
