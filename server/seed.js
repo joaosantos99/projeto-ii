@@ -7,6 +7,7 @@ import Roles from './src/database/models/Roles.js';
 import GreenSpaces from './src/database/models/GreenSpaces.js';
 import MaintenanceTasks from './src/database/models/MaintenanceTasks.js';
 import GreenSpaceZones from './src/database/models/GreenSpaceZones.js';
+import Sensors from './src/database/models/Sensors.js';
 import { PERMISSIONS } from './src/constants/permissions.js';
 
 const DATA_SCALE = 1;
@@ -160,9 +161,55 @@ const generateGreenSpaceZones = async () => {
   await GreenSpaceZones.bulkCreate(zones);
 };
 
+const generateSensors = async () => {
+  const zones = await GreenSpaceZones.findAll({
+    attributes: ['id', 'green_spaces_id'],
+  });
+
+  const sensorParams = [
+    { type: 'temperature', parameter: 'air_temperature', unit: '°C', min: -5, max: 45 },
+    { type: 'humidity', parameter: 'air_humidity', unit: '%', min: 0, max: 100 },
+    { type: 'soil', parameter: 'soil_moisture', unit: '%', min: 0, max: 100 },
+    { type: 'soil', parameter: 'soil_ph', unit: 'pH', min: 3, max: 9 },
+    { type: 'light', parameter: 'luminosity', unit: 'lux', min: 0, max: 100000 },
+  ];
+
+  const sensors = [];
+
+  for (const zone of zones) {
+    const sensorCount = faker.number.int({ min: 1, max: 3 });
+
+    for (let i = 0; i < sensorCount; i++) {
+      const param = faker.helpers.arrayElement(sensorParams);
+
+      sensors.push({
+        id: faker.string.uuid(),
+        green_space_zone_id: zone.id,
+        green_space_id: zone.green_spaces_id,
+        type: param.type,
+        parameter: param.parameter,
+        unit: param.unit,
+        min_value: param.min,
+        max_value: param.max,
+        is_active: faker.datatype.boolean(0.8),
+        created_by: systemOwner.id,
+        updated_by: systemOwner.id,
+      });
+    }
+  }
+
+  // strip helper field not in model before insert
+  await Sensors.bulkCreate(
+    sensors.map(({ green_space_id, ...rest }) => rest),
+  );
+
+  return sensors;
+};
+
 await generateSystemOwner();
 await generateRoles();
 await generateUsers();
 await generateGreenSpaces();
 await generateMaintenanceTasks();
 await generateGreenSpaceZones();
+const seededSensors = await generateSensors();
