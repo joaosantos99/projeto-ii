@@ -12,9 +12,24 @@ class AlertsController {
    */
   static async getAlerts(req, res) {
     try {
-      const alerts = await AlertsService.getAlerts(req.params.spaceId);
+      if (req.params.spaceId) {
+        const alerts = await AlertsService.getAlertsBySpace(req.params.spaceId);
+        return res.json(AlertsSerializer.serialize(alerts));
+      }
 
-      res.json(AlertsSerializer.serialize(alerts));
+      const severity = req.query.severity;
+
+      if (req.query.onlyCount === 'true') {
+        const total = await AlertsService.countAlerts({ severity });
+        return res.json({ meta: { total } });
+      }
+
+      const page = Math.max(1, parseInt(req.query.page) || 1);
+      const limit = Math.max(1, parseInt(req.query.limit) || 20);
+
+      const { alerts, total } = await AlertsService.getAlerts({ page, limit, severity });
+
+      res.json(AlertsSerializer.serializePaginated(alerts, { page, limit, total }));
     } catch (error) {
       res.status(error.statusCode || 500).json({ error: error.message });
     }

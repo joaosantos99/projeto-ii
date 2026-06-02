@@ -31,6 +31,27 @@ class AlertsSerializer extends BaseSerializer {
   }
 
   /**
+   * Serialize a paginated list of alerts.
+   * @param {Array} alerts - The alerts array.
+   * @param {Object} pagination - Pagination metadata.
+   * @returns {Object} Serialized paginated response.
+   */
+  static serializePaginated(alerts, { page, limit, total }) {
+    return {
+      data: this.serialize(alerts),
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+      _links: {
+        self: { href: `/api/alerts?page=${page}&limit=${limit}` },
+      },
+    };
+  }
+
+  /**
    * Serialize the acknowledge response.
    * @param {Object} alert - The acknowledged alert.
    * @returns {Object} The serialized acknowledge response.

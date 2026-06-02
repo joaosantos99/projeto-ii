@@ -772,8 +772,23 @@ export default {
     '/alerts': {
       get: {
         tags: ['Alerts'],
-        summary: 'List alerts.',
-        responses: { 200: ok('Alerts.', { type: 'array', items: { type: 'object' } }), 401: Unauthorized },
+        summary: 'List alerts (paginated).',
+        parameters: [
+          queryParam('page', { type: 'integer', minimum: 1, default: 1 }, 'Page number.'),
+          queryParam('limit', { type: 'integer', minimum: 1, default: 20 }, 'Items per page.'),
+          queryParam('severity', { type: 'string' }, 'Filter by severity.'),
+          queryParam('onlyCount', { type: 'boolean' }, 'When true, skip rows and return only `{ meta: { total } }`.'),
+        ],
+        responses: {
+          200: ok('Paginated alerts.', {
+            type: 'object',
+            properties: {
+              data: { type: 'array', items: { type: 'object' } },
+              meta: ref('Pagination'),
+            },
+          }),
+          401: Unauthorized,
+        },
       },
     },
     '/alerts/summary': {

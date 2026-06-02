@@ -10,15 +10,46 @@ const ALERT_STATUS = {
  */
 class AlertsService {
   /**
-   * Get all alerts, optionally filtered by space.
-   * @param {string} [spaceId] - Green space id; omit to return all alerts.
+   * Get all alerts for a space (unpaginated).
+   * @param {string} spaceId - Green space id.
    * @returns {Promise<Array<Alerts>>} - The alerts.
    */
-  static async getAlerts(spaceId) {
+  static async getAlertsBySpace(spaceId) {
     return Alerts.findAll({
-      where: spaceId ? { green_space_id: spaceId } : undefined,
+      where: { green_space_id: spaceId },
       order: [['created_at', 'DESC']],
     });
+  }
+
+  /**
+   * Count alerts, optionally filtered by severity.
+   * @param {Object} options
+   * @param {string} [options.severity] - Filter by severity.
+   * @returns {Promise<number>} The matching alert count.
+   */
+  static async countAlerts({ severity } = {}) {
+    return Alerts.count({ where: severity ? { severity } : undefined });
+  }
+
+  /**
+   * Get a paginated, optionally severity-filtered list of alerts.
+   * @param {Object} options
+   * @param {number} options.page
+   * @param {number} options.limit
+   * @param {string} [options.severity] - Filter by severity.
+   * @returns {Promise<Object>} Alerts array and total count.
+   */
+  static async getAlerts({ page = 1, limit = 20, severity } = {}) {
+    const offset = (page - 1) * limit;
+
+    const { count: total, rows: alerts } = await Alerts.findAndCountAll({
+      where: severity ? { severity } : undefined,
+      order: [['created_at', 'DESC']],
+      limit,
+      offset,
+    });
+
+    return { alerts, total };
   }
 
   /**
