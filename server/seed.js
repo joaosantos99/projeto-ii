@@ -6,6 +6,7 @@ import Users from './src/database/models/Users.js';
 import Roles from './src/database/models/Roles.js';
 import GreenSpaces from './src/database/models/GreenSpaces.js';
 import MaintenanceTasks from './src/database/models/MaintenanceTasks.js';
+import GreenSpaceZones from './src/database/models/GreenSpaceZones.js';
 import { PERMISSIONS } from './src/constants/permissions.js';
 
 const DATA_SCALE = 1;
@@ -136,8 +137,32 @@ const generateMaintenanceTasks = async () => {
   await MaintenanceTasks.bulkCreate(tasks);
 };
 
+const generateGreenSpaceZones = async () => {
+  const greenSpaces = await GreenSpaces.findAll({ attributes: ['id'] });
+  const greenSpaceIds = greenSpaces.map((gs) => gs.id);
+
+  const zones = [];
+
+  for (const greenSpaceId of greenSpaceIds) {
+    const zoneCount = faker.number.int({ min: 1, max: 3 });
+
+    for (let i = 0; i < zoneCount; i++) {
+      zones.push({
+        id: faker.string.uuid(),
+        green_spaces_id: greenSpaceId,
+        name: `Zone ${i + 1} - ${faker.location.street()}`,
+        created_by: systemOwner.id,
+        updated_by: systemOwner.id,
+      });
+    }
+  }
+
+  await GreenSpaceZones.bulkCreate(zones);
+};
+
 await generateSystemOwner();
 await generateRoles();
 await generateUsers();
 await generateGreenSpaces();
 await generateMaintenanceTasks();
+await generateGreenSpaceZones();
