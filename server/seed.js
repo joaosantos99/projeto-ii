@@ -8,6 +8,7 @@ import GreenSpaces from './src/database/models/GreenSpaces.js';
 import MaintenanceTasks from './src/database/models/MaintenanceTasks.js';
 import GreenSpaceZones from './src/database/models/GreenSpaceZones.js';
 import Sensors from './src/database/models/Sensors.js';
+import SensorReadingMetas from './src/database/models/SensorReadingMetas.js';
 import { PERMISSIONS } from './src/constants/permissions.js';
 
 const DATA_SCALE = 1;
@@ -206,6 +207,29 @@ const generateSensors = async () => {
   return sensors;
 };
 
+const generateSensorReadingMetas = async (sensors) => {
+  const readings = [];
+
+  for (const sensor of sensors) {
+    const readingCount = 10 * DATA_SCALE;
+
+    for (let i = 0; i < readingCount; i++) {
+      readings.push({
+        id: faker.string.uuid(),
+        sensor_id: sensor.id,
+        green_space_id: sensor.green_space_id,
+        recorded_at: faker.date.between({
+          from: '2024-01-01',
+          to: new Date(),
+        }),
+        is_valid: faker.datatype.boolean(0.9),
+      });
+    }
+  }
+
+  await SensorReadingMetas.bulkCreate(readings);
+};
+
 await generateSystemOwner();
 await generateRoles();
 await generateUsers();
@@ -213,3 +237,4 @@ await generateGreenSpaces();
 await generateMaintenanceTasks();
 await generateGreenSpaceZones();
 const seededSensors = await generateSensors();
+await generateSensorReadingMetas(seededSensors);
