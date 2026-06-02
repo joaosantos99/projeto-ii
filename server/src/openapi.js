@@ -779,6 +779,7 @@ export default {
           queryParam('limit', { type: 'integer', minimum: 1, default: 20 }, 'Items per page.'),
           queryParam('severity', { type: 'string' }, 'Filter by severity.'),
           queryParam('onlyCount', { type: 'boolean' }, 'When true, skip rows and return only `{ meta: { total } }`.'),
+          queryParam('summary', { type: 'boolean' }, 'When true, include the alerts statistics summary under `summary`.'),
         ],
         responses: {
           200: ok('Paginated alerts.', {
@@ -790,14 +791,6 @@ export default {
           }),
           401: Unauthorized,
         },
-      },
-    },
-    '/alerts/summary': {
-      get: {
-        tags: ['Alerts'],
-        summary: 'Alerts statistics summary.',
-        security: [],
-        responses: { 200: ok('Summary.', { type: 'object' }) },
       },
     },
     '/alerts/{alertId}/acknowledge': {

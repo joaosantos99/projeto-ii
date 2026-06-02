@@ -76,15 +76,10 @@ class AlertsSerializer extends BaseSerializer {
    */
   static serializeSummary(summary) {
     return {
-      data: {
-        totalActiveRules: summary.totalActiveRules,
-        totalToRecognize: summary.totalToRecognize,
-        totalCriticalAlerts: summary.totalCriticalAlerts,
-        totalAlerts: summary.totalAlerts,
-      },
-      _links: {
-        self: { href: '/api/alerts/summary' },
-      },
+      totalActiveRules: summary.totalActiveRules,
+      totalToRecognize: summary.totalToRecognize,
+      totalCriticalAlerts: summary.totalCriticalAlerts,
+      totalAlerts: summary.totalAlerts,
     };
   }
 }

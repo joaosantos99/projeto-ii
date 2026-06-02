@@ -36,8 +36,8 @@ export function AlertasPage() {
   }, [setTitle])
 
   useEffect(() => {
-    api.get("/alerts/summary")
-      .then((res) => setSummary(res.data?.data ?? res.data))
+    api.get("/alerts", { params: { summary: true, limit: 1 } })
+      .then((res) => setSummary(res.data?.summary ?? null))
       .catch(() => setSummary(null))
   }, [refresh])
 

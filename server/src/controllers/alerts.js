@@ -35,7 +35,13 @@ class AlertsController {
         unacknowledgedOnly,
       });
 
-      res.json(AlertsSerializer.serializePaginated(alerts, { page, limit, total }));
+      const payload = AlertsSerializer.serializePaginated(alerts, { page, limit, total });
+
+      if (req.query.summary === 'true') {
+        payload.summary = AlertsSerializer.serializeSummary(await AlertsService.getSummary());
+      }
+
+      res.json(payload);
     } catch (error) {
       res.status(error.statusCode || 500).json({ error: error.message });
     }
@@ -57,21 +63,6 @@ class AlertsController {
       const updatedAlert = await alert.update({ severity, message, is_notified });
 
       res.json(AlertsSerializer.serialize(updatedAlert));
-    } catch (error) {
-      res.status(error.statusCode || 500).json({ error: error.message });
-    }
-  }
-
-  /**
-   * Get a summary of alerts stats.
-   * @param {Object} req - The request object.
-   * @param {Object} res - The response object.
-   */
-  static async getSummary(req, res) {
-    try {
-      const summary = await AlertsService.getSummary();
-
-      res.json(AlertsSerializer.serializeSummary(summary));
     } catch (error) {
       res.status(error.statusCode || 500).json({ error: error.message });
     }

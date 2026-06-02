@@ -5,7 +5,6 @@ import requireAuth from '../middleware/auth.js';
 
 const alertsRouter = Router({ mergeParams: true });
 
-alertsRouter.get('/summary', AlertsController.getSummary);
 alertsRouter.patch('/:alertId/acknowledge', AlertsController.acknowledgeAlert);
 
 alertsRouter.get('/', requireAuth, AlertsController.getAlerts);
