@@ -7,43 +7,44 @@ import { Button } from "#/components/ui/button"
 export function SpacesTable({ spaces }) {
   if (spaces.length === 0) {
     return (
-      <div className="py-10 text-center text-sm text-muted-foreground">
-        Sem resultados para os filtros atuais.
+      <div className="flex min-h-[160px] flex-col items-center justify-center gap-1 border border-dashed p-6 text-center">
+        <p className="text-sm font-medium">Nenhum espaço encontrado</p>
+        <p className="text-xs text-muted-foreground">
+          Ajuste a pesquisa para alargar os resultados.
+        </p>
       </div>
     )
   }
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead className="border-b text-left text-xs uppercase text-muted-foreground">
-          <tr>
-            <th className="px-3 py-2 font-medium">Nome</th>
-            <th className="px-3 py-2 font-medium">Cidade</th>
-            <th className="px-3 py-2 text-right font-medium">Zonas</th>
-            <th className="px-3 py-2 text-right font-medium">Sensores</th>
-            <th className="px-3 py-2 text-right font-medium">Alertas ativos</th>
-            <th className="w-12 px-3 py-2 text-right font-medium">
+      <table className="w-full text-xs">
+        <thead>
+          <tr className="border-b border-border text-left text-muted-foreground">
+            <th className="pb-2 pr-4 font-medium">Nome</th>
+            <th className="pb-2 pr-4 font-medium">Cidade</th>
+            <th className="pb-2 pr-4 text-right font-medium">Zonas</th>
+            <th className="pb-2 pr-4 text-right font-medium">Sensores</th>
+            <th className="pb-2 pr-4 text-right font-medium">Alertas ativos</th>
+            <th className="pb-2 text-right font-medium">
               <span className="sr-only">Ver detalhe</span>
             </th>
           </tr>
         </thead>
         <tbody>
           {spaces.map((space) => (
-            <tr key={space.id} className="border-b last:border-b-0">
-              <td className="px-3 py-2">
+            <tr key={space.id} className="border-b border-border last:border-0">
+              <td className="py-2.5 pr-4">
                 <div className="flex flex-col gap-0.5">
                   <p className="font-medium">{space.name}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {space.postalCode}
-                  </p>
+                  <p className="text-muted-foreground">{space.postalCode}</p>
                 </div>
               </td>
-              <td className="px-3 py-2">{space.city}</td>
-              <td className="px-3 py-2 text-right tabular-nums">{space.zonesCount}</td>
-              <td className="px-3 py-2 text-right tabular-nums">{space.sensorsCount}</td>
-              <td className="px-3 py-2 text-right tabular-nums">{space.activeAlerts}</td>
-              <td className="px-3 py-2 text-right">
+              <td className="py-2.5 pr-4 text-muted-foreground">{space.city}</td>
+              <td className="py-2.5 pr-4 text-right tabular-nums">{space.zonesCount}</td>
+              <td className="py-2.5 pr-4 text-right tabular-nums">{space.sensorsCount}</td>
+              <td className="py-2.5 pr-4 text-right tabular-nums">{space.activeAlerts}</td>
+              <td className="py-2.5 text-right">
                 <Button
                   asChild
                   variant="ghost"

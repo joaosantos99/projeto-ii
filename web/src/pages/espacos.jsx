@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useOutletContext } from "react-router-dom"
-import { Plus } from "@phosphor-icons/react"
+import { MagnifyingGlass, Plus } from "@phosphor-icons/react"
 
 import { Button } from "#/components/ui/button"
 import {
@@ -12,8 +12,8 @@ import {
   CardHeader,
   CardTitle,
 } from "#/components/ui/card"
+import { Input } from "#/components/ui/input"
 import { KpiCards } from "#/components/espacos/kpi-cards"
-import { FiltersBar } from "#/components/espacos/filters-bar"
 import { SpacesTable } from "#/components/espacos/spaces-table"
 import { SpacesPagination } from "#/components/espacos/spaces-pagination"
 import { SpaceFormDialog } from "#/components/espacos/space-form-dialog"
@@ -81,22 +81,36 @@ export function EspacosPage() {
       <KpiCards summary={summary} />
 
       <Card>
-        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex flex-col gap-1">
             <CardTitle>Espaços</CardTitle>
             <CardDescription>
               Pesquise e filtre os espaços registados.
             </CardDescription>
           </div>
-          <Button size="sm" onClick={() => setCreateOpen(true)}>
-            <Plus />
-            Novo espaço
-          </Button>
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+            <div className="relative max-w-full sm:max-w-72">
+              <MagnifyingGlass className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                className="pl-9"
+                aria-label="Pesquisar espaços"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Pesquisar por nome, cidade ou código postal"
+              />
+            </div>
+            <Button
+              size="sm"
+              className="shrink-0"
+              onClick={() => setCreateOpen(true)}
+            >
+              <Plus />
+              Novo espaço
+            </Button>
+          </div>
         </CardHeader>
 
         <CardContent className="flex flex-col gap-4">
-          <FiltersBar query={query} onQueryChange={setQuery} />
-          <div className="border-t" />
           {loading ? (
             <p className="text-sm text-muted-foreground">A carregar...</p>
           ) : (
