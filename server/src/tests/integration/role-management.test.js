@@ -74,7 +74,7 @@ describe('Role management and effective permissions', () => {
     const token = await createSession(models, { userId: user.id });
 
     // THEN - the user can reach the granted resource (users:read)
-    const allowed = await apiGet(baseUrl, '/api/users/summary', token);
+    const allowed = await apiGet(baseUrl, '/api/users', token);
     expect(allowed.status).toBe(200);
 
     // AND - is blocked from a resource the role does not grant (roles:read)
@@ -98,7 +98,7 @@ describe('Role management and effective permissions', () => {
     const token = await createSession(models, { userId: user.id });
 
     // THEN - every protected resource is denied
-    expect((await apiGet(baseUrl, '/api/users/summary', token)).status).toBe(403);
+    expect((await apiGet(baseUrl, '/api/users', token)).status).toBe(403);
     expect((await apiGet(baseUrl, '/api/roles', token)).status).toBe(403);
   });
 
@@ -165,7 +165,7 @@ describe('Role management and effective permissions', () => {
     const user = await createUser(models, { roleId: created.id, actorId });
     const token = await createSession(models, { userId: user.id });
 
-    expect((await apiGet(baseUrl, '/api/users/summary', token)).status).toBe(403);
+    expect((await apiGet(baseUrl, '/api/users', token)).status).toBe(403);
 
     // WHEN - users:read is toggled on
     const add = await apiPatch(baseUrl, `/api/roles/${created.id}/permissions`, adminToken, {
@@ -174,7 +174,7 @@ describe('Role management and effective permissions', () => {
     expect(add.status).toBe(200);
 
     // THEN - the role now grants effective access
-    expect((await apiGet(baseUrl, '/api/users/summary', token)).status).toBe(200);
+    expect((await apiGet(baseUrl, '/api/users', token)).status).toBe(200);
 
     // AND - the persisted role reflects the added permission
     const afterAdd = await (await apiGet(baseUrl, '/api/roles', adminToken)).json();
@@ -187,7 +187,7 @@ describe('Role management and effective permissions', () => {
     expect(remove.status).toBe(200);
 
     // THEN - effective access is revoked and the role is empty again
-    expect((await apiGet(baseUrl, '/api/users/summary', token)).status).toBe(403);
+    expect((await apiGet(baseUrl, '/api/users', token)).status).toBe(403);
     const afterRemove = await (await apiGet(baseUrl, '/api/roles', adminToken)).json();
     expect(afterRemove.find((r) => r.id === created.id).permissionsDump).toEqual([]);
   });
@@ -223,8 +223,8 @@ describe('Role management and effective permissions', () => {
     const userY = await createUser(models, { roleId: roleY.id, actorId });
     const tokenY = await createSession(models, { userId: userY.id });
 
-    expect((await apiGet(baseUrl, '/api/users/summary', tokenX)).status).toBe(200);
-    expect((await apiGet(baseUrl, '/api/users/summary', tokenY)).status).toBe(403);
+    expect((await apiGet(baseUrl, '/api/users', tokenX)).status).toBe(200);
+    expect((await apiGet(baseUrl, '/api/users', tokenY)).status).toBe(403);
 
     // WHEN - role X has its users:read permission removed
     const toggle = await apiPatch(baseUrl, `/api/roles/${roleX.id}/permissions`, adminToken, {
@@ -233,7 +233,7 @@ describe('Role management and effective permissions', () => {
     expect(toggle.status).toBe(200);
 
     // THEN - role X user loses access, while role Y is entirely unaffected
-    expect((await apiGet(baseUrl, '/api/users/summary', tokenX)).status).toBe(403);
-    expect((await apiGet(baseUrl, '/api/users/summary', tokenY)).status).toBe(403);
+    expect((await apiGet(baseUrl, '/api/users', tokenX)).status).toBe(403);
+    expect((await apiGet(baseUrl, '/api/users', tokenY)).status).toBe(403);
   });
 });

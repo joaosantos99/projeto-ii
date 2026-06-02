@@ -16,12 +16,13 @@ class UsersController {
       const page = Math.max(1, parseInt(req.query.page, 10) || 1);
       const perPage = Math.max(1, parseInt(req.query.perPage, 10) || 10);
       const { query, role, status } = req.query;
+      const includeSummary = req.query.summary === 'true';
 
       const { users, total, activeIds } = await UsersService.getUsers({ page, perPage, query, role, status });
       const totalPages = Math.ceil(total / perPage);
       const activeIdSet = new Set(activeIds);
 
-      res.json({
+      const body = {
         users: users.map((user) => ({
           id: user.id,
           name: user.full_name,
@@ -37,7 +38,13 @@ class UsersController {
           total,
           totalPages,
         },
-      });
+      };
+
+      if (includeSummary) {
+        body.summary = await UsersService.getSummary();
+      }
+
+      res.json(body);
     } catch (error) {
       res.status(error.statusCode || 500).json({ error: error.message });
     }
@@ -59,20 +66,6 @@ class UsersController {
         role: user.role?.name ?? null,
         createdAt: new Date(user.created_at).toISOString(),
       });
-    } catch (error) {
-      res.status(error.statusCode || 500).json({ description: error.message });
-    }
-  }
-
-  /**
-   * Get a statistical summary of platform users.
-   * @param {Object} req - The request object.
-   * @param {Object} res - The response object.
-   */
-  static async getSummary(req, res) {
-    try {
-      const summary = await UsersService.getSummary();
-      res.json(summary);
     } catch (error) {
       res.status(error.statusCode || 500).json({ description: error.message });
     }

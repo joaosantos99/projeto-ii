@@ -88,14 +88,14 @@ describe('Immediate permission update after role change', () => {
     const user = await createUser(models, { roleId: roleA.id, actorId });
     const token = await createSession(models, { userId: user.id });
 
-    const before = await apiGet(baseUrl, '/api/users/summary', token);
+    const before = await apiGet(baseUrl, '/api/users', token);
     expect(before.status).toBe(403);
 
     // WHEN - the user is reassigned from role A to role B
     await assignRole(models, user.id, roleB.id);
 
     // THEN - the SAME token immediately gains role B's permissions
-    const after = await apiGet(baseUrl, '/api/users/summary', token);
+    const after = await apiGet(baseUrl, '/api/users', token);
     expect(after.status).toBe(200);
   });
 
@@ -108,14 +108,14 @@ describe('Immediate permission update after role change', () => {
     const user = await createUser(models, { roleId: privileged.id, actorId });
     const token = await createSession(models, { userId: user.id });
 
-    const before = await apiGet(baseUrl, '/api/users/summary', token);
+    const before = await apiGet(baseUrl, '/api/users', token);
     expect(before.status).toBe(200);
 
     // WHEN - the user is reassigned to the bare role
     await assignRole(models, user.id, bare.id);
 
     // THEN - the SAME token is immediately rejected on the next request
-    const after = await apiGet(baseUrl, '/api/users/summary', token);
+    const after = await apiGet(baseUrl, '/api/users', token);
     expect(after.status).toBe(403);
   });
 });

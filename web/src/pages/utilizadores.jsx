@@ -52,12 +52,6 @@ export function UtilizadoresPage() {
   }, [setTitle])
 
   useEffect(() => {
-    api.get("/users/summary")
-      .then((res) => setSummary(res.data))
-      .catch(() => setSummary(null))
-  }, [refresh])
-
-  useEffect(() => {
     api.get("/roles")
       .then((res) => setRoles(res.data))
       .catch(() => setRoles([]))
@@ -68,6 +62,7 @@ export function UtilizadoresPage() {
     const params = {
       page,
       perPage: PER_PAGE,
+      summary: true,
       ...(query && { query }),
       ...(roleFilter !== "todos" && { role: roleFilter }),
       ...(statusFilter !== "todos" && { status: statusFilter }),
@@ -76,10 +71,12 @@ export function UtilizadoresPage() {
       .then((res) => {
         setUsers(res.data.users)
         setPagination(res.data.pagination)
+        setSummary(res.data.summary ?? null)
       })
       .catch(() => {
         setUsers([])
         setPagination({ page: 1, perPage: PER_PAGE, total: 0, totalPages: 1 })
+        setSummary(null)
       })
       .finally(() => setLoading(false))
   }, [page, query, roleFilter, statusFilter, refresh])

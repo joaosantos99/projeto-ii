@@ -320,12 +320,13 @@ export default {
       get: {
         tags: ['Users'],
         summary: 'List users (paginated, filterable).',
-        security: [],
+        description: 'Requires permission `users:read`. Pass `summary=true` to include the user statistics summary.',
         parameters: [
           ...pageParams,
           queryParam('query', { type: 'string' }, 'Search term.'),
           queryParam('role', { type: 'string' }, 'Filter by role.'),
           queryParam('status', { type: 'string' }, 'Filter by status.'),
+          queryParam('summary', { type: 'boolean' }, 'Include user statistics summary when true.'),
         ],
         responses: {
           200: ok('Paginated users.', {
@@ -333,8 +334,21 @@ export default {
             properties: {
               users: { type: 'array', items: ref('User') },
               pagination: ref('Pagination'),
+              summary: {
+                type: 'object',
+                description: 'Present only when summary=true.',
+                properties: {
+                  total: { type: 'integer' },
+                  active: { type: 'integer' },
+                  suspended: { type: 'integer' },
+                  accessToday: { type: 'integer' },
+                  adminCount: { type: 'integer' },
+                },
+              },
             },
           }),
+          401: Unauthorized,
+          403: Forbidden,
         },
       },
       post: {
@@ -355,14 +369,6 @@ export default {
           }),
         },
         responses: { 201: ok('Created user.', ref('User')), 400: ValidationError, 401: Unauthorized, 403: Forbidden },
-      },
-    },
-    '/users/summary': {
-      get: {
-        tags: ['Users'],
-        summary: 'User statistics summary.',
-        description: 'Requires permission `users:read`.',
-        responses: { 200: ok('Summary.', { type: 'object' }), 401: Unauthorized, 403: Forbidden },
       },
     },
     '/users/{userId}': {

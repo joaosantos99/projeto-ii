@@ -6,8 +6,7 @@ import requirePermission from '../middleware/requirePermission.js';
 
 const usersRouter = Router();
 
-usersRouter.get('/', UsersController.getUsers);
-usersRouter.get('/summary', requireAuth, requirePermission('users:read'), UsersController.getSummary);
+usersRouter.get('/', requireAuth, requirePermission('users:read'), UsersController.getUsers);
 usersRouter.post('/', requireAuth, requirePermission('users:create'), UsersController.createUser);
 usersRouter.get('/:userId', requireAuth, requirePermission('users:read'), UsersController.getUserById);
 usersRouter.put('/:userId', requireAuth, requirePermission('users:update'), UsersController.updateUser);
