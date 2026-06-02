@@ -39,6 +39,22 @@ const MaintenanceTasks = sequelize.define(
       type: DataTypes.DATE,
       allowNull: true,
     },
+    created_by: {
+      type: DataTypes.UUID,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
+      allowNull: true,
+    },
+    updated_by: {
+      type: DataTypes.UUID,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
+      allowNull: true,
+    },
   },
   {
     tableName: 'maintenance_tasks',
@@ -50,6 +66,16 @@ MaintenanceTasks.associate = (models) => {
   MaintenanceTasks.belongsTo(models.GreenSpaces, {
     foreignKey: 'green_spaces_id',
     as: 'greenSpace',
+  });
+
+  MaintenanceTasks.belongsTo(models.Users, {
+    foreignKey: 'created_by',
+    as: 'createdBy',
+  });
+
+  MaintenanceTasks.belongsTo(models.Users, {
+    foreignKey: 'updated_by',
+    as: 'updatedBy',
   });
 };
 
