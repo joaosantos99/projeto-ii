@@ -9,6 +9,7 @@ import MaintenanceTasks from './src/database/models/MaintenanceTasks.js';
 import GreenSpaceZones from './src/database/models/GreenSpaceZones.js';
 import Sensors from './src/database/models/Sensors.js';
 import SensorReadingMetas from './src/database/models/SensorReadingMetas.js';
+import Alerts from './src/database/models/Alerts.js';
 import { PERMISSIONS } from './src/constants/permissions.js';
 
 const DATA_SCALE = 1;
@@ -230,6 +231,28 @@ const generateSensorReadingMetas = async (sensors) => {
   await SensorReadingMetas.bulkCreate(readings);
 };
 
+const generateAlerts = async (sensors) => {
+  const severities = ['low', 'medium', 'high', 'critical'];
+  const alerts = [];
+
+  for (const sensor of sensors) {
+    const alertCount = faker.number.int({ min: 0, max: 3 });
+
+    for (let i = 0; i < alertCount; i++) {
+      alerts.push({
+        sensor_id: sensor.id,
+        green_space_id: sensor.green_space_id,
+        severity: faker.helpers.arrayElement(severities),
+        message: faker.lorem.sentence(),
+        is_notified: faker.datatype.boolean(),
+        created_by: systemOwner.id,
+      });
+    }
+  }
+
+  await Alerts.bulkCreate(alerts);
+};
+
 await generateSystemOwner();
 await generateRoles();
 await generateUsers();
@@ -238,3 +261,4 @@ await generateMaintenanceTasks();
 await generateGreenSpaceZones();
 const seededSensors = await generateSensors();
 await generateSensorReadingMetas(seededSensors);
+await generateAlerts(seededSensors);
