@@ -10,12 +10,13 @@ const ALERT_STATUS = {
  */
 class AlertsService {
   /**
-   * Get all alerts for a space.
+   * Get all alerts, optionally filtered by space.
+   * @param {string} [spaceId] - Green space id; omit to return all alerts.
    * @returns {Promise<Array<Alerts>>} - The alerts.
    */
   static async getAlerts(spaceId) {
     return Alerts.findAll({
-      where: { green_space_id: spaceId },
+      where: spaceId ? { green_space_id: spaceId } : undefined,
       order: [['created_at', 'DESC']],
     });
   }

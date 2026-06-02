@@ -16,11 +16,11 @@ import { Badge } from "#/components/ui/badge"
 import { Button } from "#/components/ui/button"
 import { KpiCard, KpiCardGrid } from "#/components/ui/kpi-card"
 import { Widget, WidgetTile } from "#/components/ui/widget"
-import { cn } from "#/lib/utils"
+import { Pagination } from "#/components/ui/pagination"
 import { api } from "#/lib/api"
 import { formatDateTime, relativeAge } from "#/lib/format-date"
 
-const PAGE_SIZE = 4
+const PAGE_SIZE = 10
 
 const SEVERITY_RANK = { critical: 3, warning: 2, normal: 1 }
 
@@ -179,40 +179,16 @@ export function DashboardPage() {
             </tbody>
           </table>
         </div>
-        <div className="flex items-center justify-between gap-2">
+        <div className="border-t" />
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-xs text-muted-foreground">
-            {sortedAlerts.length} alerta(s) encontrado(s) - página {currentPage} de {totalPages}
+            {sortedAlerts.length} alerta(s) — página {currentPage} de {totalPages}
           </p>
-          <div className="flex items-center gap-1 text-xs">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              className="flex items-center gap-1 rounded-none px-2 py-1 text-xs text-muted-foreground ring-1 ring-border hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
-            >
-              &lt; Anterior
-            </button>
-            {Array.from({ length: totalPages }).map((_, i) => (
-              <button
-                key={i + 1}
-                onClick={() => setPage(i + 1)}
-                className={cn(
-                  "flex size-6 items-center justify-center rounded-none text-xs ring-1",
-                  currentPage === i + 1
-                    ? "bg-primary text-primary-foreground ring-primary"
-                    : "ring-border hover:bg-muted"
-                )}
-              >
-                {i + 1}
-              </button>
-            ))}
-            <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
-              className="flex items-center gap-1 rounded-none px-2 py-1 text-xs text-muted-foreground ring-1 ring-border hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
-            >
-              Seguinte &gt;
-            </button>
-          </div>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setPage}
+          />
         </div>
       </Widget>
 
