@@ -35,6 +35,8 @@ class ReportSerializer extends BaseSerializer {
 
     return {
       id: report.id,
+      name: report.name,
+      description: report.description,
       type: report.type,
       status: report.status,
       scope: report.greenSpace?.name ?? null,

@@ -45,12 +45,18 @@ class ReportsService {
    * @param {number} options.limit
    * @returns {Promise<Object>} Reports array and total count.
    */
-  static async getReports({ page = 1, limit = 20 } = {}) {
+  static async getReports({ page = 1, limit = 20, type, status } = {}) {
     const offset = (page - 1) * limit;
 
+    const where = type
+      ? { type }
+      : { status: { [Op.in]: GENERATED_STATUSES } };
+
+    if (status) where.status = status;
+
     const { count: total, rows: reports } = await Reports.findAndCountAll({
-      where: { status: { [Op.in]: GENERATED_STATUSES } },
-      include: [{ model: GreenSpaces, as: 'greenSpace', attributes: ['name'] }],
+      where,
+      include: [{ model: GreenSpaces, as: 'greenSpace', attributes: ['name'], required: false }],
       order: [['created_at', 'DESC']],
       limit,
       offset,

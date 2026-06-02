@@ -66,7 +66,7 @@ export function DashboardPage() {
       .then((res) => setSpaces(res.data?.data ?? []))
       .catch(() => setSpaces([]))
 
-    api.get("/dashboard/citizen-incidents", { params: { limit: 3 } })
+    api.get("/reports", { params: { type: "incident", status: "open", limit: 3 } })
       .then((res) => setIncidents(res.data?.data ?? []))
       .catch(() => setIncidents([]))
   }, [refresh])
@@ -247,11 +247,11 @@ export function DashboardPage() {
               </div>
               <p className="mt-1 text-xs">{incident.description}</p>
               <p className="text-xs text-muted-foreground">
-                {spaceNameById.get(incident.greenSpaceId) ?? "—"}
+                {incident.scope ?? spaceNameById.get(incident.greenSpaceId) ?? "—"}
               </p>
             </WidgetTile>
           ))}
-          <Button size="sm" variant="default">
+          <Button size="sm" variant="default" onClick={() => navigate("/admin/relatorios")}>
             Rever fila de incidentes
           </Button>
         </Widget>

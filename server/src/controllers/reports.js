@@ -14,8 +14,10 @@ class ReportsController {
     try {
       const page = Math.max(1, parseInt(req.query.page) || 1);
       const limit = Math.max(1, parseInt(req.query.limit) || 20);
+      const type = req.query.type;
+      const status = req.query.status;
 
-      const { reports, total } = await ReportsService.getReports({ page, limit });
+      const { reports, total } = await ReportsService.getReports({ page, limit, type, status });
 
       res.json(ReportSerializer.serializePaginated(reports, { page, limit, total }));
     } catch (error) {

@@ -73,7 +73,7 @@ GreenSpaces.associate = (models) => {
   });
 
   GreenSpaces.hasMany(models.Reports, {
-    foreignKey: 'green_spaces_id',
+    foreignKey: 'green_space_id',
     as: 'reports',
   });
 
