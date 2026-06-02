@@ -68,7 +68,7 @@ class SensorsService {
    * Get a paginated and optionally sorted list of sensors.
    * @returns {Promise<Object>} Object with sensors array and total count.
    */
-  static async getSensors({ page = 1, limit = 20, sort } = {}) {
+  static async getSensors({ page = 1, limit = 20, sort, offlineOnly = false } = {}) {
     const offset = (page - 1) * limit;
 
     let order = [['created_at', 'DESC']];
@@ -82,6 +82,7 @@ class SensorsService {
     }
 
     const { count: total, rows: sensors } = await Sensors.findAndCountAll({
+      where: offlineOnly ? { is_active: false } : undefined,
       order,
       limit,
       offset,

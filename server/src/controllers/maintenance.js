@@ -19,14 +19,19 @@ class MaintenanceController {
 
       const page = Math.max(1, parseInt(req.query.page) || 1);
       const limit = Math.max(1, parseInt(req.query.limit) || 20);
+      const status = req.query.status;
 
-      const { tasks, total } = await MaintenanceService.getTasks({ page, limit });
+      const { tasks, total } = await MaintenanceService.getTasks({ page, limit, status });
 
       const payload = MaintenanceSerializer.serializePaginated(tasks, { page, limit, total });
 
       if (req.query.summary === 'true') {
         const summary = await MaintenanceService.getSummary();
         payload.summary = MaintenanceSerializer.serializeSummary(summary);
+      }
+
+      if (req.query.includeAverageResponseTime === 'true') {
+        payload.meta.averageResponseTime = await MaintenanceService.getAverageResponseTime();
       }
 
       res.json(payload);

@@ -102,22 +102,66 @@ class MaintenanceService {
   }
 
   /**
+   * Build the Sequelize `where` clause for a status filter.
+   * The synthetic `atraso` status maps to overdue, not-yet-completed tasks;
+   * any other value filters by the literal status column.
+   * @param {string} [status] - The status filter, or undefined for no filter.
+   * @returns {Object|undefined} The where clause, or undefined when unfiltered.
+   */
+  static #statusWhere(status) {
+    if (!status) return undefined;
+
+    if (status === 'atraso') {
+      return {
+        scheduled_date: { [Op.lt]: new Date() },
+        completed_at: null,
+      };
+    }
+
+    return { status };
+  }
+
+  /**
    * Get all maintenance tasks (paginated).
    * @param {Object} options
    * @param {number} options.page
    * @param {number} options.limit
+   * @param {string} [options.status] - Filter by status (`atraso` = overdue).
    * @returns {Promise<Object>} Tasks array and total count.
    */
-  static async getTasks({ page = 1, limit = 20 } = {}) {
+  static async getTasks({ page = 1, limit = 20, status } = {}) {
     const offset = (page - 1) * limit;
 
     const { count: total, rows: tasks } = await MaintenanceTasks.findAndCountAll({
+      where: this.#statusWhere(status),
       order: [['scheduled_date', 'ASC']],
       limit,
       offset,
     });
 
     return { tasks, total };
+  }
+
+  /**
+   * Average response time, in minutes, between a task's scheduled date and its
+   * completion, across all completed tasks. Returns 0 when none completed.
+   * @returns {Promise<number>} The average response time in minutes.
+   */
+  static async getAverageResponseTime() {
+    const tasks = await MaintenanceTasks.findAll({
+      where: { status: TASK_STATUS.COMPLETED, completed_at: { [Op.ne]: null } },
+      attributes: ['scheduled_date', 'completed_at'],
+    });
+
+    if (tasks.length === 0) return 0;
+
+    const totalMinutes = tasks.reduce((sum, task) => {
+      const scheduled = new Date(task.scheduled_date).getTime();
+      const completed = new Date(task.completed_at).getTime();
+      return sum + Math.max(0, (completed - scheduled) / 60000);
+    }, 0);
+
+    return Math.round(totalMinutes / tasks.length);
   }
 
   /**

@@ -52,8 +52,9 @@ class SensorsController {
       const page = Math.max(1, parseInt(req.query.page) || 1);
       const limit = Math.max(1, parseInt(req.query.limit) || 20);
       const sort = req.query.sort;
+      const offlineOnly = req.query.offlineOnly === 'true';
 
-      const { sensors, total } = await SensorsService.getSensors({ page, limit, sort });
+      const { sensors, total } = await SensorsService.getSensors({ page, limit, sort, offlineOnly });
 
       res.json(SensorSerializer.serializePaginated(sensors, { page, limit, total }));
     } catch (error) {

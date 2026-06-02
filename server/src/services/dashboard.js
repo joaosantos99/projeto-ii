@@ -1,9 +1,4 @@
-import { Op } from 'sequelize';
-import sequelize from '../database/connection.js';
-
-import Alerts from '../database/models/Alerts.js';
 import GreenSpaces from '../database/models/GreenSpaces.js';
-import MaintenanceTasks from '../database/models/MaintenanceTasks.js';
 import Reports from '../database/models/Reports.js';
 import Sensors from '../database/models/Sensors.js';
 
@@ -13,37 +8,6 @@ const SENSOR_TYPES = {
 };
 
 class DashboardService {
-
-  /**
-   * Get the dashboard summary.
-   * Aggregates data across Alerts, MaintenanceTasks and Sensors.
-   * @returns {Promise<Object>} The dashboard summary.
-   */
-  static async getSummary() {
-    const now = new Date();
-
-    const totalAlerts = await Alerts.count();
-
-    const totalLateMaintenance = await MaintenanceTasks.count({
-      where: {
-        scheduled_date: { [Op.lt]: now },
-        completed_at: null,
-      },
-    });
-
-    const totalOfflineSensors = await Sensors.count({
-      where: { is_active: false },
-    });
-
-    const averageResponseTime = 0;
-
-    return {
-      totalAlerts,
-      totalLateMaintenance,
-      totalOfflineSensors,
-      averageResponseTime,
-    };
-  }
 
   /**
    * Get paginated citizen-reported incidents (type = 'incident').

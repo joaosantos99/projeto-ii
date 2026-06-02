@@ -690,6 +690,7 @@ export default {
           queryParam('page', { type: 'integer', minimum: 1, default: 1 }, 'Page number.'),
           queryParam('limit', { type: 'integer', minimum: 1, default: 20 }, 'Items per page.'),
           queryParam('sort', { type: 'string' }, 'Sort expression.'),
+          queryParam('offlineOnly', { type: 'boolean' }, 'When true, return only offline (inactive) sensors. Read `meta.total` for the count.'),
         ],
         responses: {
           200: ok('Paginated sensors.', {
@@ -822,6 +823,8 @@ export default {
           queryParam('page', { type: 'integer', minimum: 1, default: 1 }, 'Page number.'),
           queryParam('limit', { type: 'integer', minimum: 1, default: 20 }, 'Items per page.'),
           queryParam('summary', { type: 'boolean' }, 'Include maintenance statistics summary when true.'),
+          queryParam('status', { type: 'string' }, 'Filter by status. The synthetic value `atraso` returns overdue, not-yet-completed tasks. Read `meta.total` for the count.'),
+          queryParam('includeAverageResponseTime', { type: 'boolean' }, 'When true, include `meta.averageResponseTime` (minutes) across completed tasks.'),
         ],
         responses: {
           200: ok('Paginated tasks.', {
@@ -861,14 +864,6 @@ export default {
     },
 
     // ---------- Dashboard ----------
-    '/dashboard/summary': {
-      get: {
-        tags: ['Dashboard'],
-        summary: 'Dashboard summary.',
-        security: [],
-        responses: { 200: ok('Summary.', { type: 'object' }) },
-      },
-    },
     '/dashboard/citizen-incidents': {
       get: {
         tags: ['Dashboard'],
