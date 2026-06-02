@@ -90,6 +90,7 @@ class SpacesService {
       name: space.name,
       city: space.city,
       postal_code: space.postal_code,
+      image_url: space.image_url,
       latitude: space.latitude,
       longitude: space.longitude,
       created_at: space.created_at,
@@ -120,6 +121,18 @@ class SpacesService {
       updated_by: createdBy,
     });
     return newSpace;
+  }
+
+  /**
+   * Persist a new image URL on a space.
+   * @param {string} spaceId
+   * @param {string} imageUrl
+   * @param {string} updatedBy - User id performing the update.
+   * @returns {Promise<Object>} The updated space.
+   */
+  static async setImageUrl(spaceId, imageUrl, updatedBy) {
+    const space = await SpacesService.getSpaceById(spaceId);
+    return space.update({ image_url: imageUrl, updated_by: updatedBy });
   }
 
   static async getCities() {

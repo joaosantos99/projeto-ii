@@ -19,6 +19,7 @@ class SpaceSerializer extends BaseSerializer {
       name: space.name,
       city: space.city,
       postal_code: space.postal_code,
+      imageUrl: space.image_url ?? null,
       latitude: space.latitude,
       longitude: space.longitude,
       createdAt: new Date(space.created_at).toISOString(),

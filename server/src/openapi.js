@@ -102,6 +102,7 @@ export default {
           name: { type: 'string' },
           city: { type: 'string' },
           postalCode: { type: 'string' },
+          imageUrl: { type: 'string', nullable: true },
           latitude: { type: 'number' },
           longitude: { type: 'number' },
           zonesCount: { type: 'integer' },
@@ -443,20 +444,38 @@ export default {
       post: {
         tags: ['Spaces'],
         summary: 'Create a space.',
-        description: 'Requires permission `spaces:create`.',
+        description: 'Requires permission `spaces:create`. Send as `multipart/form-data` to attach an optional `image` (JPEG, PNG, WebP or AVIF, max 5 MB); JSON is also accepted when no image is uploaded.',
         requestBody: {
           required: true,
-          content: json({
-            type: 'object',
-            required: ['name', 'city', 'postalCode', 'latitude', 'longitude'],
-            properties: {
-              name: { type: 'string' },
-              city: { type: 'string' },
-              postalCode: { type: 'string' },
-              latitude: { type: 'number' },
-              longitude: { type: 'number' },
+          content: {
+            'application/json': {
+              schema: {
+                type: 'object',
+                required: ['name', 'city', 'postalCode', 'latitude', 'longitude'],
+                properties: {
+                  name: { type: 'string' },
+                  city: { type: 'string' },
+                  postalCode: { type: 'string' },
+                  latitude: { type: 'number' },
+                  longitude: { type: 'number' },
+                },
+              },
             },
-          }),
+            'multipart/form-data': {
+              schema: {
+                type: 'object',
+                required: ['name', 'city', 'postalCode', 'latitude', 'longitude'],
+                properties: {
+                  name: { type: 'string' },
+                  city: { type: 'string' },
+                  postalCode: { type: 'string' },
+                  latitude: { type: 'number' },
+                  longitude: { type: 'number' },
+                  image: { type: 'string', format: 'binary' },
+                },
+              },
+            },
+          },
         },
         responses: { 201: ok('Created space.', ref('Space')), 400: ValidationError, 401: Unauthorized, 403: Forbidden },
       },
@@ -485,6 +504,27 @@ export default {
               longitude: { type: 'number' },
             },
           }),
+        },
+        responses: { 200: ok('Updated space.', ref('Space')), 400: ValidationError, 401: Unauthorized, 403: Forbidden, 404: NotFound },
+      },
+    },
+    '/spaces/{spaceId}/image': {
+      parameters: [idParam('spaceId', 'Space id.')],
+      post: {
+        tags: ['Spaces'],
+        summary: 'Upload (or replace) the image of a space.',
+        description: 'Requires permission `spaces:update`. Accepts a single `image` file (JPEG, PNG, WebP or AVIF, max 5 MB) and stores it in object storage.',
+        requestBody: {
+          required: true,
+          content: {
+            'multipart/form-data': {
+              schema: {
+                type: 'object',
+                required: ['image'],
+                properties: { image: { type: 'string', format: 'binary' } },
+              },
+            },
+          },
         },
         responses: { 200: ok('Updated space.', ref('Space')), 400: ValidationError, 401: Unauthorized, 403: Forbidden, 404: NotFound },
       },

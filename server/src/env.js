@@ -31,4 +31,11 @@ export default {
   SMTP_USER: process.env.SMTP_USER,
   SMTP_PASS: process.env.SMTP_PASS,
   SMTP_FROM: process.env.SMTP_FROM || 'no-reply@cm-viladoconde.pt',
+
+  // Object storage (Hetzner S3-compatible)
+  S3_ENDPOINT: process.env.S3_ENDPOINT,
+  S3_REGION: process.env.S3_REGION || 'eu-central',
+  S3_BUCKET: process.env.S3_BUCKET,
+  S3_ACCESS_KEY: process.env.S3_ACCESS_KEY,
+  S3_SECRET_KEY: process.env.S3_SECRET_KEY,
 };

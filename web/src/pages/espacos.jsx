@@ -66,8 +66,12 @@ export function EspacosPage() {
     setPage(1)
   }, [query])
 
-  const handleCreate = (values) => {
-    api.post("/spaces", values)
+  const handleCreate = ({ image, ...values }) => {
+    const data = new FormData()
+    Object.entries(values).forEach(([key, value]) => data.append(key, value))
+    if (image) data.append("image", image)
+
+    api.post("/spaces", data)
       .then(() => {
         setRefresh((n) => n + 1)
         setPage(1)

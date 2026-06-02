@@ -2,6 +2,7 @@ import SpaceSerializer from '../serializers/SpaceSerializer.js';
 import SensorsService from '../services/sensors.js';
 import SpacesService from '../services/spaces.js';
 import ZonesService from '../services/zones.js';
+import { uploadObject } from '../lib/storage.js';
 
 /**
  * Controller for the spaces routes.
@@ -29,6 +30,7 @@ class SpacesController {
           name: space.name,
           city: space.city,
           postalCode: space.postal_code,
+          imageUrl: space.image_url ?? null,
           latitude: space.latitude,
           longitude: space.longitude,
           zonesCount: space.zonesCount,
@@ -114,6 +116,18 @@ class SpacesController {
         req.user.id,
       );
 
+      // An image is optional on create; attach it once the space exists.
+      if (req.file) {
+        const ext = EXTENSION_BY_MIME[req.file.mimetype] ?? 'bin';
+        const key = `spaces/${newSpace.id}/${Date.now()}.${ext}`;
+        const imageUrl = await uploadObject({
+          key,
+          body: req.file.buffer,
+          contentType: req.file.mimetype,
+        });
+        await newSpace.update({ image_url: imageUrl });
+      }
+
       res.status(201).json(SpaceSerializer.serialize(newSpace));
     } catch (error) {
       res.status(error.statusCode || 500).json({ error: error.message });
@@ -170,6 +184,48 @@ class SpacesController {
     }
   }
 
+  /**
+   * Upload (or replace) the image of a space.
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   */
+  static async uploadSpaceImage(req, res) {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: 'Imagem é obrigatória.' });
+      }
+
+      // Ensure the space exists before spending an upload on it.
+      await SpacesService.getSpaceById(req.params.spaceId);
+
+      const ext = EXTENSION_BY_MIME[req.file.mimetype] ?? 'bin';
+      const key = `spaces/${req.params.spaceId}/${Date.now()}.${ext}`;
+
+      const imageUrl = await uploadObject({
+        key,
+        body: req.file.buffer,
+        contentType: req.file.mimetype,
+      });
+
+      const updatedSpace = await SpacesService.setImageUrl(
+        req.params.spaceId,
+        imageUrl,
+        req.user.id,
+      );
+
+      res.json(SpaceSerializer.serialize(updatedSpace));
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ error: error.message });
+    }
+  }
+
 }
+
+const EXTENSION_BY_MIME = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+  'image/avif': 'avif',
+};
 
 export default SpacesController;

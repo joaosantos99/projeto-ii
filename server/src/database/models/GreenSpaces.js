@@ -23,6 +23,10 @@ const GreenSpaces = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
+    image_url: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     latitude: {
       type: DataTypes.FLOAT,
       allowNull: false,

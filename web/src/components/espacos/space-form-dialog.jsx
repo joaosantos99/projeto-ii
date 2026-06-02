@@ -1,6 +1,8 @@
 'use client'
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
+import { Image as ImageIcon, UploadSimple, X } from "@phosphor-icons/react"
+
 import { Button } from "#/components/ui/button"
 import { Field, FieldGroup, FieldLabel } from "#/components/ui/field"
 import { Input } from "#/components/ui/input"
@@ -13,19 +15,45 @@ const emptyForm = {
   longitude: "-8.4",
 }
 
+const ACCEPT = "image/jpeg,image/png,image/webp,image/avif"
+
 export function SpaceFormDialog({ open, mode, initial, onClose, onSubmit }) {
   const [form, setForm] = useState(emptyForm)
+  const [image, setImage] = useState(null)
+  const [preview, setPreview] = useState(null)
+  const inputRef = useRef(null)
 
   useEffect(() => {
     if (open) {
       setForm(initial ?? emptyForm)
+      setImage(null)
+      setPreview(null)
     }
   }, [open, initial])
+
+  // Revoke the object URL when the preview changes or the dialog unmounts.
+  useEffect(() => {
+    if (!preview) return undefined
+    return () => URL.revokeObjectURL(preview)
+  }, [preview])
 
   if (!open) return null
 
   const update = (field) => (event) =>
     setForm((prev) => ({ ...prev, [field]: event.target.value }))
+
+  const handleSelectImage = (event) => {
+    const file = event.target.files?.[0]
+    event.target.value = ""
+    if (!file) return
+    setImage(file)
+    setPreview(URL.createObjectURL(file))
+  }
+
+  const clearImage = () => {
+    setImage(null)
+    setPreview(null)
+  }
 
   const handleSubmit = () => {
     if (!form.name.trim() || !form.city.trim()) return
@@ -38,6 +66,7 @@ export function SpaceFormDialog({ open, mode, initial, onClose, onSubmit }) {
       postalCode: form.postalCode.trim() || "0000-000",
       latitude,
       longitude,
+      image,
     })
   }
 
@@ -87,6 +116,48 @@ export function SpaceFormDialog({ open, mode, initial, onClose, onSubmit }) {
               <Input id="esp-lng" inputMode="decimal" value={form.longitude} onChange={update("longitude")} />
             </Field>
           </div>
+          <Field>
+            <FieldLabel>Imagem</FieldLabel>
+            <input
+              ref={inputRef}
+              type="file"
+              accept={ACCEPT}
+              className="hidden"
+              onChange={handleSelectImage}
+            />
+            {preview ? (
+              <div className="relative size-full overflow-hidden rounded-md border">
+                <img
+                  src={preview}
+                  alt="Pré-visualização"
+                  className="h-32 w-full object-cover"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className="absolute right-2 top-2 size-7 bg-background"
+                  aria-label="Remover imagem"
+                  onClick={clearImage}
+                >
+                  <X />
+                </Button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => inputRef.current?.click()}
+                className="flex h-32 flex-col items-center justify-center gap-1 rounded-md border border-dashed bg-muted/30 text-center text-muted-foreground transition-colors hover:bg-muted/50"
+              >
+                <ImageIcon className="size-6" aria-hidden />
+                <span className="flex items-center gap-1 text-xs">
+                  <UploadSimple className="size-3" />
+                  Carregar imagem
+                </span>
+                <span className="text-[10px]">JPEG, PNG, WebP ou AVIF (máx. 5 MB)</span>
+              </button>
+            )}
+          </Field>
         </FieldGroup>
         <div className="flex items-center justify-end gap-2 pt-2">
           <Button variant="outline" onClick={onClose}>
