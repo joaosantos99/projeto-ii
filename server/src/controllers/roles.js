@@ -19,6 +19,7 @@ class RolesController {
           id: role.id,
           name: role.name,
           permissionsDump: role.permissions,
+          userCount: role.getDataValue('userCount') ?? 0,
           createdAt: new Date(role.created_at).toISOString(),
         })),
       );

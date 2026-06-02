@@ -12,6 +12,9 @@ export function RolesTable({ roles }) {
           <tr>
             <th className="px-3 py-2 font-medium">Role</th>
             <th className="px-3 py-2 font-medium text-right tabular-nums">
+              Utilizadores
+            </th>
+            <th className="px-3 py-2 font-medium text-right tabular-nums">
               Permissões
             </th>
             <th className="w-28 px-3 py-2 text-right">
@@ -23,12 +26,10 @@ export function RolesTable({ roles }) {
           {roles.map((role) => (
             <tr key={role.id} className="border-b last:border-b-0">
               <td className="px-3 py-2">
-                <div className="flex flex-col gap-0.5">
-                  <span className="font-medium">{role.name}</span>
-                  <span className="text-muted-foreground font-mono text-xs">
-                    {role.id}
-                  </span>
-                </div>
+                <span className="font-medium">{role.name}</span>
+              </td>
+              <td className="px-3 py-2 text-right tabular-nums">
+                {role.userCount ?? 0}
               </td>
               <td className="px-3 py-2 text-right tabular-nums">
                 {role.permissionsDump?.length ?? 0}

@@ -26,7 +26,7 @@ export function PermissoesPage() {
   const [refresh, setRefresh] = useState(0)
 
   useEffect(() => {
-    setTitle("Permissões e roles")
+    setTitle("Roles")
   }, [setTitle])
 
   useEffect(() => {

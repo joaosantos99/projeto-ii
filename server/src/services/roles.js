@@ -17,7 +17,26 @@ class RolesService {
    * @returns {Promise<Array<Role>>} - The roles.
    */
   static async getRoles() {
-    return Roles.findAll({ order: [['created_at', 'ASC']] });
+    const roles = await Roles.findAll({ order: [['created_at', 'ASC']] });
+
+    const counts = await Users.findAll({
+      attributes: [
+        'role_id',
+        [Users.sequelize.fn('COUNT', Users.sequelize.col('id')), 'count'],
+      ],
+      group: ['role_id'],
+      raw: true,
+    });
+
+    const countByRole = counts.reduce((acc, row) => {
+      acc[row.role_id] = Number(row.count);
+      return acc;
+    }, {});
+
+    return roles.map((role) => {
+      role.setDataValue('userCount', countByRole[role.id] ?? 0);
+      return role;
+    });
   }
 
   /**
