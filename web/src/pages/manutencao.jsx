@@ -16,7 +16,10 @@ import { KpiCards } from "#/components/manutencao/kpi-cards"
 import { FiltersBar } from "#/components/manutencao/filters-bar"
 import { Board } from "#/components/manutencao/board"
 import { CreateTaskDialog } from "#/components/manutencao/create-task-dialog"
+import { boardColumns } from "#/data/manutencao"
 import { api } from "#/lib/api"
+
+const PER_COLUMN = 5
 
 const STATUS_TO_COLUMN = {
   pending: "pendente",
@@ -49,9 +52,18 @@ function normalizeTask(task) {
   }
 }
 
+function emptyColumnState() {
+  return Object.fromEntries(
+    boardColumns.map((column) => [
+      column.id,
+      { tasks: [], total: 0, page: 0, loading: false },
+    ]),
+  )
+}
+
 export function ManutencaoPage() {
   const { setTitle } = useOutletContext()
-  const [tasks, setTasks] = useState([])
+  const [columnState, setColumnState] = useState(emptyColumnState)
   const [loading, setLoading] = useState(true)
   const [createOpen, setCreateOpen] = useState(false)
   const [query, setQuery] = useState("")
@@ -62,65 +74,146 @@ export function ManutencaoPage() {
     setTitle("Gestão de manutenção")
   }, [setTitle])
 
+  const fetchColumnPage = (columnId, page) => {
+    const status = COLUMN_TO_STATUS[columnId]
+    if (!status) return Promise.resolve()
+
+    setColumnState((current) => ({
+      ...current,
+      [columnId]: { ...current[columnId], loading: true },
+    }))
+
+    return api
+      .get("/maintenance", { params: { status, page, limit: PER_COLUMN } })
+      .then((res) => {
+        const rows = (res.data?.data ?? []).map(normalizeTask).filter(Boolean)
+        const total = res.data?.meta?.total ?? 0
+        setColumnState((current) => ({
+          ...current,
+          [columnId]: {
+            tasks: page === 1 ? rows : [...current[columnId].tasks, ...rows],
+            total,
+            page,
+            loading: false,
+          },
+        }))
+      })
+      .catch(() => {
+        setColumnState((current) => ({
+          ...current,
+          [columnId]: { ...current[columnId], loading: false },
+        }))
+      })
+  }
+
   useEffect(() => {
     setLoading(true)
-    api.get("/maintenance", { params: { limit: 1000 } })
-      .then((res) => {
-        const rows = res.data?.data ?? []
-        setTasks(rows.map(normalizeTask).filter(Boolean))
-      })
-      .catch(() => setTasks([]))
+    Promise.all(boardColumns.map((column) => fetchColumnPage(column.id, 1)))
       .finally(() => setLoading(false))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const zones = useMemo(
-    () => Array.from(new Set(tasks.map((task) => task.zone))).sort(),
-    [tasks]
+  const handleLoadMore = (columnId) => {
+    fetchColumnPage(columnId, columnState[columnId].page + 1)
+  }
+
+  const allTasks = useMemo(
+    () => boardColumns.flatMap((column) => columnState[column.id].tasks),
+    [columnState],
   )
 
-  const filteredTasks = useMemo(() => {
+  const zones = useMemo(
+    () => Array.from(new Set(allTasks.map((task) => task.zone))).sort(),
+    [allTasks],
+  )
+
+  const matchesFilters = (task) => {
     const normalizedQuery = query.toLowerCase().trim()
-    return tasks.filter((task) => {
-      const matchesQuery =
-        normalizedQuery.length === 0 ||
-        task.title.toLowerCase().includes(normalizedQuery) ||
-        task.id.toLowerCase().includes(normalizedQuery) ||
-        task.technician.toLowerCase().includes(normalizedQuery)
-      const matchesZone = zoneFilter === "todos" || task.zone === zoneFilter
-      const matchesPriority =
-        priorityFilter === "todos" || task.priority === priorityFilter
-      return matchesQuery && matchesZone && matchesPriority
-    })
-  }, [tasks, query, zoneFilter, priorityFilter])
+    const matchesQuery =
+      normalizedQuery.length === 0 ||
+      task.title.toLowerCase().includes(normalizedQuery) ||
+      task.id.toLowerCase().includes(normalizedQuery) ||
+      task.technician.toLowerCase().includes(normalizedQuery)
+    const matchesZone = zoneFilter === "todos" || task.zone === zoneFilter
+    const matchesPriority =
+      priorityFilter === "todos" || task.priority === priorityFilter
+    return matchesQuery && matchesZone && matchesPriority
+  }
+
+  const columns = useMemo(
+    () =>
+      boardColumns.map((column) => {
+        const state = columnState[column.id]
+        return {
+          ...column,
+          tasks: state.tasks.filter(matchesFilters),
+          total: state.total,
+          loadedCount: state.tasks.length,
+          loading: state.loading,
+          hasMore: state.tasks.length < state.total,
+        }
+      }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [columnState, query, zoneFilter, priorityFilter],
+  )
 
   const handleMoveTask = (taskId, columnId) => {
     const status = COLUMN_TO_STATUS[columnId]
     if (!status) return
 
-    let previous
-    setTasks((current) => {
-      previous = current
-      return current.map((task) =>
-        task.id === taskId ? { ...task, status: columnId } : task
-      )
+    let snapshot
+    setColumnState((current) => {
+      snapshot = current
+      const next = { ...current }
+      let moved
+
+      for (const id of Object.keys(next)) {
+        const index = next[id].tasks.findIndex((task) => task.id === taskId)
+        if (index >= 0) {
+          moved = { ...next[id].tasks[index], status: columnId }
+          next[id] = {
+            ...next[id],
+            tasks: next[id].tasks.filter((task) => task.id !== taskId),
+            total: Math.max(0, next[id].total - 1),
+          }
+        }
+      }
+
+      if (!moved) return current
+
+      next[columnId] = {
+        ...next[columnId],
+        tasks: [moved, ...next[columnId].tasks],
+        total: next[columnId].total + 1,
+      }
+      return next
     })
 
     api.patch(`/maintenance/${taskId}/status`, { status }).catch(() => {
-      setTasks(previous)
+      setColumnState(snapshot)
     })
   }
 
   const handleCreate = (payload) => {
     return api.post("/maintenance", payload).then((res) => {
       const created = normalizeTask(res.data?.data ?? res.data)
-      if (created) setTasks((current) => [created, ...current])
+      if (created) {
+        setColumnState((current) => ({
+          ...current,
+          [created.status]: {
+            ...current[created.status],
+            tasks: [created, ...current[created.status].tasks],
+            total: current[created.status].total + 1,
+          },
+        }))
+      }
       setCreateOpen(false)
     })
   }
 
   return (
     <div className="flex flex-col gap-6">
-      <KpiCards tasks={tasks} />
+      <KpiCards tasks={allTasks} />
 
       <Card>
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -150,7 +243,11 @@ export function ManutencaoPage() {
           {loading ? (
             <p className="py-8 text-center text-sm text-muted-foreground">A carregar…</p>
           ) : (
-            <Board tasks={filteredTasks} onMoveTask={handleMoveTask} />
+            <Board
+              columns={columns}
+              onMoveTask={handleMoveTask}
+              onLoadMore={handleLoadMore}
+            />
           )}
         </CardContent>
       </Card>
