@@ -11,7 +11,7 @@ export default {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      city: {
+      parish: {
         type: Sequelize.STRING,
         allowNull: false,
       },

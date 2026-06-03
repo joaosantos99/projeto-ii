@@ -17,7 +17,7 @@ class SpaceSerializer extends BaseSerializer {
     return {
       id: space.id,
       name: space.name,
-      city: space.city,
+      parish: space.parish,
       postal_code: space.postal_code,
       imageUrl: space.image_url ?? null,
       latitude: space.latitude,

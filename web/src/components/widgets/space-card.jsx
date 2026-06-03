@@ -13,7 +13,7 @@ export function SpaceCard({ space }) {
                     <div className="flex items-center justify-between">
                         <div>
                             <CardTitle>{space.name}</CardTitle>
-                            <CardDescription>{space.city}</CardDescription>
+                            <CardDescription>{space.parish}</CardDescription>
                         </div>
                         <Badge variant={
                             space.status === "Normal" ? "secondary" :

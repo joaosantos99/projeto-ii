@@ -15,7 +15,7 @@ const GreenSpaces = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    city: {
+    parish: {
       type: DataTypes.STRING,
       allowNull: false,
     },

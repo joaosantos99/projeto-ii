@@ -22,7 +22,7 @@ export function SpacesTable({ spaces }) {
         <thead>
           <tr className="border-b border-border text-left text-muted-foreground">
             <th className="pb-2 pr-4 font-medium">Nome</th>
-            <th className="pb-2 pr-4 font-medium">Cidade</th>
+            <th className="pb-2 pr-4 font-medium">Freguesia</th>
             <th className="pb-2 pr-4 text-right font-medium">Zonas</th>
             <th className="pb-2 pr-4 text-right font-medium">Sensores</th>
             <th className="pb-2 pr-4 text-right font-medium">Alertas ativos</th>
@@ -40,7 +40,7 @@ export function SpacesTable({ spaces }) {
                   <p className="text-muted-foreground">{space.postalCode}</p>
                 </div>
               </td>
-              <td className="py-2.5 pr-4 text-muted-foreground">{space.city}</td>
+              <td className="py-2.5 pr-4 text-muted-foreground">{space.parish}</td>
               <td className="py-2.5 pr-4 text-right tabular-nums">{space.zonesCount}</td>
               <td className="py-2.5 pr-4 text-right tabular-nums">{space.sensorsCount}</td>
               <td className="py-2.5 pr-4 text-right tabular-nums">{space.activeAlerts}</td>

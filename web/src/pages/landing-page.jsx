@@ -6,13 +6,13 @@ import { MapWidget } from "#/components/widgets/map-widget"
 import { Footer } from "#/components/footer"
 
 const spaces = [
-  { id: 1, name: "Parque Florestal de Monsanto", city: "Coimbra", status: "Normal", latitude: 38.7, longitude: -9.1,
+  { id: 1, name: "Parque Florestal de Monsanto", parish: "Coimbra", status: "Normal", latitude: 38.7, longitude: -9.1,
     image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400" },
-  { id: 2, name: "Parque da Devesa", city: "Lisboa", status: "Normal", latitude: 41.5, longitude: -8.4,
+  { id: 2, name: "Parque da Devesa", parish: "Lisboa", status: "Normal", latitude: 41.5, longitude: -8.4,
     image: "https://images.unsplash.com/photo-1587502537745-84b86da1204f?w=400" },
-  { id: 3, name: "Parque da Devesa", city: "Porto", status: "Atenção", latitude: 41.1, longitude: -8.6,
+  { id: 3, name: "Parque da Devesa", parish: "Porto", status: "Atenção", latitude: 41.1, longitude: -8.6,
     image: "https://images.unsplash.com/photo-1519331379826-f10be5486c6f?w=400" },
-  { id: 4, name: "Parque da Devesa", city: "Coimbra", status: "Crítico", latitude: 40.2, longitude: -8.4,
+  { id: 4, name: "Parque da Devesa", parish: "Coimbra", status: "Crítico", latitude: 40.2, longitude: -8.4,
     image: "https://images.unsplash.com/photo-1473448912268-2022ce9509d8?w=400" },
 ]
 

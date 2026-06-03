@@ -9,7 +9,7 @@ import { Input } from "#/components/ui/input"
 
 const emptyForm = {
   name: "",
-  city: "",
+  parish: "",
   postalCode: "",
   latitude: "40.2",
   longitude: "-8.4",
@@ -56,13 +56,13 @@ export function SpaceFormDialog({ open, mode, initial, onClose, onSubmit }) {
   }
 
   const handleSubmit = () => {
-    if (!form.name.trim() || !form.city.trim()) return
+    if (!form.name.trim() || !form.parish.trim()) return
     const latitude = Number.parseFloat(String(form.latitude).replace(",", "."))
     const longitude = Number.parseFloat(String(form.longitude).replace(",", "."))
     if (Number.isNaN(latitude) || Number.isNaN(longitude)) return
     onSubmit({
       name: form.name.trim(),
-      city: form.city.trim(),
+      parish: form.parish.trim(),
       postalCode: form.postalCode.trim() || "0000-000",
       latitude,
       longitude,
@@ -99,8 +99,8 @@ export function SpaceFormDialog({ open, mode, initial, onClose, onSubmit }) {
             />
           </Field>
           <Field>
-            <FieldLabel htmlFor="esp-city">Cidade</FieldLabel>
-            <Input id="esp-city" value={form.city} onChange={update("city")} />
+            <FieldLabel htmlFor="esp-parish">Freguesia</FieldLabel>
+            <Input id="esp-parish" value={form.parish} onChange={update("parish")} />
           </Field>
           <Field>
             <FieldLabel htmlFor="esp-postal">Código postal</FieldLabel>

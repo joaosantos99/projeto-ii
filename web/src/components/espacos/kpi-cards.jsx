@@ -7,7 +7,7 @@ export function KpiCards({ summary }) {
   const spacesCount = summary?.spacesCount ?? 0
   const zonesCount = summary?.zonesCount ?? 0
   const activeCount = summary?.activeCount ?? 0
-  const districtsCount = summary?.districtsCount ?? 0
+  const parishCount = summary?.parishCount ?? 0
 
   return (
     <KpiCardGrid>
@@ -30,8 +30,8 @@ export function KpiCards({ summary }) {
         hint="A reportar dados"
       />
       <KpiCard
-        label="Cidades"
-        value={districtsCount}
+        label="Freguesias"
+        value={parishCount}
         icon={<Buildings className="size-4 text-muted-foreground" aria-hidden />}
         hint="Cobertura geográfica"
       />

@@ -100,7 +100,7 @@ export function EspacosPage() {
                 aria-label="Pesquisar espaços"
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Pesquisar por nome, cidade ou código postal"
+                placeholder="Pesquisar por nome, freguesia ou código postal"
               />
             </div>
             <Button

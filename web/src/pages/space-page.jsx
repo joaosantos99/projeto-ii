@@ -12,8 +12,8 @@ import { useParams } from "react-router-dom"
 const spaces = [
   { 
     id: 1, 
-    name: "Parque Florestal de Monsanto", 
-    city: "Lisboa", 
+    name: "Parque Florestal de Monsanto",
+    parish: "Lisboa",
     status: "Normal",
     image: "https://www.scenic.org/wp-content/uploads/2022/07/notable_large_urban_nature-760x378-1.jpg",
     humidity: { value: 39, status: "Normal" },
@@ -28,8 +28,8 @@ const spaces = [
   },
   { 
     id: 2, 
-    name: "Parque da Devesa", 
-    city: "Famalicão", 
+    name: "Parque da Devesa",
+    parish: "Famalicão",
     status: "Atenção", 
     image: "https://images.unsplash.com/photo-1587502537745-84b86da1204f?w=600",
     humidity: { value: 55, status: "Atenção" },
@@ -41,8 +41,8 @@ const spaces = [
   },
   { 
     id: 3, 
-    name: "Parque da Cidade", 
-    city: "Porto", 
+    name: "Parque da Cidade",
+    parish: "Porto",
     status: "Crítico", 
     image: "https://images.unsplash.com/photo-1519331379826-f10be5486c6f?w=600",
     humidity: { value: 20, status: "Crítico" },
@@ -65,7 +65,7 @@ export function SpacePage() {
             <Navbar />
             <img src={space.image} alt={space.name} className="w-full h-127.75 object-cover"/>
             <div className="max-w-full mx-auto px-12 py-6">
-                <h4 className="font-sans tracking-widest text-xs uppercase">{space.city}</h4>
+                <h4 className="font-sans tracking-widest text-xs uppercase">{space.parish}</h4>
                 <div className="flex gap-4 ">
                     <h1 className="text-2xl font-semibold">{space.name}</h1>
                     <Badge variant={

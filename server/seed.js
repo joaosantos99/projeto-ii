@@ -93,7 +93,7 @@ const generateGreenSpaces = async () => {
   for (let i = 0; i < greenSpacesCount; i++) {
     greenSpaces.push({
       name: faker.location.city() + ' Park',
-      city: faker.location.city(),
+      parish: faker.location.city(),
       postal_code: faker.location.zipCode(),
       latitude: faker.location.latitude(),
       longitude: faker.location.longitude(),

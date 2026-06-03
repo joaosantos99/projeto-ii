@@ -17,23 +17,23 @@ class SpacesService {
    * @param {number} options.page
    * @param {number} options.perPage
    * @param {string} [options.query]
-   * @param {string} [options.city]
+   * @param {string} [options.parish]
    * @returns {Promise<{spaces: Array<Object>, total: number}>}
    */
-  static async getSpaces({ page = 1, perPage = 10, query, city } = {}) {
+  static async getSpaces({ page = 1, perPage = 10, query, parish } = {}) {
     const where = {};
 
     if (query) {
       const q = `%${query.toLowerCase()}%`;
       where[Op.or] = [
         literal(`LOWER(name) LIKE ${GreenSpaces.sequelize.escape(q)}`),
-        literal(`LOWER(city) LIKE ${GreenSpaces.sequelize.escape(q)}`),
+        literal(`LOWER(parish) LIKE ${GreenSpaces.sequelize.escape(q)}`),
         literal(`LOWER(postal_code) LIKE ${GreenSpaces.sequelize.escape(q)}`),
       ];
     }
 
-    if (city) {
-      where.city = city;
+    if (parish) {
+      where.parish = parish;
     }
 
     const { count, rows } = await GreenSpaces.findAndCountAll({
@@ -88,7 +88,7 @@ class SpacesService {
     const spaces = rows.map((space) => ({
       id: space.id,
       name: space.name,
-      city: space.city,
+      parish: space.parish,
       postal_code: space.postal_code,
       image_url: space.image_url,
       latitude: space.latitude,
@@ -135,13 +135,13 @@ class SpacesService {
     return space.update({ image_url: imageUrl, updated_by: updatedBy });
   }
 
-  static async getCities() {
+  static async getParishes() {
     const rows = await GreenSpaces.findAll({
-      attributes: [[fn('DISTINCT', col('city')), 'city']],
-      order: [['city', 'ASC']],
+      attributes: [[fn('DISTINCT', col('parish')), 'parish']],
+      order: [['parish', 'ASC']],
       raw: true,
     });
-    return rows.map((r) => r.city).filter(Boolean);
+    return rows.map((r) => r.parish).filter(Boolean);
   }
 
   static async count(options = {}) {

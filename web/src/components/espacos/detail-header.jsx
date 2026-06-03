@@ -11,10 +11,10 @@ export function DetailHeader({ space }) {
           <h1 className="text-xl font-semibold tracking-tight md:text-2xl">
             {space.name}
           </h1>
-          <Badge variant="outline">{space.city}</Badge>
+          <Badge variant="outline">{space.parish}</Badge>
         </div>
         <p className="text-xs text-muted-foreground">
-          {space.city} · {space.postal_code}
+          {space.parish} · {space.postal_code}
         </p>
       </div>
     </div>

@@ -17,18 +17,18 @@ class SpacesController {
     try {
       const page = Math.max(1, parseInt(req.query.page, 10) || 1);
       const perPage = Math.max(1, parseInt(req.query.perPage, 10) || 10);
-      const { query, city } = req.query;
+      const { query, parish } = req.query;
       const includeSummary = req.query.summary === 'true';
       const includeSensoresStatus = req.query.sensoresStatus === 'true';
 
-      const { spaces, total } = await SpacesService.getSpaces({ page, perPage, query, city });
+      const { spaces, total } = await SpacesService.getSpaces({ page, perPage, query, parish });
       const totalPages = Math.max(1, Math.ceil(total / perPage));
 
       const body = {
         spaces: spaces.map((space) => ({
           id: space.id,
           name: space.name,
-          city: space.city,
+          parish: space.parish,
           postalCode: space.postal_code,
           imageUrl: space.image_url ?? null,
           latitude: space.latitude,
@@ -87,11 +87,11 @@ class SpacesController {
    */
   static async createSpace(req, res) {
     try {
-      const { name, city, postalCode, postal_code, latitude, longitude } = req.body ?? {};
+      const { name, parish, postalCode, postal_code, latitude, longitude } = req.body ?? {};
       const errors = {};
 
       if (!name) errors.name = ['Nome é obrigatório.'];
-      if (!city) errors.city = ['Cidade é obrigatória.'];
+      if (!parish) errors.parish = ['Freguesia é obrigatória.'];
       const code = postalCode ?? postal_code;
       if (!code) errors.postalCode = ['Código postal é obrigatório.'];
       if (latitude === undefined || latitude === null || Number.isNaN(Number(latitude))) {
@@ -108,7 +108,7 @@ class SpacesController {
       const newSpace = await SpacesService.createSpace(
         {
           name,
-          city,
+          parish,
           postal_code: code,
           latitude: Number(latitude),
           longitude: Number(longitude),
@@ -136,23 +136,23 @@ class SpacesController {
 
   /**
    * Build a statistical summary of spaces.
-   * @returns {Promise<{spacesCount, zonesCount, activeCount, districtsCount, cities}>}
+   * @returns {Promise<{spacesCount, zonesCount, activeCount, parishCount, parishes}>}
    */
   static async buildSummary() {
-    const [spacesCount, zonesCount, activeCount, districtsCount, cities] = await Promise.all([
+    const [spacesCount, zonesCount, activeCount, parishCount, parishes] = await Promise.all([
       SpacesService.count(),
       ZonesService.count(),
       SensorsService.count({ where: { is_active: true } }),
-      SpacesService.count({ distinct: true, col: 'city' }),
-      SpacesService.getCities(),
+      SpacesService.count({ distinct: true, col: 'parish' }),
+      SpacesService.getParishes(),
     ]);
 
     return {
       spacesCount,
       zonesCount,
       activeCount,
-      districtsCount,
-      cities,
+      parishCount,
+      parishes,
     };
   }
 
@@ -168,10 +168,10 @@ class SpacesController {
       }
 
       const space = await SpacesService.getSpaceById(req.params.spaceId);
-      const { name, city, postal_code, postalCode, latitude, longitude } = req.body;
+      const { name, parish, postal_code, postalCode, latitude, longitude } = req.body;
       const updatedSpace = await space.update({
         name,
-        city,
+        parish,
         postal_code: postal_code ?? postalCode,
         latitude,
         longitude,

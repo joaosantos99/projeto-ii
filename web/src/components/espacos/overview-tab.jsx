@@ -64,7 +64,7 @@ export function OverviewTab({ space }) {
         </CardHeader>
         <CardContent className="flex flex-col gap-4">
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Cidade" value={space?.city ?? "—"} />
+            <Field label="Freguesia" value={space?.parish ?? "—"} />
             <Field label="Código postal" value={space?.postal_code ?? "—"} />
           </div>
           <div className="border-t" />

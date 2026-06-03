@@ -100,7 +100,7 @@ export default {
         properties: {
           id: { type: 'string' },
           name: { type: 'string' },
-          city: { type: 'string' },
+          parish: { type: 'string' },
           postalCode: { type: 'string' },
           imageUrl: { type: 'string', nullable: true },
           latitude: { type: 'number' },
@@ -414,7 +414,7 @@ export default {
         parameters: [
           ...pageParams,
           queryParam('query', { type: 'string' }, 'Search term.'),
-          queryParam('city', { type: 'string' }, 'Filter by city.'),
+          queryParam('parish', { type: 'string' }, 'Filter by parish.'),
           queryParam('summary', { type: 'boolean' }, 'Include spaces statistics summary when true.'),
           queryParam('sensoresStatus', { type: 'boolean' }, 'Include per-type sensor status (from the latest reading) on each space when true.'),
         ],
@@ -431,8 +431,8 @@ export default {
                   spacesCount: { type: 'integer' },
                   zonesCount: { type: 'integer' },
                   activeCount: { type: 'integer' },
-                  districtsCount: { type: 'integer' },
-                  cities: { type: 'array', items: { type: 'string' } },
+                  parishCount: { type: 'integer' },
+                  parishes: { type: 'array', items: { type: 'string' } },
                 },
               },
             },
@@ -451,10 +451,10 @@ export default {
             'application/json': {
               schema: {
                 type: 'object',
-                required: ['name', 'city', 'postalCode', 'latitude', 'longitude'],
+                required: ['name', 'parish', 'postalCode', 'latitude', 'longitude'],
                 properties: {
                   name: { type: 'string' },
-                  city: { type: 'string' },
+                  parish: { type: 'string' },
                   postalCode: { type: 'string' },
                   latitude: { type: 'number' },
                   longitude: { type: 'number' },
@@ -464,10 +464,10 @@ export default {
             'multipart/form-data': {
               schema: {
                 type: 'object',
-                required: ['name', 'city', 'postalCode', 'latitude', 'longitude'],
+                required: ['name', 'parish', 'postalCode', 'latitude', 'longitude'],
                 properties: {
                   name: { type: 'string' },
-                  city: { type: 'string' },
+                  parish: { type: 'string' },
                   postalCode: { type: 'string' },
                   latitude: { type: 'number' },
                   longitude: { type: 'number' },
@@ -498,7 +498,7 @@ export default {
             type: 'object',
             properties: {
               name: { type: 'string' },
-              city: { type: 'string' },
+              parish: { type: 'string' },
               postalCode: { type: 'string' },
               latitude: { type: 'number' },
               longitude: { type: 'number' },
