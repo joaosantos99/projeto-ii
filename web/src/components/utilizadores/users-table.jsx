@@ -9,37 +9,37 @@ import { StatusBadge } from "#/components/utilizadores/status-badge"
 export function UsersTable({ users, roleOptions }) {
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead className="border-b text-left text-xs uppercase text-muted-foreground">
-          <tr>
-            <th className="px-3 py-2 font-medium">Utilizador</th>
-            <th className="px-3 py-2 font-medium">Role</th>
-            <th className="px-3 py-2 font-medium">Estado</th>
-            <th className="px-3 py-2 font-medium">Último acesso</th>
-            <th className="w-12 px-3 py-2 text-right">
+      <table className="w-full text-xs">
+        <thead>
+          <tr className="border-b border-border text-left text-muted-foreground">
+            <th className="pb-2 pr-4 font-medium">Utilizador</th>
+            <th className="pb-2 pr-4 font-medium">Role</th>
+            <th className="pb-2 pr-4 font-medium">Estado</th>
+            <th className="pb-2 pr-4 font-medium">Último acesso</th>
+            <th className="pb-2 text-right font-medium">
               <span className="sr-only">Ver detalhe</span>
             </th>
           </tr>
         </thead>
         <tbody>
           {users.map((user) => (
-            <tr key={user.id} className="border-b last:border-b-0">
-              <td className="px-3 py-2">
+            <tr key={user.id} className="border-b border-border last:border-0">
+              <td className="py-2.5 pr-4">
                 <div className="flex flex-col gap-0.5">
                   <p className="font-medium">{user.name}</p>
-                  <p className="text-xs text-muted-foreground">{user.email}</p>
+                  <p className="text-muted-foreground">{user.email}</p>
                 </div>
               </td>
-              <td className="px-3 py-2">
+              <td className="py-2.5 pr-4">
                 <RoleBadge role={user.role} roleOptions={roleOptions} />
               </td>
-              <td className="px-3 py-2">
+              <td className="py-2.5 pr-4">
                 <StatusBadge status={user.status} />
               </td>
-              <td className="px-3 py-2 tabular-nums text-muted-foreground">
+              <td className="py-2.5 pr-4 tabular-nums text-muted-foreground">
                 {user.lastAccess}
               </td>
-              <td className="px-3 py-2 text-right">
+              <td className="py-2.5 text-right">
                 <Button
                   asChild
                   variant="ghost"
