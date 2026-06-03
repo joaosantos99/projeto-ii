@@ -68,7 +68,7 @@ export function ZonesTab({ spaceId, spaceName }) {
               Zonas do espaço
             </CardTitle>
             <CardDescription>
-              Lista editável — adicione ou remova subdivisões monitorizadas.
+              Adicione ou remova subdivisões monitorizadas.
             </CardDescription>
           </div>
           <Button size="sm" onClick={() => setAddOpen(true)}>
@@ -80,27 +80,30 @@ export function ZonesTab({ spaceId, spaceName }) {
           {loading ? (
             <p className="py-6 text-center text-sm text-muted-foreground">A carregar…</p>
           ) : zones.length === 0 ? (
-            <div className="py-8 text-center text-sm text-muted-foreground">
-              Ainda sem zonas — use “Adicionar zona” para criar a primeira.
+            <div className="flex min-h-[160px] flex-col items-center justify-center gap-1 border border-dashed p-6 text-center">
+              <p className="text-sm font-medium">Nenhuma zona encontrada</p>
+              <p className="text-xs text-muted-foreground">
+                Ainda sem zonas — use "Adicionar zona" para criar a primeira.
+              </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="border-b text-left text-xs uppercase text-muted-foreground">
-                  <tr>
-                    <th className="px-3 py-2 font-medium">Zona</th>
-                    <th className="px-3 py-2 font-medium">Criada</th>
-                    <th className="w-16 px-3 py-2 text-right font-medium">Ação</th>
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-border text-left text-muted-foreground">
+                    <th className="pb-2 pr-4 font-medium">Zona</th>
+                    <th className="pb-2 pr-4 font-medium">Criada</th>
+                    <th className="pb-2 text-right font-medium">Ação</th>
                   </tr>
                 </thead>
                 <tbody>
                   {zones.map((zone) => (
-                    <tr key={zone.id} className="border-b last:border-b-0">
-                      <td className="px-3 py-2 font-medium">{zone.name}</td>
-                      <td className="px-3 py-2 text-muted-foreground tabular-nums">
+                    <tr key={zone.id} className="border-b border-border last:border-0">
+                      <td className="py-2.5 pr-4 font-medium">{zone.name}</td>
+                      <td className="py-2.5 pr-4 text-muted-foreground tabular-nums">
                         {formatDate(zone.createdAt)}
                       </td>
-                      <td className="px-3 py-2 text-right">
+                      <td className="py-2.5 text-right">
                         <Button
                           variant="ghost"
                           size="icon"
