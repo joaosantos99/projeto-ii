@@ -56,7 +56,7 @@ export function PermissoesPage() {
           <div className="flex flex-col gap-1">
             <CardTitle>Roles</CardTitle>
             <CardDescription>
-              Visão geral dos perfis; abra uma linha para gerir permissões em
+              Visão geral das roles; abra uma linha para gerir permissões em
               detalhe.
             </CardDescription>
           </div>

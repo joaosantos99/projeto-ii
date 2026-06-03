@@ -81,7 +81,7 @@ export function PermissaoDetalhePage() {
         <CardHeader>
           <CardTitle>Role não encontrada</CardTitle>
           <CardDescription>
-            O perfil que procura já não existe ou não está acessível.
+            A role que procura já não existe ou não está acessível.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -116,7 +116,7 @@ export function PermissaoDetalhePage() {
         <CardHeader>
           <CardTitle>Matriz de permissões</CardTitle>
           <CardDescription>
-            Acessos do perfil{" "}
+            Acessos da role{" "}
             <span className="font-semibold">{role.name}</span>. Cada alteração é
             guardada automaticamente.
           </CardDescription>
