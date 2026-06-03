@@ -21,26 +21,25 @@ export function KpiCards({ reports }) {
       <KpiCard
         label="Total no histórico"
         value={reports.length}
-        icon={<Stack className="size-4 text-muted-foreground" aria-hidden />}
+        icon={<Stack className="size-4 text-foreground" aria-hidden />}
         hint="Inclui gerados e agendados"
       />
       <KpiCard
         label="Gerados"
         value={generatedCount}
-        icon={<CheckCircle className="size-4 text-chart-1" aria-hidden />}
+        icon={<CheckCircle className="size-4 text-foreground" aria-hidden />}
         hint="Prontos para exportar"
-        valueClassName="text-chart-1"
       />
       <KpiCard
         label="Agendados"
         value={scheduledCount}
-        icon={<Clock className="size-4 text-muted-foreground" aria-hidden />}
+        icon={<Clock className="size-4 text-foreground" aria-hidden />}
         hint="Em fila de processamento"
       />
       <KpiCard
         label="Última criação"
         value={lastCreated || "—"}
-        icon={<CalendarBlank className="size-4 text-muted-foreground" aria-hidden />}
+        icon={<CalendarBlank className="size-4 text-foreground" aria-hidden />}
         hint="Registo mais recente"
         valueClassName="text-lg leading-tight"
       />

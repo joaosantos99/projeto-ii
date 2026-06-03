@@ -37,7 +37,7 @@ export function VolumeChart({ reports }) {
               <div key={d.label} className="flex flex-1 flex-col items-center gap-2">
                 <div className="flex w-full flex-1 items-end">
                   <div
-                    className="w-full rounded-t-md bg-chart-1 transition-all"
+                    className="w-full rounded-t-md bg-foreground transition-all"
                     style={{ height: `${heightPct}%` }}
                     aria-label={`${d.label}: ${d.count}`}
                   />
