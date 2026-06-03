@@ -73,10 +73,6 @@ export function PermissoesPage() {
         <CardContent className="flex flex-col gap-4">
           {loading ? (
             <p className="text-sm text-muted-foreground">A carregar...</p>
-          ) : roles.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              Ainda não existem roles. Crie a primeira para começar.
-            </p>
           ) : (
             <RolesTable roles={roles} />
           )}
