@@ -30,7 +30,7 @@ export function KpiCards({ summary }) {
         label="Suspensos"
         value={suspended}
         icon={<UserMinus className="size-4 text-muted-foreground" aria-hidden />}
-        hint="Aguardar reativação manual"
+        hint="A aguardar reativação manual"
       />
       <KpiCard
         label="Acessos hoje"
