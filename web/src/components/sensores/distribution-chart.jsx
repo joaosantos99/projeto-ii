@@ -30,7 +30,7 @@ export function SensorsDistributionChart({ distribution }) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="flex h-[200px] items-end gap-4 pt-4">
+        <div className="flex h-[200px] gap-4 pt-4">
           {data.map((d) => {
             const heightPct = (d.count / max) * 100
             return (
