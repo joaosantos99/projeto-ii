@@ -39,10 +39,13 @@ class SensorSerializer extends BaseSerializer {
    * Serialize a paginated list of sensors.
    * @param {Array} sensors - The sensors array.
    * @param {Object} pagination - Pagination metadata.
+   * @param {Object} [extras] - Optional global stats to embed.
+   * @param {Object} [extras.summary] - Sensor stats summary.
+   * @param {Object} [extras.distribution] - Sensor distribution by status.
    * @returns {Object} Serialized paginated response.
    */
-  static serializePaginated(sensors, { page, limit, total }) {
-    return {
+  static serializePaginated(sensors, { page, limit, total }, extras = {}) {
+    const body = {
       data: this.serialize(sensors),
       meta: {
         page,
@@ -54,44 +57,26 @@ class SensorSerializer extends BaseSerializer {
         self: { href: `/api/sensors?page=${page}&limit=${limit}` },
       },
     };
-  }
 
-  /**
-   * Serialize the sensors summary.
-   * @param {Object} summary - The summary data.
-   * @returns {Object} The serialized summary.
-   */
-  static serializeSummary(summary) {
-    return {
-      data: {
-        totalSensors: summary.totalSensors,
-        totalActive: summary.totalActive,
-        totalNeedsAttention: summary.totalNeedsAttention,
-        lowBattery: summary.lowBattery,
-      },
-      _links: {
-        self: { href: '/api/sensors/summary' },
-      },
-    };
-  }
+    if (extras.summary) {
+      body.summary = {
+        totalSensors: extras.summary.totalSensors,
+        totalActive: extras.summary.totalActive,
+        totalNeedsAttention: extras.summary.totalNeedsAttention,
+        lowBattery: extras.summary.lowBattery,
+      };
+    }
 
-  /**
-   * Serialize the sensors distribution.
-   * @param {Object} distribution - The distribution data.
-   * @returns {Object} The serialized distribution.
-   */
-  static serializeDistribution(distribution) {
-    return {
-      data: {
-        online: distribution.online,
-        degraded: distribution.degraded,
-        offline: distribution.offline,
-        totalSensors: distribution.totalSensors,
-      },
-      _links: {
-        self: { href: '/api/sensors/distribution' },
-      },
-    };
+    if (extras.distribution) {
+      body.distribution = {
+        online: extras.distribution.online,
+        degraded: extras.distribution.degraded,
+        offline: extras.distribution.offline,
+        totalSensors: extras.distribution.totalSensors,
+      };
+    }
+
+    return body;
   }
 }
 

@@ -6,39 +6,9 @@ import SensorsService from '../services/sensors.js';
  */
 class SensorsController {
   /**
-   * Get a summary of sensor stats.
-   * GET /api/sensors/summary
-   * @param {Object} req - The request object.
-   * @param {Object} res - The response object.
-   */
-  static async getSummary(req, res) {
-    try {
-      const summary = await SensorsService.getSummary();
-
-      res.json(SensorSerializer.serializeSummary(summary));
-    } catch (error) {
-      res.status(error.statusCode || 500).json({ error: error.message });
-    }
-  }
-
-  /**
-   * Get sensor distribution by status.
-   * GET /api/sensors/distribution
-   * @param {Object} req - The request object.
-   * @param {Object} res - The response object.
-   */
-  static async getDistribution(req, res) {
-    try {
-      const distribution = await SensorsService.getDistribution();
-
-      res.json(SensorSerializer.serializeDistribution(distribution));
-    } catch (error) {
-      res.status(error.statusCode || 500).json({ error: error.message });
-    }
-  }
-
-  /**
    * Get sensors. Paginated globally or filtered by space when nested under spaces.
+   * Pass `summary=true` and/or `distribution=true` to embed the global sensor
+   * statistics (independent of the page and filters) in the response.
    * @param {Object} req - The request object.
    * @param {Object} res - The response object.
    */
@@ -56,10 +26,16 @@ class SensorsController {
       const status = req.query.status;
       const type = req.query.type;
       const query = req.query.query;
+      const includeSummary = req.query.summary === 'true';
+      const includeDistribution = req.query.distribution === 'true';
 
       const { sensors, total } = await SensorsService.getSensors({ page, limit, sort, offlineOnly, status, type, query });
 
-      res.json(SensorSerializer.serializePaginated(sensors, { page, limit, total }));
+      const extras = {};
+      if (includeSummary) extras.summary = await SensorsService.getSummary();
+      if (includeDistribution) extras.distribution = await SensorsService.getDistribution();
+
+      res.json(SensorSerializer.serializePaginated(sensors, { page, limit, total }, extras));
     } catch (error) {
       res.status(error.statusCode || 500).json({ error: error.message });
     }

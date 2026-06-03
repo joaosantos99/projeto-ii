@@ -44,19 +44,12 @@ export function SensoresPage() {
   }, [setTitle])
 
   useEffect(() => {
-    api.get("/sensors/summary")
-      .then((res) => setSummary(res.data?.data ?? null))
-      .catch(() => setSummary(null))
-    api.get("/sensors/distribution")
-      .then((res) => setDistribution(res.data?.data ?? null))
-      .catch(() => setDistribution(null))
-  }, [])
-
-  useEffect(() => {
     setLoading(true)
     const params = {
       page,
       limit: PER_PAGE,
+      summary: true,
+      distribution: true,
       ...(query.trim() && { query: query.trim() }),
       ...(statusFilter !== "todos" && { status: statusFilter }),
       ...(typeFilter !== "todos" && { type: typeFilter }),
@@ -65,10 +58,14 @@ export function SensoresPage() {
       .then((res) => {
         setSensors(res.data?.data ?? [])
         setPagination(res.data?.meta ?? { page: 1, limit: PER_PAGE, total: 0, totalPages: 1 })
+        setSummary(res.data?.summary ?? null)
+        setDistribution(res.data?.distribution ?? null)
       })
       .catch(() => {
         setSensors([])
         setPagination({ page: 1, limit: PER_PAGE, total: 0, totalPages: 1 })
+        setSummary(null)
+        setDistribution(null)
       })
       .finally(() => setLoading(false))
   }, [page, query, statusFilter, typeFilter])

@@ -732,13 +732,20 @@ export default {
           queryParam('limit', { type: 'integer', minimum: 1, default: 20 }, 'Items per page.'),
           queryParam('sort', { type: 'string' }, 'Sort expression.'),
           queryParam('offlineOnly', { type: 'boolean' }, 'When true, return only offline (inactive) sensors. Read `meta.total` for the count.'),
+          queryParam('status', { type: 'string', enum: ['online', 'offline'] }, 'Filter by operational status.'),
+          queryParam('type', { type: 'string' }, 'Filter by sensor type.'),
+          queryParam('query', { type: 'string' }, 'Search by parameter, type, zone or space name.'),
+          queryParam('summary', { type: 'boolean' }, 'When true, embed the global sensor statistics summary (independent of page and filters).'),
+          queryParam('distribution', { type: 'boolean' }, 'When true, embed the global sensor distribution by status (independent of page and filters).'),
         ],
         responses: {
           200: ok('Paginated sensors.', {
             type: 'object',
             properties: {
-              sensors: { type: 'array', items: ref('Sensor') },
-              pagination: ref('Pagination'),
+              data: { type: 'array', items: ref('Sensor') },
+              meta: ref('Pagination'),
+              summary: { type: 'object' },
+              distribution: { type: 'object' },
             },
           }),
         },
@@ -747,22 +754,6 @@ export default {
         tags: ['Sensors'],
         summary: 'Create a sensor (use the space-nested route).',
         responses: { 201: ok('Created sensor.', ref('Sensor')), 400: ValidationError, 401: Unauthorized },
-      },
-    },
-    '/sensors/summary': {
-      get: {
-        tags: ['Sensors'],
-        summary: 'Sensors statistics summary.',
-        security: [],
-        responses: { 200: ok('Summary.', { type: 'object' }) },
-      },
-    },
-    '/sensors/distribution': {
-      get: {
-        tags: ['Sensors'],
-        summary: 'Sensors distribution by status.',
-        security: [],
-        responses: { 200: ok('Distribution.', { type: 'object' }) },
       },
     },
     '/sensors/{sensorId}': {
