@@ -2,8 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { useOutletContext } from "react-router-dom"
-import { Plus } from "@phosphor-icons/react"
+import { MagnifyingGlass, Plus, SlidersHorizontal } from "@phosphor-icons/react"
 
+import { Badge } from "#/components/ui/badge"
 import { Button } from "#/components/ui/button"
 import {
   Card,
@@ -12,8 +13,9 @@ import {
   CardHeader,
   CardTitle,
 } from "#/components/ui/card"
+import { Input } from "#/components/ui/input"
 import { KpiCards } from "#/components/manutencao/kpi-cards"
-import { FiltersBar } from "#/components/manutencao/filters-bar"
+import { FiltersSheet } from "#/components/manutencao/filters-sheet"
 import { Board } from "#/components/manutencao/board"
 import { CreateTaskDialog } from "#/components/manutencao/create-task-dialog"
 import { boardColumns } from "#/data/manutencao"
@@ -66,6 +68,7 @@ export function ManutencaoPage() {
   const [columnState, setColumnState] = useState(emptyColumnState)
   const [loading, setLoading] = useState(true)
   const [createOpen, setCreateOpen] = useState(false)
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [query, setQuery] = useState("")
   const [zoneFilter, setZoneFilter] = useState("todos")
   const [priorityFilter, setPriorityFilter] = useState("todos")
@@ -126,6 +129,10 @@ export function ManutencaoPage() {
     () => Array.from(new Set(allTasks.map((task) => task.zone))).sort(),
     [allTasks],
   )
+
+  const activeFilterCount = [zoneFilter, priorityFilter].filter(
+    (value) => value !== "todos",
+  ).length
 
   const matchesFilters = (task) => {
     const normalizedQuery = query.toLowerCase().trim()
@@ -216,30 +223,44 @@ export function ManutencaoPage() {
       <KpiCards tasks={allTasks} />
 
       <Card>
-        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex flex-col gap-1">
             <CardTitle>Painel de manutenção</CardTitle>
             <CardDescription>
               Filtre tarefas e acompanhe a fila por estado no kanban.
             </CardDescription>
           </div>
-          <Button size="sm" onClick={() => setCreateOpen(true)}>
-            <Plus />
-            Criar tarefa
-          </Button>
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+            <div className="relative max-w-full sm:max-w-72">
+              <MagnifyingGlass className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                className="pl-9"
+                aria-label="Pesquisar tarefas"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Pesquisar por título, ID ou técnico"
+              />
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="shrink-0"
+              onClick={() => setIsFilterOpen(true)}
+            >
+              <SlidersHorizontal />
+              Filtros
+              {activeFilterCount > 0 ? (
+                <Badge variant="secondary">{activeFilterCount}</Badge>
+              ) : null}
+            </Button>
+            <Button size="sm" className="shrink-0" onClick={() => setCreateOpen(true)}>
+              <Plus />
+              Criar tarefa
+            </Button>
+          </div>
         </CardHeader>
 
         <CardContent className="flex flex-col gap-6">
-          <FiltersBar
-            query={query}
-            onQueryChange={setQuery}
-            zoneFilter={zoneFilter}
-            onZoneFilterChange={setZoneFilter}
-            priorityFilter={priorityFilter}
-            onPriorityFilterChange={setPriorityFilter}
-            zones={zones}
-          />
-          <div className="border-t" />
           {loading ? (
             <p className="py-8 text-center text-sm text-muted-foreground">A carregar…</p>
           ) : (
@@ -256,6 +277,16 @@ export function ManutencaoPage() {
         open={createOpen}
         onClose={() => setCreateOpen(false)}
         onCreate={handleCreate}
+      />
+
+      <FiltersSheet
+        open={isFilterOpen}
+        onClose={() => setIsFilterOpen(false)}
+        zoneFilter={zoneFilter}
+        onZoneFilterChange={setZoneFilter}
+        priorityFilter={priorityFilter}
+        onPriorityFilterChange={setPriorityFilter}
+        zones={zones}
       />
     </div>
   )
