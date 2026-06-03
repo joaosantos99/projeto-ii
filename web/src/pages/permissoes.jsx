@@ -56,8 +56,7 @@ export function PermissoesPage() {
           <div className="flex flex-col gap-1">
             <CardTitle>Roles</CardTitle>
             <CardDescription>
-              Visão geral das roles; abra uma linha para gerir permissões em
-              detalhe.
+              As alterações aos acessos são guardadas automaticamente.
             </CardDescription>
           </div>
           <Button

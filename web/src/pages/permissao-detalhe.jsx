@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from "react"
-import { Link, useNavigate, useOutletContext, useParams } from "react-router-dom"
+import { useNavigate, useOutletContext, useParams } from "react-router-dom"
 
 import { Button } from "#/components/ui/button"
 import {
@@ -73,63 +73,45 @@ export function PermissaoDetalhePage() {
       .finally(() => setPendingPermission(null))
   }
 
-  if (loading) {
-    return <p className="text-sm text-muted-foreground">A carregar...</p>
-  }
-
-  if (notFound || !role) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Role não encontrada</CardTitle>
-          <CardDescription>
-            A role que procura já não existe ou não está acessível.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate("/admin/roles")}
-          >
-            Voltar às roles
-          </Button>
-        </CardContent>
-      </Card>
-    )
-  }
-
-  const enabled = role.permissionsDump ?? []
+  const enabled = role?.permissionsDump ?? []
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center gap-3">
-        <Button asChild variant="outline" size="sm">
-          <Link to="/admin/roles">Voltar às roles</Link>
-        </Button>
-        <p className="text-muted-foreground text-sm">
-          {role.name}{" "}
-          <span className="text-muted-foreground/80">·</span>{" "}
-          <span className="font-mono text-xs">{role.id}</span>
-        </p>
-      </div>
-
       <Card>
-        <CardHeader>
-          <CardTitle>Matriz de permissões</CardTitle>
-          <CardDescription>
-            Acessos da role{" "}
-            <span className="font-semibold">{role.name}</span>. Cada alteração é
-            guardada automaticamente.
-          </CardDescription>
+        <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="flex flex-col gap-1">
+            <CardTitle>Matriz de permissões</CardTitle>
+            <CardDescription>
+              {role
+                ? `Acessos da role ${role.name}. Cada alteração é guardada automaticamente.`
+                : "Acessos por recurso. Cada alteração é guardada automaticamente."}
+            </CardDescription>
+          </div>
         </CardHeader>
-        <CardContent>
-          <PermissionsMatrix
-            catalog={catalog}
-            enabled={enabled}
-            onToggle={handleToggle}
-            disabled={pendingPermission !== null}
-          />
+        <CardContent className="flex flex-col gap-4">
+          {loading ? (
+            <p className="text-sm text-muted-foreground">A carregar...</p>
+          ) : notFound || !role ? (
+            <div className="flex flex-col gap-4">
+              <p className="text-sm text-muted-foreground">
+                Role não encontrada. A role que procura já não existe ou não está acessível.
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate("/admin/roles")}
+              >
+                Voltar às roles
+              </Button>
+            </div>
+          ) : (
+            <PermissionsMatrix
+              catalog={catalog}
+              enabled={enabled}
+              onToggle={handleToggle}
+              disabled={pendingPermission !== null}
+            />
+          )}
         </CardContent>
       </Card>
     </div>

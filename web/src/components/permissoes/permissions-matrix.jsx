@@ -57,61 +57,54 @@ export function PermissionsMatrix({ catalog, enabled, onToggle, disabled }) {
     )
   }
 
-  const gridTemplate = `minmax(0,1fr) repeat(${actions.length}, minmax(0,88px))`
-
   return (
-    <div className="flex flex-col gap-3">
-      <div
-        className="grid items-center gap-2 text-xs font-medium uppercase text-muted-foreground"
-        style={{ gridTemplateColumns: gridTemplate }}
-      >
-        <span>Recurso</span>
-        {actions.map((action) => (
-          <span key={action} className="text-center">
-            {labelForAction(action)}
-          </span>
-        ))}
-      </div>
-      <div className="h-px bg-border" />
-      <div className="flex flex-col">
-        {resources.map(([resource, actionsMap]) => (
-          <div
-            key={resource}
-            className="grid items-center gap-2 border-b py-2 last:border-b-0"
-            style={{ gridTemplateColumns: gridTemplate }}
-          >
-            <p className="truncate text-xs font-medium">
-              {labelForResource(resource)}
-            </p>
-            {actions.map((action) => {
-              const permId = actionsMap.get(action)
-              if (!permId) {
+    <div className="overflow-x-auto">
+      <table className="w-full text-xs">
+        <thead>
+          <tr className="border-b border-border text-left text-muted-foreground">
+            <th className="pb-2 pr-4 font-medium">Recurso</th>
+            {actions.map((action) => (
+              <th key={action} className="pb-2 pr-4 font-medium text-center">
+                {labelForAction(action)}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {resources.map(([resource, actionsMap]) => (
+            <tr key={resource} className="border-b border-border last:border-0">
+              <td className="py-2.5 pr-4">
+                <p className="truncate text-xs font-medium">
+                  {labelForResource(resource)}
+                </p>
+              </td>
+              {actions.map((action) => {
+                const permId = actionsMap.get(action)
+                if (!permId) {
+                  return (
+                    <td key={action} className="py-2.5 pr-4 text-center text-muted-foreground/40">
+                      —
+                    </td>
+                  )
+                }
+                const checked = enabledSet.has(permId)
                 return (
-                  <span
-                    key={action}
-                    className="text-center text-muted-foreground/40"
-                  >
-                    —
-                  </span>
+                  <td key={action} className="py-2.5 pr-4 text-center">
+                    <input
+                      type="checkbox"
+                      aria-label={`${labelForResource(resource)} - ${labelForAction(action)}`}
+                      checked={checked}
+                      disabled={disabled}
+                      onChange={() => onToggle(permId)}
+                      className="size-4 rounded-none border border-input accent-primary disabled:opacity-50"
+                    />
+                  </td>
                 )
-              }
-              const checked = enabledSet.has(permId)
-              return (
-                <div key={action} className="flex justify-center">
-                  <input
-                    type="checkbox"
-                    aria-label={`${labelForResource(resource)} - ${labelForAction(action)}`}
-                    checked={checked}
-                    disabled={disabled}
-                    onChange={() => onToggle(permId)}
-                    className="size-4 rounded-none border border-input accent-primary disabled:opacity-50"
-                  />
-                </div>
-              )
-            })}
-          </div>
-        ))}
-      </div>
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   )
 }
