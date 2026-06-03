@@ -20,6 +20,7 @@ function severityVariant(severity) {
 }
 
 const severityLabels = {
+  low: "Baixo",
   normal: "Normal",
   warning: "Aviso",
   critical: "Crítico",
@@ -80,35 +81,36 @@ export function IncidentsTab({ spaceId }) {
         {loading ? (
           <p className="py-6 text-center text-sm text-muted-foreground">A carregar…</p>
         ) : incidents.length === 0 ? (
-          <div className="py-8 text-center text-sm text-muted-foreground">
-            Sem incidentes para este espaço.
+          <div className="flex min-h-[160px] flex-col items-center justify-center gap-1 border border-dashed p-6 text-center">
+            <p className="text-sm font-medium">Nenhum incidente encontrado</p>
+            <p className="text-xs text-muted-foreground">
+              Sem incidentes para este espaço.
+            </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="border-b text-left text-xs uppercase text-muted-foreground">
-                <tr>
-                  <th className="px-3 py-2 font-medium">ID</th>
-                  <th className="px-3 py-2 font-medium">Mensagem</th>
-                  <th className="px-3 py-2 font-medium">Gravidade</th>
-                  <th className="px-3 py-2 font-medium">Criado</th>
-                  <th className="px-3 py-2 font-medium">Notificado</th>
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b border-border text-left text-muted-foreground">
+                  <th className="pb-2 pr-4 font-medium">Mensagem</th>
+                  <th className="pb-2 pr-4 font-medium">Gravidade</th>
+                  <th className="pb-2 pr-4 font-medium">Criado</th>
+                  <th className="pb-2 font-medium">Notificado</th>
                 </tr>
               </thead>
               <tbody>
                 {incidents.map((incident) => (
-                  <tr key={incident.id} className="border-b last:border-b-0">
-                    <td className="px-3 py-2 font-mono text-xs">{incident.id.slice(0, 8)}</td>
-                    <td className="px-3 py-2">{incident.message}</td>
-                    <td className="px-3 py-2">
+                  <tr key={incident.id} className="border-b border-border last:border-0">
+                    <td className="py-2.5 pr-4">{incident.message}</td>
+                    <td className="py-2.5 pr-4">
                       <Badge variant={severityVariant(incident.severity)}>
                         {severityLabels[incident.severity] ?? incident.severity}
                       </Badge>
                     </td>
-                    <td className="px-3 py-2 tabular-nums text-muted-foreground">
+                    <td className="py-2.5 pr-4 tabular-nums text-muted-foreground">
                       {formatDate(incident.created)}
                     </td>
-                    <td className="px-3 py-2">
+                    <td className="py-2.5">
                       <Button
                         size="sm"
                         variant={incident.isNotified ? "secondary" : "outline"}
