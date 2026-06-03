@@ -1,3 +1,5 @@
+import { Op } from 'sequelize';
+
 import GreenSpaceZones from '../database/models/GreenSpaceZones.js';
 import GreenSpaces from '../database/models/GreenSpaces.js';
 import Sensors from '../database/models/Sensors.js';
@@ -20,6 +22,7 @@ class SensorsService {
           attributes: ['id', 'name', 'green_spaces_id'],
           required: true,
           where: { green_spaces_id: spaceId },
+          include: [{ model: GreenSpaces, as: 'greenSpace', attributes: ['id', 'name'] }],
         },
       ],
       order: [['created_at', 'DESC']],
@@ -68,7 +71,7 @@ class SensorsService {
    * Get a paginated and optionally sorted list of sensors.
    * @returns {Promise<Object>} Object with sensors array and total count.
    */
-  static async getSensors({ page = 1, limit = 20, sort, offlineOnly = false } = {}) {
+  static async getSensors({ page = 1, limit = 20, sort, offlineOnly = false, status, type, query } = {}) {
     const offset = (page - 1) * limit;
 
     let order = [['created_at', 'DESC']];
@@ -81,11 +84,39 @@ class SensorsService {
       }
     }
 
+    const where = {};
+
+    if (offlineOnly || status === 'offline') where.is_active = false;
+    else if (status === 'online') where.is_active = true;
+
+    if (type) where.type = type;
+
+    if (query) {
+      const q = `%${query.trim()}%`;
+      where[Op.or] = [
+        { parameter: { [Op.like]: q } },
+        { type: { [Op.like]: q } },
+        { '$greenSpaceZone.name$': { [Op.like]: q } },
+        { '$greenSpaceZone.greenSpace.name$': { [Op.like]: q } },
+      ];
+    }
+
     const { count: total, rows: sensors } = await Sensors.findAndCountAll({
-      where: offlineOnly ? { is_active: false } : undefined,
+      where,
+      include: [
+        {
+          model: GreenSpaceZones,
+          as: 'greenSpaceZone',
+          attributes: ['id', 'name', 'green_spaces_id'],
+          required: false,
+          include: [{ model: GreenSpaces, as: 'greenSpace', attributes: ['id', 'name'] }],
+        },
+      ],
       order,
       limit,
       offset,
+      subQuery: false,
+      distinct: true,
     });
 
     return { sensors, total };

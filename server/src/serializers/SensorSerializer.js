@@ -14,6 +14,7 @@ class SensorSerializer extends BaseSerializer {
     this.baseValidation(sensor);
 
     const zone = sensor.greenSpaceZone || sensor.get?.('greenSpaceZone');
+    const space = zone?.greenSpace || zone?.get?.('greenSpace');
 
     return {
       id: sensor.id,
@@ -21,6 +22,7 @@ class SensorSerializer extends BaseSerializer {
       greenSpaceZoneId: sensor.green_space_zone_id,
       zoneName: zone?.name ?? null,
       spaceId: zone?.green_spaces_id ?? null,
+      spaceName: space?.name ?? null,
       type: sensor.type,
       parameter: sensor.parameter,
       unit: sensor.unit ?? null,

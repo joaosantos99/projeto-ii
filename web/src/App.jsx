@@ -16,6 +16,7 @@ import { EspacoDetalhePage } from "#/pages/espaco-detalhe"
 import { PermissoesPage } from "#/pages/permissoes"
 import { PermissaoDetalhePage } from "#/pages/permissao-detalhe"
 import { AlertasPage } from "#/pages/alertas"
+import { SensoresPage } from "#/pages/sensores"
 import { LandingPage } from "#/pages/landing-page"
 import { SpacePage } from "#/pages/space-page"
 import { NotFoundPage } from "#/pages/not-found"
@@ -56,6 +57,7 @@ export default function App({ initialUser = null, initialUrl = "/" }) {
               <Route path="/admin/roles" element={<PermissoesPage />} />
               <Route path="/admin/roles/:id" element={<PermissaoDetalhePage />} />
               <Route path="/admin/alertas" element={<AlertasPage />} />
+              <Route path="/admin/sensores" element={<SensoresPage />} />
             </Route>
           </Route>
           <Route path="*" element={<NotFoundPage />} />
