@@ -16,26 +16,25 @@ export function SensorsKpiCards({ summary }) {
       <KpiCard
         label="Inventário total"
         value={totalSensors}
-        icon={<Pulse className="size-4 text-muted-foreground" aria-hidden />}
+        icon={<Pulse className="size-4 text-foreground" aria-hidden />}
         hint="Sensores registados no sistema"
       />
       <KpiCard
         label="Online"
         value={totalActive}
-        valueClassName="text-chart-1"
-        icon={<Broadcast className="size-4 text-chart-1" aria-hidden />}
+        icon={<Broadcast className="size-4 text-foreground" aria-hidden />}
         hint="Comunicação ativa"
       />
       <KpiCard
         label="Requer atenção"
         value={totalNeedsAttention}
-        icon={<Warning className="size-4 text-muted-foreground" aria-hidden />}
+        icon={<Warning className="size-4 text-foreground" aria-hidden />}
         hint="Inativos ou offline"
       />
       <KpiCard
         label="Bateria baixa"
         value={lowBattery}
-        icon={<BatteryWarning className="size-4 text-muted-foreground" aria-hidden />}
+        icon={<BatteryWarning className="size-4 text-foreground" aria-hidden />}
         hint="Até 20% de carga"
       />
     </KpiCardGrid>
