@@ -13,7 +13,6 @@ import {
   CardTitle,
 } from "#/components/ui/card"
 import { KpiCards } from "#/components/relatorios/kpi-cards"
-import { VolumeChart } from "#/components/relatorios/volume-chart"
 import { ReportsTable } from "#/components/relatorios/reports-table"
 import { ReportsPagination } from "#/components/relatorios/reports-pagination"
 import { GenerateReportDialog } from "#/components/relatorios/generate-report-dialog"
@@ -102,8 +101,6 @@ export function RelatoriosPage() {
   return (
     <div className="flex flex-col gap-6">
       <KpiCards reports={reports} />
-
-      <VolumeChart reports={reports} />
 
       <Card>
         <CardHeader className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
