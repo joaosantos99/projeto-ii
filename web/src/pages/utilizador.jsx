@@ -21,7 +21,7 @@ function buildFormFromUser(user) {
 export function UtilizadorPage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { setTitle } = useOutletContext()
+  const { setTitle, setBreadcrumbs } = useOutletContext()
 
   const [user, setUser] = useState(null)
   const [form, setForm] = useState(null)
@@ -58,8 +58,10 @@ export function UtilizadorPage() {
   }, [id])
 
   useEffect(() => {
-    setTitle(user ? `Utilizadores - ${user.name}` : "Utilizadores")
-  }, [setTitle, user])
+    setTitle(user ? user.name : "Utilizadores")
+    setBreadcrumbs([{ label: "Gestão de utilizadores", to: "/admin/utilizadores" }])
+    return () => setBreadcrumbs([])
+  }, [setTitle, setBreadcrumbs, user])
 
   const handleFieldChange = useCallback((key, value) => {
     setForm((prev) => ({ ...prev, [key]: value }))

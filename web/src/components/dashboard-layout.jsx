@@ -1,13 +1,23 @@
 'use client'
 
 import { useState } from "react"
-import { Outlet } from "react-router-dom"
+import { Outlet, NavLink } from "react-router-dom"
+import { Fragment } from "react"
 import { SidebarSimple } from "@phosphor-icons/react"
 import { AppSidebar } from "#/components/app-sidebar"
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "#/components/ui/breadcrumb"
 
 export function DashboardLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [title, setTitle] = useState("")
+  const [breadcrumbs, setBreadcrumbs] = useState([])
 
   return (
     <div className="flex h-svh overflow-hidden bg-background">
@@ -28,12 +38,38 @@ export function DashboardLayout() {
             >
               <SidebarSimple className="size-4" />
             </button>
-            <p className="truncate text-sm font-semibold text-foreground">{title}</p>
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <NavLink to="/admin">Vila Verde</NavLink>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator />
+                {breadcrumbs.map((crumb, i) => (
+                  <Fragment key={i}>
+                    <BreadcrumbItem>
+                      {crumb.to ? (
+                        <BreadcrumbLink asChild>
+                          <NavLink to={crumb.to}>{crumb.label}</NavLink>
+                        </BreadcrumbLink>
+                      ) : (
+                        <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                      )}
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                  </Fragment>
+                ))}
+                <BreadcrumbItem>
+                  <BreadcrumbPage>{title}</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
           </div>
         </header>
 
         <main className="flex-1 overflow-y-auto px-4 py-5 md:px-6">
-          <Outlet context={{ setTitle }} />
+          <Outlet context={{ setTitle, setBreadcrumbs }} />
         </main>
       </div>
     </div>

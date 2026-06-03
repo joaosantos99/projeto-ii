@@ -25,7 +25,7 @@ const TABS = [
 
 export function EspacoDetalhePage() {
   const { id } = useParams()
-  const { setTitle } = useOutletContext()
+  const { setTitle, setBreadcrumbs } = useOutletContext()
 
   const [space, setSpace] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -56,8 +56,10 @@ export function EspacoDetalhePage() {
   }, [id])
 
   useEffect(() => {
-    setTitle(space ? `Espaços · ${space.name}` : "Espaços verdes")
-  }, [setTitle, space])
+    setTitle(space ? space.name : "Espaços verdes")
+    setBreadcrumbs([{ label: "Espaços verdes", to: "/admin/espacos" }])
+    return () => setBreadcrumbs([])
+  }, [setTitle, setBreadcrumbs, space])
 
   if (loading) return <p className="text-sm text-muted-foreground">A carregar…</p>
   if (missing || !space) return <NotFoundCard />

@@ -1,6 +1,6 @@
 'use client'
 
-import { NavLink } from "react-router-dom"
+import { NavLink, useNavigate } from "react-router-dom"
 import {
   SquaresFour,
   Warning,
@@ -12,8 +12,18 @@ import {
   Leaf,
   Tree,
   CaretUpDown,
+  User,
+  SignOut,
 } from "@phosphor-icons/react"
 import { useAuth } from "#/hooks/use-auth"
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuItem,
+} from "#/components/ui/dropdown-menu"
 
 const navItems = [
   { title: "Visão geral", to: "/admin", icon: SquaresFour },
@@ -37,7 +47,8 @@ function getInitials(name) {
 }
 
 export function AppSidebar() {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
+  const navigate = useNavigate()
 
   const name = user?.fullName
   const email = user?.email
@@ -80,26 +91,50 @@ export function AppSidebar() {
       </nav>
 
       <div className="border-t border-sidebar-border px-3 py-3">
-        <NavLink
-          to="/admin/conta"
-          className={({ isActive }) =>
-            [
-              "flex w-full items-center gap-3 rounded-md px-2 py-2 text-sm transition-colors",
-              isActive
-                ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                : "hover:bg-sidebar-accent/50",
-            ].join(" ")
-          }
-        >
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-sidebar-primary text-sidebar-primary-foreground text-xs font-semibold">
-            {initials}
-          </div>
-          <div className="flex flex-1 flex-col text-left leading-tight min-w-0">
-            <span className="truncate text-sm font-medium text-sidebar-foreground">{name}</span>
-            <span className="truncate text-xs text-muted-foreground">{email}</span>
-          </div>
-          <CaretUpDown className="size-4 shrink-0 text-muted-foreground" />
-        </NavLink>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              className="flex w-full items-center gap-3 rounded-md px-2 py-2 text-sm transition-colors text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+            >
+              <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-sidebar-primary text-sidebar-primary-foreground text-xs font-semibold">
+                {initials}
+              </div>
+              <div className="flex flex-1 flex-col text-left leading-tight min-w-0">
+                <span className="truncate text-sm font-medium">{name}</span>
+                <span className="truncate text-xs text-muted-foreground">{email}</span>
+              </div>
+              <CaretUpDown className="size-4 shrink-0 text-muted-foreground" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            className="w-56 rounded-lg"
+            side="right"
+            align="end"
+            sideOffset={4}
+          >
+            <DropdownMenuLabel className="p-0 font-normal">
+              <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-sidebar-primary text-sidebar-primary-foreground text-xs font-semibold">
+                  {initials}
+                </div>
+                <div className="flex flex-1 flex-col text-left leading-tight min-w-0">
+                  <span className="truncate font-medium">{name}</span>
+                  <span className="truncate text-xs text-muted-foreground">{email}</span>
+                </div>
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => navigate("/admin/conta")}>
+              <User className="size-4" />
+              Conta
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={logout}>
+              <SignOut className="size-4" />
+              Sair
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </aside>
   )

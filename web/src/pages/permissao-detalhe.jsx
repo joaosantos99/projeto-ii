@@ -17,7 +17,7 @@ import { api } from "#/lib/api"
 export function PermissaoDetalhePage() {
   const { id } = useParams()
   const navigate = useNavigate()
-  const { setTitle } = useOutletContext()
+  const { setTitle, setBreadcrumbs } = useOutletContext()
 
   const [role, setRole] = useState(null)
   const [catalog, setCatalog] = useState([])
@@ -26,8 +26,10 @@ export function PermissaoDetalhePage() {
   const [notFound, setNotFound] = useState(false)
 
   useEffect(() => {
-    setTitle(role ? `Permissões — ${role.name}` : "Permissões")
-  }, [setTitle, role])
+    setTitle(role ? role.name : "Permissões")
+    setBreadcrumbs([{ label: "Roles", to: "/admin/roles" }])
+    return () => setBreadcrumbs([])
+  }, [setTitle, setBreadcrumbs, role])
 
   useEffect(() => {
     setLoading(true)
