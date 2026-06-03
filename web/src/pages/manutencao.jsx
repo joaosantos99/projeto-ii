@@ -24,6 +24,12 @@ const STATUS_TO_COLUMN = {
   completed: "concluida",
 }
 
+const COLUMN_TO_STATUS = {
+  pendente: "pending",
+  em_execucao: "in_progress",
+  concluida: "completed",
+}
+
 function normalizeTask(task) {
   const column = STATUS_TO_COLUMN[task.status]
   if (!column) return null
@@ -87,6 +93,23 @@ export function ManutencaoPage() {
     })
   }, [tasks, query, zoneFilter, priorityFilter])
 
+  const handleMoveTask = (taskId, columnId) => {
+    const status = COLUMN_TO_STATUS[columnId]
+    if (!status) return
+
+    let previous
+    setTasks((current) => {
+      previous = current
+      return current.map((task) =>
+        task.id === taskId ? { ...task, status: columnId } : task
+      )
+    })
+
+    api.patch(`/maintenance/${taskId}/status`, { status }).catch(() => {
+      setTasks(previous)
+    })
+  }
+
   const handleCreate = (payload) => {
     return api.post("/maintenance", payload).then((res) => {
       const created = normalizeTask(res.data?.data ?? res.data)
@@ -127,7 +150,7 @@ export function ManutencaoPage() {
           {loading ? (
             <p className="py-8 text-center text-sm text-muted-foreground">A carregar…</p>
           ) : (
-            <Board tasks={filteredTasks} />
+            <Board tasks={filteredTasks} onMoveTask={handleMoveTask} />
           )}
         </CardContent>
       </Card>
