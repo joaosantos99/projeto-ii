@@ -4,8 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { useNavigate, useOutletContext, useParams } from "react-router-dom"
 
 import { DetailHeader } from "#/components/utilizadores/detail-header"
-import { DetailSummaryCard } from "#/components/utilizadores/detail-summary-card"
-import { EditUserForm } from "#/components/utilizadores/edit-user-form"
+import { UserDetailCard } from "#/components/utilizadores/user-detail-card"
 import { DeleteUserCard } from "#/components/utilizadores/delete-user-card"
 import { NotFoundCard } from "#/components/utilizadores/not-found-card"
 import { api } from "#/lib/api"
@@ -67,6 +66,10 @@ export function UtilizadorPage() {
     setForm((prev) => ({ ...prev, [key]: value }))
   }, [])
 
+  const handleCancel = useCallback(() => {
+    setForm(buildFormFromUser(user))
+  }, [user])
+
   const roleOptions = useMemo(() => {
     return roles.map((r) => ({
       value: r.name,
@@ -85,9 +88,9 @@ export function UtilizadorPage() {
   const handleSave = () => {
     const trimmedName = form.name.trim()
     const trimmedEmail = form.email.trim()
-    if (!trimmedName || !trimmedEmail) return
+    if (!trimmedName || !trimmedEmail) return Promise.resolve()
     setSaving(true)
-    api.put(`/users/${id}`, {
+    return api.put(`/users/${id}`, {
       fullName: trimmedName,
       email: trimmedEmail,
       role: form.role,
@@ -103,7 +106,6 @@ export function UtilizadorPage() {
         setUser(mapped)
         setForm(buildFormFromUser(mapped))
       })
-      .catch(() => {})
       .finally(() => setSaving(false))
   }
 
@@ -118,14 +120,14 @@ export function UtilizadorPage() {
   return (
     <div className="flex flex-col gap-6">
       <DetailHeader name={user.name} email={user.email} />
-      <DetailSummaryCard user={user} roleOptions={roleOptions} />
-      <EditUserForm
-        userId={user.id}
+      <UserDetailCard
+        user={user}
+        roleOptions={roleOptions}
         values={form}
         onChange={handleFieldChange}
-        onSubmit={handleSave}
+        onSave={handleSave}
+        onCancel={handleCancel}
         saving={saving}
-        roleOptions={roleOptions}
       />
       <DeleteUserCard userName={user.name} onDelete={handleDelete} deleting={deleting} />
     </div>
