@@ -26,7 +26,7 @@ export function FeedbackTab() {
           Comentários e moderação
         </CardTitle>
         <CardDescription>
-          Remova mensagens inadequadas — ação imediata.
+          Feedback dado pelas pessoas que usam este espaçco.
         </CardDescription>
       </CardHeader>
       <CardContent>

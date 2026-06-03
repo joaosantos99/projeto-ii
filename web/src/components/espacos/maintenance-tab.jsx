@@ -11,19 +11,28 @@ import {
   CardTitle,
 } from "#/components/ui/card"
 import { api } from "#/lib/api"
+import { typeOptions } from "#/data/manutencao"
+
+const typeLabels = typeOptions.reduce((acc, option) => {
+  acc[option.value] = option.label
+  return acc
+}, {})
 
 const statusLabels = {
   pending: "Pendente",
   in_progress: "Em execução",
   completed: "Concluída",
+  cancelled: "Cancelada",
   pendente: "Pendente",
   em_execucao: "Em execução",
   concluida: "Concluída",
+  cancelada: "Cancelada",
 }
 
 function statusVariant(status) {
   if (status === "completed" || status === "concluida") return "secondary"
   if (status === "in_progress" || status === "em_execucao") return "outline"
+  if (status === "cancelled" || status === "cancelada") return "destructive"
   return "destructive"
 }
 
@@ -70,31 +79,36 @@ export function MaintenanceTab({ spaceId }) {
         {loading ? (
           <p className="py-6 text-center text-sm text-muted-foreground">A carregar…</p>
         ) : tasks.length === 0 ? (
-          <div className="py-8 text-center text-sm text-muted-foreground">
-            Sem tarefas registadas.
+          <div className="flex min-h-[160px] flex-col items-center justify-center gap-1 border border-dashed p-6 text-center">
+            <p className="text-sm font-medium">Nenhuma tarefa encontrada</p>
+            <p className="text-xs text-muted-foreground">
+              Sem tarefas registadas neste espaço.
+            </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="border-b text-left text-xs uppercase text-muted-foreground">
-                <tr>
-                  <th className="px-3 py-2 font-medium">ID</th>
-                  <th className="px-3 py-2 font-medium">Tipo</th>
-                  <th className="px-3 py-2 font-medium">Descrição</th>
-                  <th className="px-3 py-2 font-medium">Agendada</th>
-                  <th className="px-3 py-2 font-medium">Concluída</th>
-                  <th className="px-3 py-2 font-medium">Estado</th>
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b border-border text-left text-muted-foreground">
+                  <th className="pb-2 pr-4 font-medium">ID</th>
+                  <th className="pb-2 pr-4 font-medium">Tipo</th>
+                  <th className="pb-2 pr-4 font-medium">Descrição</th>
+                  <th className="pb-2 pr-4 font-medium">Agendada</th>
+                  <th className="pb-2 pr-4 font-medium">Concluída</th>
+                  <th className="pb-2 font-medium">Estado</th>
                 </tr>
               </thead>
               <tbody>
                 {tasks.map((task) => (
-                  <tr key={task.id} className="border-b last:border-b-0">
-                    <td className="px-3 py-2 font-mono text-xs">{task.id.slice(0, 8)}</td>
-                    <td className="px-3 py-2">{task.type}</td>
-                    <td className="px-3 py-2">{task.description}</td>
-                    <td className="px-3 py-2 tabular-nums">{formatDate(task.scheduledDate)}</td>
-                    <td className="px-3 py-2 tabular-nums">{formatDate(task.completedAt)}</td>
-                    <td className="px-3 py-2">
+                  <tr key={task.id} className="border-b border-border last:border-0">
+                    <td className="py-2.5 pr-4 font-mono text-xs">{task.id.slice(0, 8)}</td>
+                    <td className="py-2.5 pr-4">
+                      <Badge variant="outline">{typeLabels[task.type] ?? task.type}</Badge>
+                    </td>
+                    <td className="py-2.5 pr-4">{task.description}</td>
+                    <td className="py-2.5 pr-4 tabular-nums">{formatDate(task.scheduledDate)}</td>
+                    <td className="py-2.5 pr-4 tabular-nums">{formatDate(task.completedAt)}</td>
+                    <td className="py-2.5">
                       <Badge variant={statusVariant(task.status)}>
                         {statusLabels[task.status] ?? task.status}
                       </Badge>
