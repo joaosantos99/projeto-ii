@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 import { useOutletContext } from "react-router-dom"
 import { SlidersHorizontal } from "@phosphor-icons/react"
 
@@ -22,6 +22,8 @@ import { api } from "#/lib/api"
 export function AlertasPage() {
   const { setTitle } = useOutletContext()
   const [alerts, setAlerts] = useState([])
+  const [total, setTotal] = useState(0)
+  const [totalPages, setTotalPages] = useState(1)
   const [summary, setSummary] = useState(null)
   const [loading, setLoading] = useState(true)
   const [severityFilter, setSeverityFilter] = useState("todas")
@@ -42,42 +44,40 @@ export function AlertasPage() {
   }, [refresh])
 
   useEffect(() => {
-    setLoading(true)
-    api.get("/alerts", { params: { limit: 1000 } })
-      .then((res) => setAlerts(res.data?.data ?? []))
-      .catch(() => setAlerts([]))
-      .finally(() => setLoading(false))
-  }, [refresh])
-
-  useEffect(() => {
     setPage(1)
   }, [severityFilter, statusFilter])
+
+  useEffect(() => {
+    const params = { page, limit: PER_PAGE }
+    if (severityFilter !== "todas") params.severity = severityFilter
+    if (statusFilter === "pending") params.unacknowledgedOnly = true
+    if (statusFilter === "confirmed") params.acknowledgedOnly = true
+
+    setLoading(true)
+    api.get("/alerts", { params })
+      .then((res) => {
+        setAlerts(res.data?.data ?? [])
+        setTotal(res.data?.meta?.total ?? 0)
+        setTotalPages(Math.max(1, res.data?.meta?.totalPages ?? 1))
+      })
+      .catch(() => {
+        setAlerts([])
+        setTotal(0)
+        setTotalPages(1)
+      })
+      .finally(() => setLoading(false))
+  }, [page, severityFilter, statusFilter, refresh])
+
+  useEffect(() => {
+    if (page > totalPages) setPage(totalPages)
+  }, [page, totalPages])
 
   const activeFilterCount = [
     severityFilter !== "todas",
     statusFilter !== "todos",
   ].filter(Boolean).length
 
-  const filtered = useMemo(() => {
-    return alerts.filter((a) => {
-      if (severityFilter !== "todas" && a.severity !== severityFilter) {
-        return false
-      }
-      if (statusFilter !== "todos") {
-        const confirmed = a.status === "confirmed" || a.isNotified
-        if (statusFilter === "confirmed" && !confirmed) return false
-        if (statusFilter === "pending" && confirmed) return false
-      }
-      return true
-    })
-  }, [alerts, severityFilter, statusFilter])
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE))
   const currentPage = Math.min(page, totalPages)
-  const paginated = filtered.slice(
-    (currentPage - 1) * PER_PAGE,
-    currentPage * PER_PAGE,
-  )
 
   const handleAcknowledge = (alertId) => {
     setAcknowledgingId(alertId)
@@ -134,18 +134,17 @@ export function AlertasPage() {
           ) : (
             <>
               <AlertsTable
-                alerts={paginated}
+                alerts={alerts}
                 onAcknowledge={handleAcknowledge}
                 acknowledgingId={acknowledgingId}
                 filterActive={activeFilterCount > 0}
               />
-              {filtered.length > 0 ? (
+              {total > 0 ? (
                 <>
                   <div className="border-t" />
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <p className="text-xs text-muted-foreground">
-                      {filtered.length}{" "}
-                      {filtered.length === 1 ? "alerta" : "alertas"} — página{" "}
+                      {total} {total === 1 ? "alerta" : "alertas"} — página{" "}
                       {currentPage} de {totalPages}
                     </p>
                     <Pagination

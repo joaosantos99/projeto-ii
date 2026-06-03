@@ -19,9 +19,14 @@ class AlertsController {
 
       const severity = req.query.severity;
       const unacknowledgedOnly = req.query.unacknowledgedOnly === 'true';
+      const acknowledgedOnly = req.query.acknowledgedOnly === 'true';
 
       if (req.query.onlyCount === 'true') {
-        const total = await AlertsService.countAlerts({ severity, unacknowledgedOnly });
+        const total = await AlertsService.countAlerts({
+          severity,
+          unacknowledgedOnly,
+          acknowledgedOnly,
+        });
         return res.json({ meta: { total } });
       }
 
@@ -33,6 +38,7 @@ class AlertsController {
         limit,
         severity,
         unacknowledgedOnly,
+        acknowledgedOnly,
       });
 
       const payload = AlertsSerializer.serializePaginated(alerts, { page, limit, total });

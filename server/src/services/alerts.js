@@ -13,12 +13,13 @@ const ALERT_STATUS = {
  * @param {boolean} [options.unacknowledgedOnly] - Exclude confirmed alerts.
  * @returns {Object|undefined} The where clause.
  */
-function buildAlertsWhere({ severity, unacknowledgedOnly } = {}) {
+function buildAlertsWhere({ severity, unacknowledgedOnly, acknowledgedOnly } = {}) {
   const where = {};
 
   if (severity) where.severity = severity;
 
   if (unacknowledgedOnly) where.is_notified = false;
+  else if (acknowledgedOnly) where.is_notified = true;
 
   return Object.keys(where).length ? where : undefined;
 }
@@ -46,8 +47,10 @@ class AlertsService {
    * @param {boolean} [options.unacknowledgedOnly] - Exclude confirmed alerts.
    * @returns {Promise<number>} The matching alert count.
    */
-  static async countAlerts({ severity, unacknowledgedOnly } = {}) {
-    return Alerts.count({ where: buildAlertsWhere({ severity, unacknowledgedOnly }) });
+  static async countAlerts({ severity, unacknowledgedOnly, acknowledgedOnly } = {}) {
+    return Alerts.count({
+      where: buildAlertsWhere({ severity, unacknowledgedOnly, acknowledgedOnly }),
+    });
   }
 
   /**
@@ -59,11 +62,17 @@ class AlertsService {
    * @param {boolean} [options.unacknowledgedOnly] - Exclude confirmed alerts.
    * @returns {Promise<Object>} Alerts array and total count.
    */
-  static async getAlerts({ page = 1, limit = 20, severity, unacknowledgedOnly } = {}) {
+  static async getAlerts({
+    page = 1,
+    limit = 20,
+    severity,
+    unacknowledgedOnly,
+    acknowledgedOnly,
+  } = {}) {
     const offset = (page - 1) * limit;
 
     const { count: total, rows: alerts } = await Alerts.findAndCountAll({
-      where: buildAlertsWhere({ severity, unacknowledgedOnly }),
+      where: buildAlertsWhere({ severity, unacknowledgedOnly, acknowledgedOnly }),
       include: [{ model: GreenSpaces, as: 'greenSpace', attributes: ['name'] }],
       order: [['created_at', 'DESC']],
       limit,
