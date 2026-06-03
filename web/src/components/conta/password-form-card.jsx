@@ -60,7 +60,7 @@ export function PasswordFormCard({ onChangePassword }) {
         <div className="flex flex-col gap-1">
           <CardTitle>Palavra-passe</CardTitle>
           <CardDescription>
-            Substituição da palavra-passe (armazenada como hash).
+            Substituição da palavra-passe.
           </CardDescription>
         </div>
         <Button type="button" size="sm" className="shrink-0" onClick={handleSubmit} disabled={saving}>
@@ -88,9 +88,6 @@ export function PasswordFormCard({ onChangePassword }) {
               onChange={(event) => setNext(event.target.value)}
               autoComplete="new-password"
             />
-            <FieldDescription>
-              Será guardada como hash; nunca em texto simples.
-            </FieldDescription>
           </Field>
           <Field>
             <FieldLabel htmlFor="confirm-password">

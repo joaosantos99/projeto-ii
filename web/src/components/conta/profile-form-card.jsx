@@ -65,9 +65,6 @@ export function ProfileFormCard({
               onChange={(event) => setFullName(event.target.value)}
               autoComplete="name"
             />
-            <FieldDescription>
-              Identificação do utilizador no sistema.
-            </FieldDescription>
           </Field>
           <Field>
             <FieldLabel htmlFor="user-email">Email</FieldLabel>
@@ -78,9 +75,6 @@ export function ProfileFormCard({
               onChange={(event) => setEmail(event.target.value)}
               autoComplete="email"
             />
-            <FieldDescription>
-              Endereço para contacto e início de sessão.
-            </FieldDescription>
           </Field>
         </FieldGroup>
       </CardContent>
