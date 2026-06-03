@@ -16,7 +16,7 @@ export default {
   // Cache (Dragonfly / Redis-compatible). When unset, auth falls back to the DB only.
   CACHE_URL: process.env.CACHE_URL,
   CACHE_HOST: process.env.CACHE_HOST,
-  CACHE_PORT: Number(process.env.CACHE_PORT) || 6379,
+  CACHE_PORT: Number(process.env.CACHE_PORT) || 6380,
 
   // Environment
   NODE_ENV: process.env.NODE_ENV || 'development',
