@@ -1,7 +1,6 @@
 'use client'
 
-import { Warning, Clock, Wrench } from "@phosphor-icons/react"
-import { Badge } from "#/components/ui/badge"
+import { Warning, WarningOctagon, Clock, Wrench } from "@phosphor-icons/react"
 import { KpiCard, KpiCardGrid } from "#/components/ui/kpi-card"
 
 export function KpiCards({ tasks }) {
@@ -23,14 +22,13 @@ export function KpiCards({ tasks }) {
       <KpiCard
         label="Em execução"
         value={inProgressCount}
-        icon={<Wrench className="size-4 text-chart-1" aria-hidden />}
+        icon={<Wrench className="size-4 text-muted-foreground" aria-hidden />}
         hint="Intervenções no terreno"
-        valueClassName="text-chart-1"
       />
       <KpiCard
         label="Críticas"
         value={criticalCount}
-        icon={<Badge variant="destructive">{criticalCount}</Badge>}
+        icon={<WarningOctagon className="size-4 text-muted-foreground" aria-hidden />}
         hint="Prioridade máxima ativa"
       />
       <KpiCard
