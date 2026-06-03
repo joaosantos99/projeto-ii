@@ -18,6 +18,18 @@ export const canonicalUnitByType = SENSOR_TYPE_OPTIONS.reduce((acc, option) => {
 
 // The backend tracks sensor health through is_active only; "degradado" has no
 // source yet but is kept in the distribution so the chart matches the design.
+export const parameterLabels = {
+  temperature: "Temperatura",
+  humidity: "Humidade",
+  soil_humidity: "Humidade do solo",
+  soil_temperature: "Temperatura do solo",
+  light: "Luminosidade",
+  sound: "Som",
+  noise: "Ruído",
+  ph: "pH",
+  co2: "CO₂",
+}
+
 export const sensorStatusLabels = {
   online: "Online",
   degradado: "Degradado",

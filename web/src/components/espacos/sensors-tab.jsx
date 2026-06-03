@@ -12,7 +12,13 @@ import {
   CardTitle,
 } from "#/components/ui/card"
 import { api } from "#/lib/api"
+import { sensorTypeLabels, parameterLabels } from "#/data/sensores"
 import { AddSensorDialog } from "#/components/espacos/add-sensor-dialog"
+
+function formatBadge(str) {
+  if (!str) return "—"
+  return str.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase())
+}
 
 export function SensorsTab({ spaceId, spaceName }) {
   const [sensors, setSensors] = useState([])
@@ -68,38 +74,42 @@ export function SensorsTab({ spaceId, spaceName }) {
           {loading ? (
             <p className="py-6 text-center text-sm text-muted-foreground">A carregar…</p>
           ) : sensors.length === 0 ? (
-            <div className="flex flex-col items-center gap-2 py-10 text-center">
+            <div className="flex min-h-[160px] flex-col items-center justify-center gap-1 border border-dashed p-6 text-center">
               <Broadcast className="size-8 text-muted-foreground" />
-              <p className="text-sm font-medium">Sem sensores neste espaço</p>
+              <p className="text-sm font-medium">Nenhum sensor encontrado</p>
               <p className="max-w-sm text-xs text-muted-foreground">
                 Adicione sensores com o botão acima. É necessária pelo menos uma
-                zona na aba “Zonas”.
+                zona na aba "Zonas".
               </p>
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="border-b text-left text-xs uppercase text-muted-foreground">
-                  <tr>
-                    <th className="px-3 py-2 font-medium">ID</th>
-                    <th className="px-3 py-2 font-medium">Zona</th>
-                    <th className="px-3 py-2 font-medium">Tipo</th>
-                    <th className="px-3 py-2 font-medium">Parâmetro</th>
-                    <th className="px-3 py-2 text-right font-medium">Min</th>
-                    <th className="px-3 py-2 text-right font-medium">Max</th>
-                    <th className="px-3 py-2 font-medium">Estado</th>
+              <table className="w-full text-xs">
+                <thead>
+                  <tr className="border-b border-border text-left text-muted-foreground">
+                    <th className="pb-2 pr-4 font-medium">ID</th>
+                    <th className="pb-2 pr-4 font-medium">Zona</th>
+                    <th className="pb-2 pr-4 font-medium">Tipo</th>
+                    <th className="pb-2 pr-4 font-medium">Parâmetro</th>
+                    <th className="pb-2 pr-4 text-right font-medium">Min</th>
+                    <th className="pb-2 pr-4 text-right font-medium">Max</th>
+                    <th className="pb-2 font-medium">Estado</th>
                   </tr>
                 </thead>
                 <tbody>
                   {sensors.map((sensor) => (
-                    <tr key={sensor.id} className="border-b last:border-b-0">
-                      <td className="px-3 py-2 font-mono text-xs">{sensor.id.slice(0, 8)}</td>
-                      <td className="px-3 py-2">{sensor.zoneName ?? "—"}</td>
-                      <td className="px-3 py-2">{sensor.type}</td>
-                      <td className="px-3 py-2">{sensor.parameter}</td>
-                      <td className="px-3 py-2 text-right tabular-nums">{sensor.minValue}</td>
-                      <td className="px-3 py-2 text-right tabular-nums">{sensor.maxValue}</td>
-                      <td className="px-3 py-2">
+                    <tr key={sensor.id} className="border-b border-border last:border-0">
+                      <td className="py-2.5 pr-4 font-mono text-xs">{sensor.id.slice(0, 8)}</td>
+                      <td className="py-2.5 pr-4">{sensor.zoneName ?? "—"}</td>
+                      <td className="py-2.5 pr-4">
+                        <Badge variant="outline">{sensorTypeLabels[sensor.type] ?? formatBadge(sensor.type)}</Badge>
+                      </td>
+                      <td className="py-2.5 pr-4">
+                        <Badge variant="outline">{parameterLabels[sensor.parameter] ?? formatBadge(sensor.parameter)}</Badge>
+                      </td>
+                      <td className="py-2.5 pr-4 text-right tabular-nums">{sensor.minValue}</td>
+                      <td className="py-2.5 pr-4 text-right tabular-nums">{sensor.maxValue}</td>
+                      <td className="py-2.5">
                         <Badge variant={sensor.isActive ? "secondary" : "destructive"}>
                           {sensor.isActive ? "Ativo" : "Inativo"}
                         </Badge>
