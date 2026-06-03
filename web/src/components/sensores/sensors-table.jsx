@@ -61,7 +61,7 @@ export function SensorsTable({ sensors, filterActive }) {
                     size="icon"
                     aria-label={`Ver espaço de ${sensorTypeLabels[sensor.type] ?? sensor.type}`}
                   >
-                    <Link to={`/admin/espacos/${sensor.spaceId}`}>
+                    <Link to={`/admin/espacos/${sensor.spaceId}/sensores`}>
                       <Eye />
                     </Link>
                   </Button>

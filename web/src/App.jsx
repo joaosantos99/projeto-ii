@@ -53,7 +53,7 @@ export default function App({ initialUser = null, initialUrl = "/" }) {
               <Route path="/admin/conta" element={<ContaPage />} />
               <Route path="/admin/relatorios" element={<RelatoriosPage />} />
               <Route path="/admin/espacos" element={<EspacosPage />} />
-              <Route path="/admin/espacos/:id" element={<EspacoDetalhePage />} />
+              <Route path="/admin/espacos/:id/:tab?" element={<EspacoDetalhePage />} />
               <Route path="/admin/roles" element={<PermissoesPage />} />
               <Route path="/admin/roles/:id" element={<PermissaoDetalhePage />} />
               <Route path="/admin/alertas" element={<AlertasPage />} />

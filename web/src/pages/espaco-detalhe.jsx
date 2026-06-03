@@ -1,7 +1,7 @@
 'use client'
 
-import { useEffect, useState } from "react"
-import { useOutletContext, useParams } from "react-router-dom"
+import { useEffect, useState, useMemo } from "react"
+import { useOutletContext, useParams, useNavigate } from "react-router-dom"
 
 import { DetailHeader } from "#/components/espacos/detail-header"
 import { DetailTabs } from "#/components/espacos/detail-tabs"
@@ -24,17 +24,20 @@ const TABS = [
 ]
 
 export function EspacoDetalhePage() {
-  const { id } = useParams()
+  const { id, tab } = useParams()
+  const navigate = useNavigate()
   const { setTitle, setBreadcrumbs } = useOutletContext()
 
   const [space, setSpace] = useState(null)
   const [loading, setLoading] = useState(true)
   const [missing, setMissing] = useState(false)
-  const [activeTab, setActiveTab] = useState("visao")
+
+  const activeTab = useMemo(() => {
+    return TABS.some((t) => t.value === tab) ? tab : "visao"
+  }, [tab])
 
   useEffect(() => {
     let cancelled = false
-    setActiveTab("visao")
     setSpace(null)
     setMissing(false)
     setLoading(true)
@@ -68,7 +71,7 @@ export function EspacoDetalhePage() {
     <div className="flex flex-col gap-6">
       <DetailHeader space={space} />
 
-      <DetailTabs tabs={TABS} active={activeTab} onChange={setActiveTab} />
+      <DetailTabs tabs={TABS} active={activeTab} onChange={(next) => navigate(`/admin/espacos/${id}/${next}`)} />
 
       {activeTab === "visao" ? <OverviewTab space={space} /> : null}
       {activeTab === "zonas" ? <ZonesTab spaceId={space.id} spaceName={space.name} /> : null}
