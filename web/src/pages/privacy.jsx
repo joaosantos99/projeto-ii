@@ -3,7 +3,7 @@ import { Footer } from "#/components/footer"
 
 export function PrivacyPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-muted">
+    <div className="min-h-screen flex flex-col bg-[#F8F5F0]">
       <Navbar />
       <main className="flex-1 px-12 py-12 max-w-4xl mx-auto">
         <h1 className="font-landing text-3xl mb-8">Política de Privacidade</h1>

@@ -18,7 +18,7 @@ const spaces = [
 
 export function LandingPage() {
     return (
-        <div className="bg-muted">
+        <div className="bg-[#F8F5F0]">
             <Navbar />
             <div className="flex items-center px-12 py-24 bg-gradient-to-b from-[#BCE3C3] via-[#BCE3C3] via-35% to-[#E2F9E2]">
                 <div className="flex flex-col gap-8 max-w-110">
