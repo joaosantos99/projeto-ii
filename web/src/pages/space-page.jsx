@@ -5,7 +5,7 @@ import { SectionLayout } from "../components/landing-layout"
 import { Footer } from "#/components/footer"
 import { Badge } from "#/components/ui/badge"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#/components/ui/card"
-import { Thermometer, Drop, Warning, ChatIcon } from "@phosphor-icons/react"
+import { Warning, ChatIcon } from "@phosphor-icons/react"
 import { Tabs } from "#/components/ui/tabs"
 import { Field, FieldGroup, FieldLabel } from "#/components/ui/field"
 import { useParams } from "react-router-dom"
@@ -81,39 +81,6 @@ export function SpacePage() {
                     </div>
                 </div>
             </div>
-            <div className="max-w-full mx-auto px-12 py-6">
-                <Card>
-                    <CardHeader >
-                        <div className="flex flex-col justify-between">
-                            <CardTitle>Condições meteorológicas</CardTitle>
-                            <CardDescription>Atualizado há 10 minutos</CardDescription>
-                        </div>
-                    </CardHeader>
-                    <CardContent className="flex flex-col gap-4">
-                        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-2">
-                            <div className="border border-border p-2 flex flex-col gap-1">
-                                <span className="text-xs text-muted-foreground uppercase">Temperatura</span>
-                                <div className="flex items-center gap-2">
-                                    <Thermometer size={20}/>
-                                    <span className="text-sm font-medium">—</span>
-                                </div>
-                            </div>
-                            <div className="border border-border p-2 flex flex-col gap-1">
-                                <span className="text-xs text-muted-foreground uppercase">Humidade</span>
-                                <div className="flex items-center gap-2">
-                                    <Drop size={20}/>
-                                    <span className="text-sm font-medium">—</span>
-                                </div>
-                            </div>
-                            <div className="border border-border p-2 flex flex-col gap-1">
-                                <span className="text-xs text-muted-foreground uppercase">Vento</span>
-                                <span className="text-sm font-medium">—</span>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
-
             <SectionLayout title="Feedback e incidentes">
                 <Tabs tabs={[
                     { id: "incidents", label: "Incidentes", icon: Warning, content:
