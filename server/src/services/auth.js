@@ -107,7 +107,7 @@ class AuthService {
 
     const passwordMatch = await bcrypt.compare(password, user.password_hash);
     if (!passwordMatch) {
-      const error = new Error('Palavra-passe incorreta');
+      const error = new Error('Palavra-passe ou email incorretos');
       error.statusCode = 401;
       throw error;
     }
