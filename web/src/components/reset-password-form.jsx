@@ -42,9 +42,23 @@ export function ResetPasswordForm({ token, className, ...props }) {
       return
     }
 
-    // Replace with fetch('/api/users/reset-password', …)
-    await Promise.resolve({ token, password })
-    setSubmitted(true)
+    try {
+      const apiUrl = import.meta.env.VITE_API_URL ?? ''
+      const response = await fetch(`${apiUrl}/api/users/update-password`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token, password, confirmPassword: confirm }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.description || 'Erro ao atualizar palavra-passe')
+      }
+
+      setSubmitted(true)
+    } catch (err) {
+      setFormError(err.message)
+    }
   }
 
   if (submitted) {
