@@ -24,13 +24,9 @@ export default {
   // Frontend
   FRONTEND_URL: process.env.FRONTEND_URL || 'http://localhost:5173',
 
-  // SMTP
-  SMTP_HOST: process.env.SMTP_HOST,
-  SMTP_PORT: Number(process.env.SMTP_PORT) || 587,
-  SMTP_SECURE: process.env.SMTP_SECURE === 'true',
-  SMTP_USER: process.env.SMTP_USER,
-  SMTP_PASS: process.env.SMTP_PASS,
-  SMTP_FROM: process.env.SMTP_FROM || 'no-reply@cm-viladoconde.pt',
+  // Resend
+  RESEND_API_KEY: process.env.RESEND_API_KEY,
+  RESEND_FROM: process.env.RESEND_FROM || 'no-reply@cm-viladoconde.pt',
 
   // Object storage (Hetzner S3-compatible)
   S3_ENDPOINT: process.env.S3_ENDPOINT,
