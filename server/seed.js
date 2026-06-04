@@ -86,21 +86,29 @@ const generateUsers = async () => {
   await Users.bulkCreate(users);
 }
 
-const generateGreenSpaces = async () => {
-  const greenSpacesCount = 100 * DATA_SCALE;
-  const greenSpaces = [];
+const PORTO_PARKS = [
+  { name: 'Parque da Cidade', parish: 'Aldoar Foz do Douro e Nevogilde', postal_code: '4100-341', latitude: 41.1686, longitude: -8.6745 },
+  { name: 'Jardins do Palácio de Cristal', parish: 'Cedofeita Santo Ildefonso Sé Miragaia São Nicolau e Vitória', postal_code: '4050-345', latitude: 41.1476, longitude: -8.6259 },
+  { name: 'Parque Oriental da Cidade do Porto', parish: 'Campanhã', postal_code: '4300-150', latitude: 41.1601, longitude: -8.5672 },
+  { name: 'Parque de Serralves', parish: 'Lordelo do Ouro e Massarelos', postal_code: '4150-708', latitude: 41.1594, longitude: -8.6596 },
+  { name: 'Parque de São Roque', parish: 'Campanhã', postal_code: '4350-302', latitude: 41.1578, longitude: -8.5831 },
+  { name: 'Parque das Virtudes', parish: 'Cedofeita Santo Ildefonso Sé Miragaia São Nicolau e Vitória', postal_code: '4050-621', latitude: 41.1441, longitude: -8.6186 },
+  { name: 'Jardim do Passeio Alegre', parish: 'Aldoar Foz do Douro e Nevogilde', postal_code: '4150-571', latitude: 41.1481, longitude: -8.6733 },
+  { name: 'Jardim Botânico do Porto', parish: 'Lordelo do Ouro e Massarelos', postal_code: '4150-181', latitude: 41.1528, longitude: -8.6425 },
+  { name: 'Quinta do Covelo', parish: 'Paranhos', postal_code: '4200-516', latitude: 41.1684, longitude: -8.6042 },
+  { name: 'Jardim da Cordoaria', parish: 'Cedofeita Santo Ildefonso Sé Miragaia São Nicolau e Vitória', postal_code: '4050-310', latitude: 41.1465, longitude: -8.6158 },
+  { name: 'Jardim de São Lázaro', parish: 'Cedofeita Santo Ildefonso Sé Miragaia São Nicolau e Vitória', postal_code: '4000-508', latitude: 41.1461, longitude: -8.6028 },
+  { name: 'Parque Urbano da Pasteleira', parish: 'Lordelo do Ouro e Massarelos', postal_code: '4150-580', latitude: 41.1511, longitude: -8.6624 },
+  { name: "Jardim de Arca d'Água", parish: 'Paranhos', postal_code: '4200-419', latitude: 41.1731, longitude: -8.6115 },
+];
 
-  for (let i = 0; i < greenSpacesCount; i++) {
-    greenSpaces.push({
-      name: faker.location.city() + ' Park',
-      parish: faker.location.city(),
-      postal_code: faker.location.zipCode(),
-      latitude: faker.location.latitude(),
-      longitude: faker.location.longitude(),
-      created_by: systemOwner.id,
-      updated_by: systemOwner.id
-    });
-  }
+const generateGreenSpaces = async () => {
+  const greenSpaces = PORTO_PARKS.map((park) => ({
+    ...park,
+    image_url: 'https://fsn1.your-objectstorage.com/projeto-ii/spaces/3158918e-b622-49fc-b5a3-bc8cd3e74729/1780734253250.jpg',
+    created_by: systemOwner.id,
+    updated_by: systemOwner.id,
+  }));
 
   await GreenSpaces.bulkCreate(greenSpaces);
 };
