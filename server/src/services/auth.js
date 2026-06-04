@@ -133,7 +133,10 @@ class AuthService {
   static async forgotPassword(email) {
     const user = await Users.findOne({ where: { email } });
 
-    if (!user) return;
+    if (!user) {
+      console.log(`Password reset requested for unknown email: ${email}`);
+      return;
+    }
 
     const token = crypto.randomBytes(32).toString('hex');
     await PasswordResetTokens.create({
@@ -142,7 +145,9 @@ class AuthService {
       expires_at: new Date(Date.now() + RESET_TOKEN_TTL_MS),
     });
 
+    console.log(`Sending password reset email to: ${email}`);
     await sendPasswordResetEmail(email, token);
+    console.log(`Password reset email sent successfully to: ${email}`);
   }
 
   /**
