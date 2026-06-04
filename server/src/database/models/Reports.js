@@ -13,7 +13,7 @@ const Reports = sequelize.define(
     },
     user_id: {
       type: DataTypes.UUID,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: 'users',
         key: 'id',
@@ -29,7 +29,7 @@ const Reports = sequelize.define(
     },
     green_spaces_zone_id: {
       type: DataTypes.UUID,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: 'green_spaces_zones',
         key: 'id',
@@ -56,7 +56,7 @@ const Reports = sequelize.define(
         model: 'users',
         key: 'id',
       },
-      allowNull: false,
+      allowNull: true,
     },
     deleted_by: {
       type: DataTypes.UUID,

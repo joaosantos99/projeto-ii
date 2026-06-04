@@ -158,15 +158,24 @@ class ReportsService {
   static async #createReport(spaceId, type, data) {
     await this.#validateSpace(spaceId);
 
+    const description = (data.description ?? '').trim();
+    if (!description) {
+      const error = new Error('A descrição é obrigatória');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const defaultName = type === REPORT_TYPES.INCIDENT ? 'Incidente' : 'Feedback';
+
     const report = await Reports.create({
       green_space_id: spaceId,
-      green_spaces_zone_id: data.green_spaces_zone_id,
-      user_id: data.user_id,
-      updated_by: data.user_id,
-      name: data.name,
-      description: data.description,
+      green_spaces_zone_id: data.green_spaces_zone_id || null,
+      user_id: data.user_id || null,
+      updated_by: data.user_id || null,
+      name: (data.name ?? '').trim() || defaultName,
+      description,
       type,
-      status: data.status ?? null,
+      status: data.status || null,
     });
 
     return report;

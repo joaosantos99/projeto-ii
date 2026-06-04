@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { Navbar } from "#/components/navbar"
 import { Button } from '#/components/ui/button'
 import { SectionLayout } from "../components/landing-layout"
@@ -36,12 +36,58 @@ export function SpacePage() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
 
-    useEffect(() => {
-        api.get(`/spaces/${id}`, { params: { includeZones: true, includeReports: true, sensorsSummary: true } })
+    const [incident, setIncident] = useState({ zoneId: "", severity: "", description: "" })
+    const [incidentSubmitting, setIncidentSubmitting] = useState(false)
+    const [incidentError, setIncidentError] = useState(null)
+
+    const [feedback, setFeedback] = useState("")
+    const [feedbackSubmitting, setFeedbackSubmitting] = useState(false)
+    const [feedbackError, setFeedbackError] = useState(null)
+
+    const loadSpace = useCallback(() => {
+        return api.get(`/spaces/${id}`, { params: { includeZones: true, includeReports: true, sensorsSummary: true } })
             .then((res) => setSpace(res.data))
+    }, [id])
+
+    useEffect(() => {
+        loadSpace()
             .catch((err) => setError(err.response?.data?.error || "Erro ao carregar espaço"))
             .finally(() => setLoading(false))
-    }, [id])
+    }, [loadSpace])
+
+    const submitIncident = async (e) => {
+        e.preventDefault()
+        setIncidentError(null)
+        setIncidentSubmitting(true)
+        try {
+            await api.post(`/reports/${id}/incident`, {
+                green_spaces_zone_id: incident.zoneId || undefined,
+                status: incident.severity || undefined,
+                description: incident.description,
+            })
+            setIncident({ zoneId: "", severity: "", description: "" })
+            await loadSpace()
+        } catch (err) {
+            setIncidentError(err.response?.data?.error || "Erro ao submeter incidente")
+        } finally {
+            setIncidentSubmitting(false)
+        }
+    }
+
+    const submitFeedback = async (e) => {
+        e.preventDefault()
+        setFeedbackError(null)
+        setFeedbackSubmitting(true)
+        try {
+            await api.post(`/reports/${id}/comment`, { description: feedback })
+            setFeedback("")
+            await loadSpace()
+        } catch (err) {
+            setFeedbackError(err.response?.data?.error || "Erro ao submeter feedback")
+        } finally {
+            setFeedbackSubmitting(false)
+        }
+    }
 
     if (loading) {
         return (
@@ -87,14 +133,16 @@ export function SpacePage() {
                                     </div>
                                 </CardHeader>
                                 <CardContent>
-                                    <form onSubmit={(e) => {
-                                        e.preventDefault()
-                                    }}>
+                                    <form onSubmit={submitIncident}>
                                         <FieldGroup>
                                             <div className="grid md:grid-cols-2 gap-2">
                                                 <Field>
                                                     <FieldLabel>Zona</FieldLabel>
-                                                    <select className="h-8 w-full border border-input bg-transparent px-2.5 py-1 text-xs outline-none">
+                                                    <select
+                                                        className="h-8 w-full border border-input bg-transparent px-2.5 py-1 text-xs outline-none"
+                                                        value={incident.zoneId}
+                                                        onChange={(e) => setIncident((prev) => ({ ...prev, zoneId: e.target.value }))}
+                                                    >
                                                         <option value="">Selecionar zona</option>
                                                         {space.zones?.map((zone) => (
                                                             <option key={zone.id} value={zone.id}>{zone.name}</option>
@@ -103,7 +151,11 @@ export function SpacePage() {
                                                 </Field>
                                                 <Field>
                                                     <FieldLabel>Severidade</FieldLabel>
-                                                    <select className="h-8 w-full border border-input bg-transparent px-2.5 py-1 text-xs outline-none">
+                                                    <select
+                                                        className="h-8 w-full border border-input bg-transparent px-2.5 py-1 text-xs outline-none"
+                                                        value={incident.severity}
+                                                        onChange={(e) => setIncident((prev) => ({ ...prev, severity: e.target.value }))}
+                                                    >
                                                         <option value="">Selecionar severidade</option>
                                                         <option value="warning">Warning</option>
                                                         <option value="critical">Critical</option>
@@ -116,15 +168,15 @@ export function SpacePage() {
                                                     className="w-full border border-input p-2 text-xs placeholder:text-muted-foreground resize-none"
                                                     placeholder="Impacto, contexto e outros detalhes relevantes."
                                                     rows={5}
+                                                    value={incident.description}
+                                                    onChange={(e) => setIncident((prev) => ({ ...prev, description: e.target.value }))}
                                                 />
                                             </Field>
                                         </FieldGroup>
+                                        {incidentError && <p className="text-xs text-destructive mt-2">{incidentError}</p>}
                                         <div className="flex gap-2 justify-end mt-6">
-                                            <Button variant="outline">
-                                                Cancelar
-                                            </Button>
-                                            <Button>
-                                                Submeter incidente
+                                            <Button type="submit" disabled={incidentSubmitting || !incident.description.trim()}>
+                                                {incidentSubmitting ? "A submeter..." : "Submeter incidente"}
                                             </Button>
                                         </div>
                                     </form>
@@ -175,23 +227,21 @@ export function SpacePage() {
                                 </div>
                             </CardHeader>
                             <CardContent>
-                                <form onSubmit={(e) => {
-                                    e.preventDefault()
-                                }}>
+                                <form onSubmit={submitFeedback}>
                                     <Field>
                                         <FieldLabel>A sua mensagem</FieldLabel>
                                         <textarea
                                             className="w-full border border-input p-2 text-xs placeholder:text-muted-foreground resize-none"
                                             placeholder="Impacto, contexto e outros detalhes relevantes."
                                             rows={5}
+                                            value={feedback}
+                                            onChange={(e) => setFeedback(e.target.value)}
                                         />
                                     </Field>
+                                    {feedbackError && <p className="text-xs text-destructive mt-2">{feedbackError}</p>}
                                     <div className="flex gap-2 justify-end mt-6">
-                                        <Button variant="outline">
-                                            Cancelar
-                                        </Button>
-                                        <Button>
-                                            Submeter feedback
+                                        <Button type="submit" disabled={feedbackSubmitting || !feedback.trim()}>
+                                            {feedbackSubmitting ? "A submeter..." : "Submeter feedback"}
                                         </Button>
                                     </div>
                                 </form>
