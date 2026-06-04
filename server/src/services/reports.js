@@ -43,23 +43,6 @@ class ReportsService {
   }
 
   /**
-   * Fetch a report by id for export.
-   * @param {string} reportId - The report's uuid.
-   * @returns {Promise<Report>} - The report.
-   */
-  static async getReportById(reportId) {
-    const report = await Reports.findByPk(reportId);
-
-    if (!report) {
-      const error = new Error('Relatorio não encontrado');
-      error.statusCode = 404;
-      throw error;
-    }
-
-    return report;
-  }
-
-  /**
    * Validates that the given space exists.
    * @param {string} spaceId - The green space UUID.
    * @throws {Error} If the space is not found.

@@ -204,18 +204,6 @@ class SpacesService {
     return newSpace;
   }
 
-  /**
-   * Persist a new image URL on a space.
-   * @param {string} spaceId
-   * @param {string} imageUrl
-   * @param {string} updatedBy - User id performing the update.
-   * @returns {Promise<Object>} The updated space.
-   */
-  static async setImageUrl(spaceId, imageUrl, updatedBy) {
-    const space = await SpacesService.getSpaceById(spaceId);
-    return space.update({ image_url: imageUrl, updated_by: updatedBy });
-  }
-
   static async getParishes() {
     const rows = await GreenSpaces.findAll({
       attributes: [[fn('DISTINCT', col('parish')), 'parish']],

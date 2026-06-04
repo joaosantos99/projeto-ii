@@ -18,22 +18,6 @@ class ZonesService {
   }
 
   /**
-   * Get zone.
-   * @returns {Promise<Array<User>>} - The zone.
-   */
-  static async getZoneById(zoneId) {
-    const zone = await GreenSpaceZones.findByPk(zoneId);
-
-    if (!zone) {
-      const error = new Error('Zone not found');
-      error.statusCode = 404;
-      throw error;
-    }
-
-    return zone;
-  }
-
-  /**
    * Create a zone.
    * @returns {Promise<Array<GreenSpaceZones>>} - The zones.
    */

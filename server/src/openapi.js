@@ -507,27 +507,6 @@ export default {
         responses: { 200: ok('Updated space.', ref('Space')), 400: ValidationError, 401: Unauthorized, 403: Forbidden, 404: NotFound },
       },
     },
-    '/spaces/{spaceId}/image': {
-      parameters: [idParam('spaceId', 'Space id.')],
-      post: {
-        tags: ['Spaces'],
-        summary: 'Upload (or replace) the image of a space.',
-        description: 'Requires permission `spaces:update`. Accepts a single `image` file (JPEG, PNG, WebP or AVIF, max 5 MB) and stores it in object storage.',
-        requestBody: {
-          required: true,
-          content: {
-            'multipart/form-data': {
-              schema: {
-                type: 'object',
-                required: ['image'],
-                properties: { image: { type: 'string', format: 'binary' } },
-              },
-            },
-          },
-        },
-        responses: { 200: ok('Updated space.', ref('Space')), 400: ValidationError, 401: Unauthorized, 403: Forbidden, 404: NotFound },
-      },
-    },
 
     // ---------- Zones (nested under a space) ----------
     '/spaces/{spaceId}/zones': {
@@ -553,11 +532,6 @@ export default {
     },
     '/spaces/{spaceId}/zones/{zoneId}': {
       parameters: [idParam('spaceId', 'Space id.'), idParam('zoneId', 'Zone id.')],
-      get: {
-        tags: ['Zones'],
-        summary: 'Get a zone by id.',
-        responses: { 200: ok('Zone.', ref('Zone')), 401: Unauthorized, 404: NotFound },
-      },
       put: {
         tags: ['Zones'],
         summary: 'Update a zone.',
@@ -653,15 +627,6 @@ export default {
           401: Unauthorized,
           403: Forbidden,
         },
-      },
-    },
-    '/reports/{reportId}/export': {
-      parameters: [idParam('reportId', 'Report id.')],
-      get: {
-        tags: ['Reports'],
-        summary: 'Export a report (returns download metadata).',
-        description: 'Requires permission `reports:read`.',
-        responses: { 200: ok('Export metadata.', ref('Report')), 401: Unauthorized, 403: Forbidden, 404: NotFound },
       },
     },
     '/reports/{spaceId}/incident': {

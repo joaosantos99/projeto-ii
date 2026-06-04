@@ -198,41 +198,6 @@ class SpacesController {
     }
   }
 
-  /**
-   * Upload (or replace) the image of a space.
-   * @param {Object} req - The request object.
-   * @param {Object} res - The response object.
-   */
-  static async uploadSpaceImage(req, res) {
-    try {
-      if (!req.file) {
-        return res.status(400).json({ error: 'Imagem é obrigatória.' });
-      }
-
-      // Ensure the space exists before spending an upload on it.
-      await SpacesService.getSpaceById(req.params.spaceId);
-
-      const ext = EXTENSION_BY_MIME[req.file.mimetype] ?? 'bin';
-      const key = `spaces/${req.params.spaceId}/${Date.now()}.${ext}`;
-
-      const imageUrl = await uploadObject({
-        key,
-        body: req.file.buffer,
-        contentType: req.file.mimetype,
-      });
-
-      const updatedSpace = await SpacesService.setImageUrl(
-        req.params.spaceId,
-        imageUrl,
-        req.user.id,
-      );
-
-      res.json(SpaceSerializer.serialize(updatedSpace));
-    } catch (error) {
-      res.status(error.statusCode || 500).json({ error: error.message });
-    }
-  }
-
 }
 
 const EXTENSION_BY_MIME = {
