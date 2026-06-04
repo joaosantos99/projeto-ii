@@ -13,8 +13,8 @@ import reportsRouter from './reports.js';
 
 const spacesRouter = Router();
 
-spacesRouter.get('/', requireAuth, requirePermission(PERMISSIONS.SPACES_READ), SpacesController.getSpaces);
-spacesRouter.get('/:spaceId', requireAuth, requirePermission(PERMISSIONS.SPACES_READ), SpacesController.getSpaceById);
+spacesRouter.get('/', SpacesController.getSpaces);
+spacesRouter.get('/:spaceId', SpacesController.getSpaceById);
 spacesRouter.post('/', requireAuth, requirePermission(PERMISSIONS.SPACES_CREATE), uploadImage, SpacesController.createSpace);
 spacesRouter.put('/:spaceId', requireAuth, requirePermission(PERMISSIONS.SPACES_UPDATE), SpacesController.updateSpace);
 spacesRouter.post('/:spaceId/image', requireAuth, requirePermission(PERMISSIONS.SPACES_UPDATE), uploadImage, SpacesController.uploadSpaceImage);

@@ -5,6 +5,7 @@ import GreenSpaceZones from '../database/models/GreenSpaceZones.js';
 import Sensors from '../database/models/Sensors.js';
 import SensorReadingMetas from '../database/models/SensorReadingMetas.js';
 import Alerts from '../database/models/Alerts.js';
+import Reports from '../database/models/Reports.js';
 import { SENSOR_TYPES } from '../lib/units.js';
 
 /**
@@ -102,8 +103,22 @@ class SpacesService {
     return { spaces, total: count };
   }
 
-  static async getSpaceById(spaceId) {
-    const space = await GreenSpaces.findByPk(spaceId);
+  static async getSpaceById(spaceId, { includeZones = false, includeSensors = false, includeReports = false } = {}) {
+    const include = [];
+
+    if (includeZones) {
+      const zoneInclude = { model: GreenSpaceZones, as: 'zones' };
+      if (includeSensors) {
+        zoneInclude.include = [{ model: Sensors, as: 'sensors' }];
+      }
+      include.push(zoneInclude);
+    }
+
+    if (includeReports) {
+      include.push({ model: Reports, as: 'reports' });
+    }
+
+    const space = await GreenSpaces.findByPk(spaceId, include.length > 0 ? { include } : {});
 
     if (!space) {
       const error = new Error('Space not found');

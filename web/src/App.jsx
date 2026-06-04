@@ -40,7 +40,7 @@ export default function App({ initialUser = null, initialUrl = "/" }) {
           <Route path="/" element={<LandingPage />} />
           <Route path="/termos-utilizacao" element={<TermsPage />} />
           <Route path="/politica-privacidade" element={<PrivacyPage />} />
-          <Route path="/space-public-page" element={<SpacePage />} />
+          <Route path="/espacos-verdes/:id" element={<SpacePage />} />
           <Route path="/403" element={<ForbiddenPage />} />
           <Route element={<RedirectIfAuth />}>
             <Route path="/admin/login" element={<LoginPage />} />

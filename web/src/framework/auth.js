@@ -3,7 +3,13 @@
 const API_TARGET =
   process.env.API_INTERNAL_URL || import.meta.env.VITE_API_URL || process.env.VITE_API_URL
 const AUTH_ROUTES = ["/admin/login", "/admin/recuperar-password", "/admin/redefinir-password"]
-const PUBLIC_ROUTES = ["/", "/space-public-page", "/403"]
+const PUBLIC_ROUTES = ["/", "/403"]
+const PUBLIC_PREFIXES = ["/espacos-verdes/"]
+
+function isPublicRoute(pathname) {
+  if (PUBLIC_ROUTES.includes(pathname)) return true
+  return PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix))
+}
 
 function readToken(cookieHeader) {
   if (!cookieHeader) return null
@@ -28,10 +34,9 @@ export async function resolveAuth(request) {
 
 export function resolveRedirect(pathname, user) {
   const isAuthRoute = AUTH_ROUTES.includes(pathname)
-  const isPublicRoute = PUBLIC_ROUTES.includes(pathname)
   const isAdminRoute = pathname === "/admin" || pathname.startsWith("/admin/")
 
-  if (isPublicRoute) return null
+  if (isPublicRoute(pathname)) return null
   if (isAuthRoute) return user ? "/admin" : null
   if (isAdminRoute && !user) return "/admin/login"
   // Unknown paths render the client 404 page instead of redirecting.

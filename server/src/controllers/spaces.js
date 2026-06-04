@@ -72,9 +72,16 @@ class SpacesController {
    */
   static async getSpaceById(req, res) {
     try {
-      const space = await SpacesService.getSpaceById(req.params.spaceId);
+      const includeZones = req.query.includeZones === 'true';
+      const includeSensors = req.query.includeSensors === 'true';
+      const includeReports = req.query.includeReports === 'true';
+      const space = await SpacesService.getSpaceById(req.params.spaceId, {
+        includeZones,
+        includeSensors,
+        includeReports,
+      });
 
-      res.json(SpaceSerializer.serialize(space));
+      res.json(SpaceSerializer.serialize(space, { includeZones, includeSensors, includeReports }));
     } catch (error) {
       res.status(error.statusCode || 500).json({ error: error.message });
     }

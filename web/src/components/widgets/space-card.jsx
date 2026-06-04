@@ -7,7 +7,7 @@ import { Warning } from "@phosphor-icons/react"
 export function SpaceCard({ space }) {
     return (
         <Card className="pt-0 overflow-hidden">
-            <Link to="/space-public-page" className="block">
+            <Link to={`/espacos-verdes/${space.id}`} className="block">
                 <img src={space.image} alt={space.name} className="w-full h-48 object-cover"/>
                 <CardHeader className="pt-6">
                     <div className="flex items-center justify-between">

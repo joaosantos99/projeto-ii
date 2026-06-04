@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react"
 import { Navbar } from "#/components/navbar"
 import { Button } from '#/components/ui/button'
 import { SectionLayout } from "../components/landing-layout"
@@ -8,126 +9,75 @@ import { Thermometer, Drop, Warning, ChatIcon } from "@phosphor-icons/react"
 import { Tabs } from "#/components/ui/tabs"
 import { Field, FieldGroup, FieldLabel } from "#/components/ui/field"
 import { useParams } from "react-router-dom"
+import { api } from "#/lib/api"
 
-const spaces = [
-  { 
-    id: 1, 
-    name: "Parque Florestal de Monsanto",
-    parish: "Lisboa",
-    status: "Normal",
-    image: "https://www.scenic.org/wp-content/uploads/2022/07/notable_large_urban_nature-760x378-1.jpg",
-    humidity: { value: 39, status: "Normal" },
-    temperature: { value: 22, status: "Normal" },
-    co2: { value: 400, status: "Normal" },
-    noise: { value: 45, status: "Normal" },
-    wind: { value: 12, status: "Normal" },
-    incidentsList: [
-      { id: 101, title: "Queda de ramo junto ao trilho norte", zone: "Zona Norte", date: "2026-03-22 14:20", severity: "warning" },
-      { id: 102, title: "Nível de ruído elevado persistente", zone: "Entrada Principal", date: "2026-03-23 09:10", severity: "critical" }
-    ]
-  },
-  { 
-    id: 2, 
-    name: "Parque da Devesa",
-    parish: "Famalicão",
-    status: "Atenção", 
-    image: "https://images.unsplash.com/photo-1587502537745-84b86da1204f?w=600",
-    humidity: { value: 55, status: "Atenção" },
-    temperature: { value: 19, status: "Normal" },
-    co2: { value: 420, status: "Normal" },
-    noise: { value: 38, status: "Normal" },
-    wind: { value: 18, status: "Normal" },
-    incidentsList: []
-  },
-  { 
-    id: 3, 
-    name: "Parque da Cidade",
-    parish: "Porto",
-    status: "Crítico", 
-    image: "https://images.unsplash.com/photo-1519331379826-f10be5486c6f?w=600",
-    humidity: { value: 20, status: "Crítico" },
-    temperature: { value: 28, status: "Atenção" },
-    co2: { value: 550, status: "Crítico" },
-    noise: { value: 60, status: "Atenção" },
-    wind: { value: 25, status: "Normal" },
-    incidentsList: [
-      { id: 103, title: "Falta de água nos bebedouros", zone: "Zona Central", date: "2026-05-24 11:00", severity: "warning" }
-    ]
-  }
-]
+export function SpacePage() {
+    const { id } = useParams()
+    const [space, setSpace] = useState(null)
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
 
-export function SpacePage() {    
-    const { spaceId } = useParams()
-    const space = spaces.find(s => s.id === Number(spaceId)) || spaces[0]
+    useEffect(() => {
+        api.get(`/spaces/${id}`, { params: { includeZones: true, includeReports: true } })
+            .then((res) => setSpace(res.data))
+            .catch((err) => setError(err.response?.data?.error || "Erro ao carregar espaço"))
+            .finally(() => setLoading(false))
+    }, [id])
+
+    if (loading) {
+        return (
+            <div className="bg-[#F8F5F0] min-h-screen flex items-center justify-center">
+                <p className="text-muted-foreground">Carregando...</p>
+            </div>
+        )
+    }
+
+    if (error || !space) {
+        return (
+            <div className="bg-[#F8F5F0] min-h-screen flex items-center justify-center">
+                <p className="text-muted-foreground">{error || "Espaço não encontrado"}</p>
+            </div>
+        )
+    }
 
     return (
         <div className="bg-[#F8F5F0]">
             <Navbar />
-            <img src={space.image} alt={space.name} className="w-full h-127.75 object-cover"/>
+            <img src={space.imageUrl} alt={space.name} className="w-full h-127.75 object-cover"/>
             <div className="max-w-full mx-auto px-12 py-6">
                 <h4 className="font-sans tracking-widest text-xs uppercase">{space.parish}</h4>
                 <div className="flex gap-4 ">
                     <h1 className="text-2xl font-semibold">{space.name}</h1>
-                    <Badge variant={
-                        space.status === "Normal" ? "secondary" :
-                        space.status === "Atenção" ? "warning" :
-                        "destructive"
-                    }>
-                        {space.status}
-                    </Badge>
+                    <Badge variant="secondary">Normal</Badge>
                 </div>
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-2 max-w-full mx-auto px-12 py-6">
                 <div className="border border-border p-2 flex flex-col gap-1">
                     <span className="text-xs text-muted-foreground uppercase">Humidade do solo</span>
                     <div className="flex justify-between">
-                        <span className="text-sm font-medium">{space.humidity.value} %</span>
-                        <Badge variant={
-                            space.humidity.status === "Normal" ? "secondary" :
-                            space.humidity.status === "Atenção" ? "warning" :
-                            "destructive"
-                        }>
-                            {space.humidity.status}
-                        </Badge>
+                        <span className="text-sm font-medium">—</span>
+                        <Badge variant="outline">—</Badge>
                     </div>
                 </div>
                 <div className="border border-border p-2 flex flex-col gap-1">
                     <span className="text-xs text-muted-foreground uppercase">Temperatura</span>
                     <div className="flex justify-between">
-                        <span className="text-sm font-medium">{space.temperature.value} C</span>
-                        <Badge variant={
-                            space.temperature.status === "Normal" ? "secondary" :
-                            space.temperature.status === "Atenção" ? "warning" :
-                            "destructive"
-                        }>
-                            {space.temperature.status}
-                        </Badge>
+                        <span className="text-sm font-medium">—</span>
+                        <Badge variant="outline">—</Badge>
                     </div>
                 </div>
                 <div className="border border-border p-2 flex flex-col gap-1">
                     <span className="text-xs text-muted-foreground uppercase">CO2</span>
                     <div className="flex justify-between">
-                        <span className="text-sm font-medium">{space.co2.value} ppm</span>
-                        <Badge variant={
-                            space.co2.status === "Normal" ? "secondary" :
-                            space.co2.status === "Atenção" ? "warning" :
-                            "destructive"
-                        }>
-                            {space.co2.status}
-                        </Badge>
+                        <span className="text-sm font-medium">—</span>
+                        <Badge variant="outline">—</Badge>
                     </div>
                 </div>
                 <div className="border border-border p-2 flex flex-col gap-1">
                     <span className="text-xs text-muted-foreground uppercase">Ruido</span>
                     <div className="flex justify-between">
-                        <span className="text-sm font-medium">{space.noise.value} dB</span>
-                        <Badge variant={
-                            space.noise.status === "Normal" ? "secondary" :
-                            space.noise.status === "Atenção" ? "warning" :
-                            "destructive"
-                        }>
-                            {space.noise.status}
-                        </Badge>
+                        <span className="text-sm font-medium">—</span>
+                        <Badge variant="outline">—</Badge>
                     </div>
                 </div>
             </div>
@@ -145,19 +95,19 @@ export function SpacePage() {
                                 <span className="text-xs text-muted-foreground uppercase">Temperatura</span>
                                 <div className="flex items-center gap-2">
                                     <Thermometer size={20}/>
-                                    <span className="text-sm font-medium">{space.temperature.value} C</span>
+                                    <span className="text-sm font-medium">—</span>
                                 </div>
                             </div>
                             <div className="border border-border p-2 flex flex-col gap-1">
                                 <span className="text-xs text-muted-foreground uppercase">Humidade</span>
                                 <div className="flex items-center gap-2">
                                     <Drop size={20}/>
-                                    <span className="text-sm font-medium">{space.humidity.value} %</span>
+                                    <span className="text-sm font-medium">—</span>
                                 </div>
                             </div>
                             <div className="border border-border p-2 flex flex-col gap-1">
                                 <span className="text-xs text-muted-foreground uppercase">Vento</span>
-                                <span className="text-sm font-medium">{space.wind.value} km/h</span>
+                                <span className="text-sm font-medium">—</span>
                             </div>
                         </div>
                     </CardContent>
@@ -166,7 +116,7 @@ export function SpacePage() {
 
             <SectionLayout title="Feedback e incidentes">
                 <Tabs tabs={[
-                    { id: "incidents", label: "Incidentes", icon: Warning, content: 
+                    { id: "incidents", label: "Incidentes", icon: Warning, content:
                         <div className="flex flex-col gap-6">
                             <Card>
                                 <CardHeader >
@@ -185,9 +135,10 @@ export function SpacePage() {
                                                     <FieldLabel>Zona</FieldLabel>
                                                     <select className="h-8 w-full border border-input bg-transparent px-2.5 py-1 text-xs outline-none">
                                                         <option value="">Selecionar zona</option>
-                                                        <option value="zona1">Zona Norte</option>
-                                                        <option value="zona2">Zona Sul</option>
-                                                    </select>                                                
+                                                        {space.zones?.map((zone) => (
+                                                            <option key={zone.id} value={zone.id}>{zone.name}</option>
+                                                        ))}
+                                                    </select>
                                                 </Field>
                                                 <Field>
                                                     <FieldLabel>Severidade</FieldLabel>
@@ -227,12 +178,34 @@ export function SpacePage() {
                                     </div>
                                 </CardHeader>
                                 <CardContent>
+                                    <div className="flex flex-col gap-3">
+                                        {space.reports?.length > 0 ? (
+                                            space.reports.map((report) => (
+                                                <div key={report.id} className="border border-border p-3 flex flex-col gap-1">
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-sm font-medium">{report.name}</span>
+                                                        <Badge variant={
+                                                            report.status === "open" ? "warning" :
+                                                            report.status === "resolved" ? "secondary" :
+                                                            "outline"
+                                                        }>
+                                                            {report.status}
+                                                        </Badge>
+                                                    </div>
+                                                    <span className="text-xs text-muted-foreground">{report.type}</span>
+                                                    <p className="text-xs">{report.description}</p>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <p className="text-xs text-muted-foreground">Nenhum relatório registado.</p>
+                                        )}
+                                    </div>
                                 </CardContent>
                             </Card>
                         </div>
 
                     },
-                    { id: "feedback", label: "Feedback", icon: ChatIcon, content: 
+                    { id: "feedback", label: "Feedback", icon: ChatIcon, content:
                         <Card>
                             <CardHeader >
                                 <div className="flex flex-col">
