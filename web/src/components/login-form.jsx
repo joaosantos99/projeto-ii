@@ -90,19 +90,19 @@ export function LoginForm({ className, ...props }) {
       </Card>
       <FieldDescription className="px-6 text-center">
         Ao continuar, aceita os nossos{" "}
-        <button
-          type="button"
-          className="cursor-pointer border-0 bg-transparent p-0 text-primary underline-offset-4 hover:underline"
+        <Link
+          to="/termos-utilizacao"
+          className="text-primary !no-underline underline-offset-4 hover:!underline"
         >
           Termos de utilização
-        </button>{" "}
+        </Link>{" "}
         e a{" "}
-        <button
-          type="button"
-          className="cursor-pointer border-0 bg-transparent p-0 text-primary underline-offset-4 hover:underline"
+        <Link
+          to="/politica-privacidade"
+          className="text-primary !no-underline underline-offset-4 hover:!underline"
         >
           Política de privacidade
-        </button>
+        </Link>
         .
       </FieldDescription>
     </div>

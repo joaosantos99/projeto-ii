@@ -19,6 +19,8 @@ import { AlertasPage } from "#/pages/alertas"
 import { SensoresPage } from "#/pages/sensores"
 import { LandingPage } from "#/pages/landing-page"
 import { SpacePage } from "#/pages/space-page"
+import { TermsPage } from "#/pages/terms"
+import { PrivacyPage } from "#/pages/privacy"
 import { NotFoundPage } from "#/pages/not-found"
 import { ForbiddenPage } from "#/pages/forbidden"
 import { RequireAuth, RedirectIfAuth } from "#/components/auth-guards"
@@ -37,6 +39,8 @@ export default function App({ initialUser = null, initialUrl = "/" }) {
       <AuthProvider initialUser={initialUser} initialStatus={initialStatus}>
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/termos-utilizacao" element={<TermsPage />} />
+          <Route path="/politica-privacidade" element={<PrivacyPage />} />
           <Route path="/space-public-page" element={<SpacePage />} />
           <Route path="/403" element={<ForbiddenPage />} />
           <Route element={<RedirectIfAuth />}>

@@ -61,7 +61,7 @@ export function SpacePage() {
     const space = spaces.find(s => s.id === Number(spaceId)) || spaces[0]
 
     return (
-        <div>
+        <div className="bg-muted">
             <Navbar />
             <img src={space.image} alt={space.name} className="w-full h-127.75 object-cover"/>
             <div className="max-w-full mx-auto px-12 py-6">
