@@ -15,7 +15,6 @@ import reportsRouter from './routers/reports.js'
 import sensorsRouter from './routers/sensors.js'
 import alertsRouter from './routers/alerts.js'
 import maintenanceRouter from './routers/maintenance.js'
-import dashboardRouter from './routers/dashboard.js'
 
 const app = express();
 app.use(cors());
@@ -35,7 +34,6 @@ apiRouter.use('/reports', reportsRouter);
 apiRouter.use('/sensors', sensorsRouter);
 apiRouter.use('/alerts', alertsRouter);
 apiRouter.use('/maintenance', maintenanceRouter);
-apiRouter.use('/dashboard', dashboardRouter);
 
 apiRouter.get('/health', (req, res) => {
   res.set('Content-Type', 'application/json');

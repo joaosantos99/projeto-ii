@@ -178,7 +178,6 @@ export default {
     { name: 'Sensors' },
     { name: 'Alerts' },
     { name: 'Maintenance' },
-    { name: 'Dashboard' },
     { name: 'Health' },
   ],
   paths: {
@@ -900,21 +899,6 @@ export default {
         tags: ['Maintenance'],
         summary: 'Delete a maintenance task.',
         responses: { 204: ok('Deleted.'), 401: Unauthorized, 404: NotFound },
-      },
-    },
-
-    // ---------- Dashboard ----------
-    '/dashboard/citizen-incidents': {
-      get: {
-        tags: ['Dashboard'],
-        summary: 'Citizen incidents (paginated).',
-        security: [],
-        parameters: [
-          queryParam('page', { type: 'integer', minimum: 1, default: 1 }, 'Page number.'),
-          queryParam('limit', { type: 'integer', minimum: 1, default: 20 }, 'Items per page.'),
-          queryParam('sort', { type: 'string' }, 'Sort expression.'),
-        ],
-        responses: { 200: ok('Citizen incidents.', { type: 'object' }) },
       },
     },
   },
