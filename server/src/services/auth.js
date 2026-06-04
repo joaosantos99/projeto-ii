@@ -107,7 +107,7 @@ class AuthService {
 
     const passwordMatch = await bcrypt.compare(password, user.password_hash);
     if (!passwordMatch) {
-      const error = new Error('Token inválido ou expirado');
+      const error = new Error('Palavra-passe incorreta');
       error.statusCode = 401;
       throw error;
     }
