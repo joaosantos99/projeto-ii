@@ -1,31 +1,59 @@
 'use client'
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "#/components/ui/button"
 import { Field, FieldGroup, FieldLabel } from "#/components/ui/field"
 import { Input } from "#/components/ui/input"
 import { selectClass } from "#/data/manutencao"
 
-const statusOptions = [
-  { value: "ativo", label: "Ativo" },
-  { value: "suspenso", label: "Suspenso" },
-]
-
 export function CreateUserDialog({ open, onClose, onCreate, roleOptions }) {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
-  const [role, setRole] = useState("operador")
-  const [status, setStatus] = useState("ativo")
+  const [password, setPassword] = useState("")
+  const [role, setRole] = useState("")
+  const [error, setError] = useState("")
+  const [submitting, setSubmitting] = useState(false)
+
+  // Keep the selected role valid against the loaded options.
+  useEffect(() => {
+    if (!roleOptions.some((option) => option.value === role)) {
+      setRole(roleOptions[0]?.value ?? "")
+    }
+  }, [roleOptions, role])
 
   if (!open) return null
 
-  const handleSubmit = () => {
-    if (!name.trim() || !email.trim()) return
-    onCreate({ name, email, role, status })
+  const reset = () => {
     setName("")
     setEmail("")
-    setRole("operador")
-    setStatus("ativo")
+    setPassword("")
+    setRole(roleOptions[0]?.value ?? "")
+    setError("")
+  }
+
+  const handleSubmit = async () => {
+    if (!name.trim() || !email.trim()) return
+    if (password.length < 10) {
+      setError("A palavra-passe deve ter pelo menos 10 caracteres.")
+      return
+    }
+    setSubmitting(true)
+    setError("")
+    try {
+      await onCreate({
+        fullName: name.trim(),
+        email: email.trim(),
+        password,
+        role,
+      })
+      reset()
+    } catch (err) {
+      setError(
+        err?.response?.data?.description ?? "Não foi possível criar o utilizador."
+      )
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (
@@ -66,6 +94,17 @@ export function CreateUserDialog({ open, onClose, onCreate, roleOptions }) {
             />
           </Field>
           <Field>
+            <FieldLabel htmlFor="new-user-password">Palavra-passe</FieldLabel>
+            <Input
+              id="new-user-password"
+              type="password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              placeholder="Mínimo 10 caracteres"
+              autoComplete="new-password"
+            />
+          </Field>
+          <Field>
             <FieldLabel htmlFor="new-user-role">Perfil</FieldLabel>
             <select
               id="new-user-role"
@@ -80,27 +119,17 @@ export function CreateUserDialog({ open, onClose, onCreate, roleOptions }) {
               ))}
             </select>
           </Field>
-          <Field>
-            <FieldLabel htmlFor="new-user-status">Estado</FieldLabel>
-            <select
-              id="new-user-status"
-              className={selectClass}
-              value={status}
-              onChange={(event) => setStatus(event.target.value)}
-            >
-              {statusOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </Field>
         </FieldGroup>
+        {error ? (
+          <p className="text-xs text-destructive">{error}</p>
+        ) : null}
         <div className="flex items-center justify-end gap-2 pt-2">
-          <Button variant="outline" onClick={onClose}>
+          <Button variant="outline" onClick={onClose} disabled={submitting}>
             Cancelar
           </Button>
-          <Button onClick={handleSubmit}>Guardar</Button>
+          <Button onClick={handleSubmit} disabled={submitting}>
+            {submitting ? "A guardar…" : "Guardar"}
+          </Button>
         </div>
       </div>
     </div>

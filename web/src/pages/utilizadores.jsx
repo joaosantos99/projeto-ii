@@ -96,10 +96,12 @@ export function UtilizadoresPage() {
     (value) => value !== "todos"
   ).length
 
-  const handleCreate = () => {
-    setRefresh((n) => n + 1)
-    setPage(1)
-    setCreateUserOpen(false)
+  const handleCreate = (payload) => {
+    return api.post("/users", payload).then(() => {
+      setRefresh((n) => n + 1)
+      setPage(1)
+      setCreateUserOpen(false)
+    })
   }
 
   return (
