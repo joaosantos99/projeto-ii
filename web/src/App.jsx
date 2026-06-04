@@ -10,7 +10,6 @@ import { ManutencaoPage } from "#/pages/manutencao"
 import { UtilizadoresPage } from "#/pages/utilizadores"
 import { UtilizadorPage } from "#/pages/utilizador"
 import { ContaPage } from "#/pages/conta"
-import { RelatoriosPage } from "#/pages/relatorios"
 import { EspacosPage } from "#/pages/espacos"
 import { EspacoDetalhePage } from "#/pages/espaco-detalhe"
 import { PermissoesPage } from "#/pages/permissoes"
@@ -55,7 +54,6 @@ export default function App({ initialUser = null, initialUrl = "/" }) {
               <Route path="/admin/utilizadores" element={<UtilizadoresPage />} />
               <Route path="/admin/utilizadores/:id" element={<UtilizadorPage />} />
               <Route path="/admin/conta" element={<ContaPage />} />
-              <Route path="/admin/relatorios" element={<RelatoriosPage />} />
               <Route path="/admin/espacos" element={<EspacosPage />} />
               <Route path="/admin/espacos/:id/:tab?" element={<EspacoDetalhePage />} />
               <Route path="/admin/roles" element={<PermissoesPage />} />

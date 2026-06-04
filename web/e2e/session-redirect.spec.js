@@ -39,7 +39,7 @@ test.describe('redirect to login when there is no session', () => {
     })
 
     await test.step('When they deep-link into a protected page', async () => {
-      await page.goto('/admin/relatorios')
+      await page.goto('/admin/alertas')
     })
 
     await test.step('Then they land on /admin/login without seeing protected content', async () => {

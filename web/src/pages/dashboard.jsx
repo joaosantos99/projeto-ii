@@ -251,7 +251,7 @@ export function DashboardPage() {
               </p>
             </WidgetTile>
           ))}
-          <Button size="sm" variant="default" onClick={() => navigate("/admin/relatorios")}>
+          <Button size="sm" variant="default" onClick={() => navigate("/admin/alertas")}>
             Rever fila de incidentes
           </Button>
         </Widget>

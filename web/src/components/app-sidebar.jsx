@@ -7,7 +7,6 @@ import {
   Clipboard,
   SlidersHorizontal,
   Users,
-  ChartBar,
   ShieldCheck,
   Leaf,
   Tree,
@@ -32,7 +31,6 @@ const navItems = [
   { title: "Manutenção", to: "/admin/manutencao", icon: Clipboard },
   { title: "Sensores", to: "/admin/sensores", icon: SlidersHorizontal },
   { title: "Utilizadores", to: "/admin/utilizadores", icon: Users },
-  { title: "Relatorios", to: "/admin/relatorios", icon: ChartBar },
   { title: "Roles", to: "/admin/roles", icon: ShieldCheck },
 ]
 
