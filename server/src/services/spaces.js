@@ -129,6 +129,72 @@ class SpacesService {
     return space;
   }
 
+  /**
+   * Aggregate a space's sensors (from the sensors table) into per-metric
+   * summaries. No reading values exist in the schema, so each metric reports
+   * sensor count, active count, the canonical unit and the configured
+   * operating range (min of min_value, max of max_value).
+   *
+   * Metrics are matched by sensor `parameter` first, then by `type`.
+   * Metrics with no matching sensor are omitted.
+   * @param {string} spaceId
+   * @returns {Promise<Object>} Map of metric key to its summary.
+   */
+  static async getSensorsSummary(spaceId) {
+    const sensors = await Sensors.findAll({
+      attributes: ['type', 'parameter', 'unit', 'min_value', 'max_value', 'is_active'],
+      include: [
+        {
+          model: GreenSpaceZones,
+          as: 'greenSpaceZone',
+          attributes: [],
+          required: true,
+          where: { green_spaces_id: spaceId },
+        },
+      ],
+      raw: true,
+    });
+
+    const metricFor = (sensor) => {
+      const param = String(sensor.parameter ?? '').toLowerCase();
+      if (param.includes('soil') && param.includes('moist')) return 'soilMoisture';
+      if (param.includes('co2')) return 'co2';
+      if (param.includes('noise') || param.includes('sound')) return 'noise';
+      if (sensor.type === 'temperature') return 'temperature';
+      if (sensor.type === 'sound') return 'noise';
+      return null;
+    };
+
+    const summary = {};
+
+    for (const sensor of sensors) {
+      const metric = metricFor(sensor);
+      if (!metric) continue;
+
+      const bucket = summary[metric] ?? {
+        count: 0,
+        activeCount: 0,
+        unit: sensor.unit ?? null,
+        minValue: null,
+        maxValue: null,
+      };
+
+      bucket.count += 1;
+      if (sensor.is_active) bucket.activeCount += 1;
+      if (sensor.unit && !bucket.unit) bucket.unit = sensor.unit;
+      if (sensor.min_value != null) {
+        bucket.minValue = bucket.minValue == null ? sensor.min_value : Math.min(bucket.minValue, sensor.min_value);
+      }
+      if (sensor.max_value != null) {
+        bucket.maxValue = bucket.maxValue == null ? sensor.max_value : Math.max(bucket.maxValue, sensor.max_value);
+      }
+
+      summary[metric] = bucket;
+    }
+
+    return summary;
+  }
+
   static async createSpace(data, createdBy) {
     const newSpace = await GreenSpaces.create({
       ...data,

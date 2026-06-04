@@ -75,13 +75,20 @@ class SpacesController {
       const includeZones = req.query.includeZones === 'true';
       const includeSensors = req.query.includeSensors === 'true';
       const includeReports = req.query.includeReports === 'true';
+      const includeSensorsSummary = req.query.sensorsSummary === 'true';
       const space = await SpacesService.getSpaceById(req.params.spaceId, {
         includeZones,
         includeSensors,
         includeReports,
       });
 
-      res.json(SpaceSerializer.serialize(space, { includeZones, includeSensors, includeReports }));
+      const body = SpaceSerializer.serialize(space, { includeZones, includeSensors, includeReports });
+
+      if (includeSensorsSummary) {
+        body.sensorsSummary = await SpacesService.getSensorsSummary(req.params.spaceId);
+      }
+
+      res.json(body);
     } catch (error) {
       res.status(error.statusCode || 500).json({ error: error.message });
     }

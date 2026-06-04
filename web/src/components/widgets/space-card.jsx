@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "#/components/ui/card"
-import { Badge } from "#/components/ui/badge.jsx"
 import { Button } from "#/components/ui/button.jsx"
 import { Warning } from "@phosphor-icons/react"
 
@@ -10,19 +9,8 @@ export function SpaceCard({ space }) {
             <Link to={`/espacos-verdes/${space.id}`} className="block">
                 <img src={space.image} alt={space.name} className="w-full h-48 object-cover"/>
                 <CardHeader className="pt-6">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <CardTitle>{space.name}</CardTitle>
-                            <CardDescription>{space.parish}</CardDescription>
-                        </div>
-                        <Badge variant={
-                            space.status === "Normal" ? "secondary" :
-                            space.status === "Atenção" ? "warning" :
-                            "destructive"
-                        }>
-                            {space.status ?? "Normal"}
-                        </Badge>
-                    </div>
+                    <CardTitle>{space.name}</CardTitle>
+                    <CardDescription>{space.parish}</CardDescription>
                 </CardHeader>
             </Link>
             <CardContent className="flex flex-col gap-4">

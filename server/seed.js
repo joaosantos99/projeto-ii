@@ -177,22 +177,28 @@ const generateSensors = async () => {
     attributes: ['id', 'green_spaces_id'],
   });
 
-  const sensorParams = [
-    { type: 'temperature', parameter: 'air_temperature', unit: '°C', min: -5, max: 45 },
-    { type: 'humidity', parameter: 'air_humidity', unit: '%', min: 0, max: 100 },
-    { type: 'soil', parameter: 'soil_moisture', unit: '%', min: 0, max: 100 },
-    { type: 'soil', parameter: 'soil_ph', unit: 'pH', min: 3, max: 9 },
-    { type: 'light', parameter: 'luminosity', unit: 'lux', min: 0, max: 100000 },
+  const cardParams = [
+    { type: 'soil', parameter: 'soil_moisture', unit: '%', minRange: [25, 35], maxRange: [60, 75], frac: 0 },
+    { type: 'temperature', parameter: 'air_temperature', unit: '°C', minRange: [6, 11], maxRange: [28, 35], frac: 1 },
+    { type: 'air', parameter: 'co2', unit: 'ppm', minRange: [380, 420], maxRange: [600, 850], frac: 0 },
+    { type: 'sound', parameter: 'noise', unit: 'dB', minRange: [35, 45], maxRange: [65, 80], frac: 0 },
   ];
+
+  const extraParams = [
+    { type: 'humidity', parameter: 'air_humidity', unit: '%', minRange: [40, 55], maxRange: [80, 92], frac: 0 },
+    { type: 'soil', parameter: 'soil_ph', unit: 'pH', minRange: [5.8, 6.4], maxRange: [7.0, 7.6], frac: 1 },
+    { type: 'light', parameter: 'luminosity', unit: 'lux', minRange: [100, 600], maxRange: [55000, 95000], frac: 0 },
+  ];
+
+  const valueIn = ([lo, hi], frac) =>
+    Number(faker.number.float({ min: lo, max: hi, fractionDigits: frac }).toFixed(frac));
 
   const sensors = [];
 
   for (const zone of zones) {
-    const sensorCount = faker.number.int({ min: 1, max: 3 });
+    const params = [...cardParams, ...faker.helpers.arrayElements(extraParams, { min: 0, max: 2 })];
 
-    for (let i = 0; i < sensorCount; i++) {
-      const param = faker.helpers.arrayElement(sensorParams);
-
+    for (const param of params) {
       sensors.push({
         id: faker.string.uuid(),
         green_space_zone_id: zone.id,
@@ -200,8 +206,8 @@ const generateSensors = async () => {
         type: param.type,
         parameter: param.parameter,
         unit: param.unit,
-        min_value: param.min,
-        max_value: param.max,
+        min_value: valueIn(param.minRange, param.frac),
+        max_value: valueIn(param.maxRange, param.frac),
         is_active: faker.datatype.boolean(0.8),
         created_by: systemOwner.id,
         updated_by: systemOwner.id,
@@ -209,7 +215,6 @@ const generateSensors = async () => {
     }
   }
 
-  // strip helper field not in model before insert
   await Sensors.bulkCreate(
     sensors.map(({ green_space_id, ...rest }) => rest),
   );

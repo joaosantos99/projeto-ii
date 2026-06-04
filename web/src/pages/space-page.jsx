@@ -11,6 +11,25 @@ import { Field, FieldGroup, FieldLabel } from "#/components/ui/field"
 import { useParams } from "react-router-dom"
 import { api } from "#/lib/api"
 
+function SensorMetric({ label, data }) {
+    const hasSensors = data && data.count > 0
+    const range = hasSensors && data.minValue != null && data.maxValue != null
+        ? `${data.minValue}–${data.maxValue}${data.unit ? ` ${data.unit}` : ""}`
+        : "—"
+
+    return (
+        <div className="border border-border p-2 flex flex-col gap-1">
+            <span className="text-xs text-muted-foreground uppercase">{label}</span>
+            <div className="flex justify-between">
+                <span className="text-sm font-medium">{range}</span>
+                <Badge variant={hasSensors ? (data.activeCount > 0 ? "outline" : "warning") : "outline"}>
+                    {hasSensors ? `${data.activeCount}/${data.count} ativos` : "—"}
+                </Badge>
+            </div>
+        </div>
+    )
+}
+
 export function SpacePage() {
     const { id } = useParams()
     const [space, setSpace] = useState(null)
@@ -18,7 +37,7 @@ export function SpacePage() {
     const [error, setError] = useState(null)
 
     useEffect(() => {
-        api.get(`/spaces/${id}`, { params: { includeZones: true, includeReports: true } })
+        api.get(`/spaces/${id}`, { params: { includeZones: true, includeReports: true, sensorsSummary: true } })
             .then((res) => setSpace(res.data))
             .catch((err) => setError(err.response?.data?.error || "Erro ao carregar espaço"))
             .finally(() => setLoading(false))
@@ -48,38 +67,13 @@ export function SpacePage() {
                 <h4 className="font-sans tracking-widest text-xs uppercase">{space.parish}</h4>
                 <div className="flex gap-4 ">
                     <h1 className="text-2xl font-semibold">{space.name}</h1>
-                    <Badge variant="secondary">Normal</Badge>
                 </div>
             </div>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-2 max-w-full mx-auto px-12 py-6">
-                <div className="border border-border p-2 flex flex-col gap-1">
-                    <span className="text-xs text-muted-foreground uppercase">Humidade do solo</span>
-                    <div className="flex justify-between">
-                        <span className="text-sm font-medium">—</span>
-                        <Badge variant="outline">—</Badge>
-                    </div>
-                </div>
-                <div className="border border-border p-2 flex flex-col gap-1">
-                    <span className="text-xs text-muted-foreground uppercase">Temperatura</span>
-                    <div className="flex justify-between">
-                        <span className="text-sm font-medium">—</span>
-                        <Badge variant="outline">—</Badge>
-                    </div>
-                </div>
-                <div className="border border-border p-2 flex flex-col gap-1">
-                    <span className="text-xs text-muted-foreground uppercase">CO2</span>
-                    <div className="flex justify-between">
-                        <span className="text-sm font-medium">—</span>
-                        <Badge variant="outline">—</Badge>
-                    </div>
-                </div>
-                <div className="border border-border p-2 flex flex-col gap-1">
-                    <span className="text-xs text-muted-foreground uppercase">Ruido</span>
-                    <div className="flex justify-between">
-                        <span className="text-sm font-medium">—</span>
-                        <Badge variant="outline">—</Badge>
-                    </div>
-                </div>
+                <SensorMetric label="Humidade do solo" data={space.sensorsSummary?.soilMoisture} />
+                <SensorMetric label="Temperatura" data={space.sensorsSummary?.temperature} />
+                <SensorMetric label="CO2" data={space.sensorsSummary?.co2} />
+                <SensorMetric label="Ruido" data={space.sensorsSummary?.noise} />
             </div>
             <SectionLayout title="Feedback e incidentes">
                 <Tabs tabs={[

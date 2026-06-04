@@ -7,17 +7,10 @@ import { MapWidget } from "#/components/widgets/map-widget"
 import { Footer } from "#/components/footer"
 import { api } from "#/lib/api"
 
-function mapStatus(activeAlerts) {
-  if (activeAlerts > 3) return "Crítico"
-  if (activeAlerts > 0) return "Atenção"
-  return "Normal"
-}
-
 function normalizeSpaces(list) {
   return list.map((s) => ({
     ...s,
     image: s.imageUrl,
-    status: mapStatus(s.activeAlerts),
   }))
 }
 
