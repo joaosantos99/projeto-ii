@@ -655,41 +655,6 @@ export default {
         },
       },
     },
-    '/reports/summary': {
-      get: {
-        tags: ['Reports'],
-        summary: 'Reports statistics summary.',
-        description: 'Requires permission `reports:read`.',
-        responses: { 200: ok('Summary.', { type: 'object' }), 401: Unauthorized, 403: Forbidden },
-      },
-    },
-    '/reports/distribution': {
-      get: {
-        tags: ['Reports'],
-        summary: 'Reports distribution by type.',
-        description: 'Requires permission `reports:read`.',
-        responses: { 200: ok('Distribution.', { type: 'object' }), 401: Unauthorized, 403: Forbidden },
-      },
-    },
-    '/reports/generate': {
-      post: {
-        tags: ['Reports'],
-        summary: 'Generate a report.',
-        description: 'Requires permission `reports:create`.',
-        requestBody: {
-          required: true,
-          content: json({
-            type: 'object',
-            required: ['type', 'greenSpaceId'],
-            properties: {
-              type: { type: 'string', enum: ['operational', 'environmental'] },
-              greenSpaceId: { type: 'string' },
-            },
-          }),
-        },
-        responses: { 200: ok('Generated report.', ref('Report')), 400: ValidationError, 401: Unauthorized, 403: Forbidden },
-      },
-    },
     '/reports/{reportId}/export': {
       parameters: [idParam('reportId', 'Report id.')],
       get: {
