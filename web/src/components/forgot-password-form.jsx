@@ -11,10 +11,32 @@ import { cn } from "#/lib/utils"
 export function ForgotPasswordForm({ className, ...props }) {
   const [email, setEmail] = useState("")
   const [submitted, setSubmitted] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault()
-    setSubmitted(true)
+    setLoading(true)
+    setError(null)
+
+    try {
+      const response = await fetch('/api/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+
+      if (!response.ok) {
+        const data = await response.json()
+        throw new Error(data.description || 'Erro ao enviar email')
+      }
+
+      setSubmitted(true)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   if (submitted) {
@@ -71,9 +93,14 @@ export function ForgotPasswordForm({ className, ...props }) {
                   required
                 />
               </Field>
+              {error && (
+                <FieldDescription className="text-center text-red-600">
+                  {error}
+                </FieldDescription>
+              )}
               <Field>
-                <Button type="submit" className="w-full">
-                  Enviar instruções
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? 'A enviar...' : 'Enviar instruções'}
                 </Button>
                 <FieldDescription className="text-center">
                   <Link
