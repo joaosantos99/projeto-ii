@@ -184,6 +184,57 @@ class SensorsService {
 
     return Sensors.create(data);
   }
+
+  /**
+   * Update an existing sensor. Only provided fields are changed.
+   * @param {string} sensorId
+   * @param {Object} data - Partial sensor fields (snake_case).
+   * @returns {Promise<Sensors>} The updated sensor, reloaded with its zone/space.
+   */
+  static async updateSensor(sensorId, data) {
+    const sensor = await Sensors.findByPk(sensorId);
+    if (!sensor) {
+      const error = new Error('Sensor not found');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const type = data.type ?? sensor.type;
+    if (data.type && !SENSOR_TYPES.includes(data.type)) {
+      const error = new Error(`Invalid type. Must be one of: ${SENSOR_TYPES.join(', ')}`);
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const normalized = normalizeSensorUnits({
+      type,
+      unit: data.unit ?? sensor.unit,
+      min_value: data.min_value ?? sensor.min_value,
+      max_value: data.max_value ?? sensor.max_value,
+    });
+
+    await sensor.update({
+      green_space_zone_id: data.green_space_zone_id ?? sensor.green_space_zone_id,
+      type,
+      parameter: data.parameter ?? sensor.parameter,
+      unit: normalized.unit,
+      min_value: normalized.min_value,
+      max_value: normalized.max_value,
+      is_active: data.is_active ?? sensor.is_active,
+      updated_by: data.updated_by,
+    });
+
+    return sensor.reload({
+      include: [
+        {
+          model: GreenSpaceZones,
+          as: 'greenSpaceZone',
+          attributes: ['id', 'name', 'green_spaces_id'],
+          include: [{ model: GreenSpaces, as: 'greenSpace', attributes: ['id', 'name'] }],
+        },
+      ],
+    });
+  }
 }
 
 export default SensorsService;

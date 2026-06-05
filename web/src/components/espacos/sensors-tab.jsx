@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from "react"
-import { Broadcast, Plus } from "@phosphor-icons/react"
+import { Broadcast, PencilSimple, Plus } from "@phosphor-icons/react"
 import { Badge } from "#/components/ui/badge"
 import { Button } from "#/components/ui/button"
 import {
@@ -25,6 +25,7 @@ export function SensorsTab({ spaceId, spaceName }) {
   const [zones, setZones] = useState([])
   const [loading, setLoading] = useState(true)
   const [addOpen, setAddOpen] = useState(false)
+  const [editSensor, setEditSensor] = useState(null)
 
   useEffect(() => {
     let cancelled = false
@@ -50,6 +51,12 @@ export function SensorsTab({ spaceId, spaceName }) {
     const res = await api.post(`/spaces/${spaceId}/sensors`, payload)
     setSensors((prev) => [res.data, ...prev])
     setAddOpen(false)
+  }
+
+  const handleEdit = async (payload) => {
+    const res = await api.put(`/sensors/${editSensor.id}`, payload)
+    setSensors((prev) => prev.map((s) => (s.id === editSensor.id ? res.data : s)))
+    setEditSensor(null)
   }
 
   return (
@@ -93,7 +100,10 @@ export function SensorsTab({ spaceId, spaceName }) {
                     <th className="pb-2 pr-4 font-medium">Parâmetro</th>
                     <th className="pb-2 pr-4 text-right font-medium">Min</th>
                     <th className="pb-2 pr-4 text-right font-medium">Max</th>
-                    <th className="pb-2 font-medium">Estado</th>
+                    <th className="pb-2 pr-4 font-medium">Estado</th>
+                    <th className="pb-2 text-right font-medium">
+                      <span className="sr-only">Ação</span>
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -109,10 +119,20 @@ export function SensorsTab({ spaceId, spaceName }) {
                       </td>
                       <td className="py-2.5 pr-4 text-right tabular-nums">{sensor.minValue}</td>
                       <td className="py-2.5 pr-4 text-right tabular-nums">{sensor.maxValue}</td>
-                      <td className="py-2.5">
+                      <td className="py-2.5 pr-4">
                         <Badge variant={sensor.isActive ? "secondary" : "destructive"}>
                           {sensor.isActive ? "Ativo" : "Inativo"}
                         </Badge>
+                      </td>
+                      <td className="py-2.5 text-right">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label={`Editar sensor ${sensor.id.slice(0, 8)}`}
+                          onClick={() => setEditSensor(sensor)}
+                        >
+                          <PencilSimple />
+                        </Button>
                       </td>
                     </tr>
                   ))}
@@ -129,6 +149,16 @@ export function SensorsTab({ spaceId, spaceName }) {
         zones={zones}
         onClose={() => setAddOpen(false)}
         onSubmit={handleAdd}
+      />
+
+      <AddSensorDialog
+        open={editSensor !== null}
+        mode="edit"
+        initial={editSensor}
+        spaceName={spaceName}
+        zones={zones}
+        onClose={() => setEditSensor(null)}
+        onSubmit={handleEdit}
       />
     </>
   )

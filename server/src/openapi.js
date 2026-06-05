@@ -689,8 +689,23 @@ export default {
       parameters: [idParam('sensorId', 'Sensor id.')],
       put: {
         tags: ['Sensors'],
-        summary: 'Update a sensor (not implemented).',
-        responses: { 501: ok('Not implemented.', ref('Error')), 401: Unauthorized },
+        summary: 'Update a sensor.',
+        requestBody: {
+          required: true,
+          content: json({
+            type: 'object',
+            properties: {
+              zoneId: { type: 'string' },
+              type: { type: 'string' },
+              parameter: { type: 'string' },
+              unit: { type: 'string' },
+              minValue: { type: 'number' },
+              maxValue: { type: 'number' },
+              isActive: { type: 'boolean' },
+            },
+          }),
+        },
+        responses: { 200: ok('Updated sensor.', ref('Sensor')), 400: ValidationError, 401: Unauthorized, 404: NotFound },
       },
       delete: {
         tags: ['Sensors'],

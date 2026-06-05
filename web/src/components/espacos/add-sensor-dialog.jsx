@@ -7,7 +7,7 @@ import { Input } from "#/components/ui/input"
 import { selectClass } from "#/data/manutencao"
 import { SENSOR_TYPE_OPTIONS } from "#/data/espacos"
 
-export function AddSensorDialog({ open, spaceName, zones, onClose, onSubmit }) {
+export function AddSensorDialog({ open, spaceName, zones, mode = "create", initial, onClose, onSubmit }) {
   const [zoneId, setZoneId] = useState("")
   const [type, setType] = useState(SENSOR_TYPE_OPTIONS[0])
   const [parameter, setParameter] = useState("")
@@ -15,18 +15,19 @@ export function AddSensorDialog({ open, spaceName, zones, onClose, onSubmit }) {
   const [maxValue, setMaxValue] = useState("100")
   const [isActive, setIsActive] = useState(true)
   const [submitting, setSubmitting] = useState(false)
+  const isEdit = mode === "edit"
 
   useEffect(() => {
     if (open) {
-      setZoneId(zones[0]?.id ?? "")
-      setType(SENSOR_TYPE_OPTIONS[0])
-      setParameter("")
-      setMinValue("0")
-      setMaxValue("100")
-      setIsActive(true)
+      setZoneId(initial?.zoneId ?? zones[0]?.id ?? "")
+      setType(initial?.type ?? SENSOR_TYPE_OPTIONS[0])
+      setParameter(initial?.parameter ?? "")
+      setMinValue(initial?.minValue != null ? String(initial.minValue) : "0")
+      setMaxValue(initial?.maxValue != null ? String(initial.maxValue) : "100")
+      setIsActive(initial?.isActive ?? true)
       setSubmitting(false)
     }
-  }, [open, zones])
+  }, [open, zones, initial])
 
   if (!open) return null
 
@@ -61,9 +62,11 @@ export function AddSensorDialog({ open, spaceName, zones, onClose, onSubmit }) {
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex flex-col gap-1">
-          <h2 className="text-sm font-semibold">Adicionar sensor</h2>
+          <h2 className="text-sm font-semibold">
+            {isEdit ? "Editar sensor" : "Adicionar sensor"}
+          </h2>
           <p className="text-xs text-muted-foreground">
-            Novo sensor em {spaceName}.
+            {isEdit ? "Atualizar sensor" : "Novo sensor"} em {spaceName}.
           </p>
         </div>
         <FieldGroup className="gap-3">
@@ -149,7 +152,7 @@ export function AddSensorDialog({ open, spaceName, zones, onClose, onSubmit }) {
             Cancelar
           </Button>
           <Button onClick={handleSubmit} disabled={noZones || !zoneId || submitting}>
-            {submitting ? "A criar…" : "Adicionar"}
+            {submitting ? "A guardar…" : isEdit ? "Guardar" : "Adicionar"}
           </Button>
         </div>
       </div>

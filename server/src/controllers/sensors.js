@@ -93,7 +93,24 @@ class SensorsController {
   }
 
   static async updateSensor(req, res) {
-    res.status(501).json({ error: 'Not implemented' });
+    try {
+      const { zoneId, type, parameter, unit, minValue, maxValue, isActive } = req.body ?? {};
+
+      const sensor = await SensorsService.updateSensor(req.params.sensorId, {
+        green_space_zone_id: zoneId,
+        type,
+        parameter,
+        unit,
+        min_value: minValue,
+        max_value: maxValue,
+        is_active: isActive,
+        updated_by: req.user.id,
+      });
+
+      res.json(SensorSerializer.serialize(sensor));
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ error: error.message });
+    }
   }
 
   static async deleteSensor(req, res) {
