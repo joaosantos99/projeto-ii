@@ -32,6 +32,20 @@ class AlertsSerializer extends BaseSerializer {
   }
 
   /**
+   * Serialize a single alert with HATEOAS links.
+   * @param {Object} alert - The alert to serialize.
+   * @returns {Object} The serialized alert with links.
+   */
+  static serializeWithLinks(alert) {
+    return {
+      data: this.serializeOne(alert),
+      _links: {
+        self: { href: `/api/alerts/${alert.id}` },
+      },
+    };
+  }
+
+  /**
    * Serialize a paginated list of alerts.
    * @param {Array} alerts - The alerts array.
    * @param {Object} pagination - Pagination metadata.
@@ -48,6 +62,22 @@ class AlertsSerializer extends BaseSerializer {
       },
       _links: {
         self: { href: `/api/alerts?page=${page}&limit=${limit}` },
+      },
+    };
+  }
+
+  /**
+   * Serialize the space-scoped (unpaginated) alert collection.
+   * @param {Array} alerts - The alerts array.
+   * @param {string} spaceId - The owning space id.
+   * @returns {Object} Serialized collection response.
+   */
+  static serializeForSpace(alerts, spaceId) {
+    return {
+      data: this.serialize(alerts),
+      meta: { total: alerts.length },
+      _links: {
+        self: { href: `/api/spaces/${spaceId}/alerts` },
       },
     };
   }

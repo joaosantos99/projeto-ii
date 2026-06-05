@@ -99,23 +99,6 @@ class AlertsService {
   }
 
   /**
-   * Update an alert.
-   * @returns {Promise<Alerts>} - The alert.
-   */
-  static async updateAlert(incidentId, data) {
-    const alert = await Alerts.findByPk(incidentId);
-
-    if (!alert) {
-      const error = new Error('Alert not found');
-      error.statusCode = 404;
-      throw error;
-    }
-
-    const updatedAlert = await alert.update(data);
-    return updatedAlert;
-  }
-
-  /**
    * Get a summary of alerts stats.
    * @returns {Promise<Object>} The alerts summary.
    */

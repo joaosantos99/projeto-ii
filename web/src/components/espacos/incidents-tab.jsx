@@ -39,9 +39,9 @@ export function IncidentsTab({ spaceId }) {
   useEffect(() => {
     let cancelled = false
     setLoading(true)
-    api.get(`/spaces/${spaceId}/incidents`)
+    api.get(`/spaces/${spaceId}/alerts`)
       .then((res) => {
-        if (!cancelled) setIncidents(Array.isArray(res.data) ? res.data : [])
+        if (!cancelled) setIncidents(Array.isArray(res.data?.data) ? res.data.data : [])
       })
       .catch(() => {
         if (!cancelled) setIncidents([])
@@ -60,7 +60,7 @@ export function IncidentsTab({ spaceId }) {
       current.map((i) => (i.id === incidentId ? { ...i, isNotified: value } : i))
     )
     try {
-      await api.patch(`/spaces/${spaceId}/incidents/${incidentId}`, { is_notified: value })
+      await api.patch(`/spaces/${spaceId}/alerts/${incidentId}`, { is_notified: value })
     } catch {
       setIncidents(prev)
     }

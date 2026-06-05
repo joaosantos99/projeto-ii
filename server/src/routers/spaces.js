@@ -20,7 +20,7 @@ spacesRouter.put('/:spaceId', requireAuth, requirePermission(PERMISSIONS.SPACES_
 spacesRouter.use('/:spaceId/zones', zonesRouter);
 spacesRouter.use('/:spaceId/sensors', sensorsRouter);
 spacesRouter.use('/:spaceId/maintenance', maintenanceRouter);
-spacesRouter.use('/:spaceId/incidents', alertRouter);
+spacesRouter.use('/:spaceId/alerts', alertRouter);
 spacesRouter.use('/:spaceId/comments', reportsRouter);
 
 export default spacesRouter;

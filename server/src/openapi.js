@@ -171,6 +171,24 @@ export default {
           createdBy: { type: 'string' },
         },
       },
+      Alert: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          sensorId: { type: 'string', nullable: true },
+          spaceId: { type: 'string', nullable: true },
+          greenSpaceId: { type: 'string', nullable: true },
+          greenSpaceName: { type: 'string', nullable: true },
+          severity: { type: 'string' },
+          message: { type: 'string' },
+          isNotified: { type: 'boolean' },
+          status: { type: 'string', nullable: true },
+          updatedAt: { type: 'string', format: 'date-time', nullable: true },
+          updatedBy: { type: 'string', nullable: true },
+          createdAt: { type: 'string', format: 'date-time' },
+          createdBy: { type: 'string', nullable: true },
+        },
+      },
       MaintenanceTask: {
         type: 'object',
         properties: {
@@ -780,6 +798,8 @@ export default {
           queryParam('page', { type: 'integer', minimum: 1, default: 1 }, 'Page number.'),
           queryParam('limit', { type: 'integer', minimum: 1, default: 20 }, 'Items per page.'),
           queryParam('severity', { type: 'string' }, 'Filter by severity.'),
+          queryParam('unacknowledgedOnly', { type: 'boolean' }, 'When true, return only not-yet-notified alerts.'),
+          queryParam('acknowledgedOnly', { type: 'boolean' }, 'When true, return only notified alerts.'),
           queryParam('onlyCount', { type: 'boolean' }, 'When true, skip rows and return only `{ meta: { total } }`.'),
           queryParam('summary', { type: 'boolean' }, 'When true, include the alerts statistics summary under `summary`.'),
         ],
@@ -787,8 +807,9 @@ export default {
           200: ok('Paginated alerts.', {
             type: 'object',
             properties: {
-              data: { type: 'array', items: { type: 'object' } },
+              data: { type: 'array', items: ref('Alert') },
               meta: ref('Pagination'),
+              _links: linksSelf,
             },
           }),
           401: Unauthorized,
@@ -797,9 +818,14 @@ export default {
     },
     '/alerts/{alertId}': {
       parameters: [idParam('alertId', 'Alert id.')],
+      get: {
+        tags: ['Alerts'],
+        summary: 'Get an alert by id.',
+        responses: { 200: ok('Alert.', withLinks(ref('Alert'))), 401: Unauthorized, 404: NotFound },
+      },
       patch: {
         tags: ['Alerts'],
-        summary: 'Update an alert. Pass `acknowledged: true` to acknowledge it.',
+        summary: 'Partially update an alert. Pass `acknowledged: true` to acknowledge it.',
         requestBody: {
           required: true,
           content: json({
@@ -812,7 +838,45 @@ export default {
             },
           }),
         },
-        responses: { 200: ok('Updated alert.', { type: 'object' }), 400: ValidationError, 401: Unauthorized, 404: NotFound },
+        responses: { 200: ok('Updated alert.', withLinks(ref('Alert'))), 400: ValidationError, 401: Unauthorized, 404: NotFound },
+      },
+    },
+    '/spaces/{spaceId}/alerts': {
+      parameters: [idParam('spaceId', 'Space id.')],
+      get: {
+        tags: ['Alerts'],
+        summary: 'List alerts of a space (unpaginated).',
+        responses: {
+          200: ok('Alerts for the space.', {
+            type: 'object',
+            properties: {
+              data: { type: 'array', items: ref('Alert') },
+              meta: { type: 'object', properties: { total: { type: 'integer' } } },
+              _links: linksSelf,
+            },
+          }),
+          401: Unauthorized,
+        },
+      },
+    },
+    '/spaces/{spaceId}/alerts/{alertId}': {
+      parameters: [idParam('spaceId', 'Space id.'), idParam('alertId', 'Alert id.')],
+      patch: {
+        tags: ['Alerts'],
+        summary: 'Partially update a space alert (same as PATCH /alerts/{alertId}).',
+        requestBody: {
+          required: true,
+          content: json({
+            type: 'object',
+            properties: {
+              severity: { type: 'string' },
+              message: { type: 'string' },
+              is_notified: { type: 'boolean' },
+              acknowledged: { type: 'boolean' },
+            },
+          }),
+        },
+        responses: { 200: ok('Updated alert.', withLinks(ref('Alert'))), 400: ValidationError, 401: Unauthorized, 404: NotFound },
       },
     },
 

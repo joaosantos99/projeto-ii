@@ -88,10 +88,10 @@ export function AlertasPage() {
             item.id === alertId
               ? {
                   ...item,
-                  status: res.data?.status ?? "confirmed",
+                  status: res.data?.data?.status ?? "confirmed",
                   isNotified: true,
-                  updatedAt: res.data?.updatedAt ?? item.updatedAt,
-                  updatedBy: res.data?.updatedBy ?? item.updatedBy,
+                  updatedAt: res.data?.data?.updatedAt ?? item.updatedAt,
+                  updatedBy: res.data?.data?.updatedBy ?? item.updatedBy,
                 }
               : item,
           ),

@@ -14,7 +14,7 @@ class AlertsController {
     try {
       if (req.params.spaceId) {
         const alerts = await AlertsService.getAlertsBySpace(req.params.spaceId);
-        return res.json(AlertsSerializer.serialize(alerts));
+        return res.json(AlertsSerializer.serializeForSpace(alerts, req.params.spaceId));
       }
 
       const severity = req.query.severity;
@@ -49,19 +49,32 @@ class AlertsController {
 
       res.json(payload);
     } catch (error) {
-      res.status(error.statusCode || 500).json({ error: error.message });
+      res.status(error.statusCode || 500).json({ description: error.message });
     }
   }
 
   /**
-   * Update an alert. Pass `acknowledged: true` to acknowledge it.
+   * Get a single alert by id.
+   * GET /api/alerts/:alertId
+   */
+  static async getAlertById(req, res) {
+    try {
+      const alert = await AlertsService.getAlertById(req.params.alertId);
+      res.json(AlertsSerializer.serializeWithLinks(alert));
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ description: error.message });
+    }
+  }
+
+  /**
+   * Partially update an alert. Pass `acknowledged: true` to acknowledge it.
    * @param {Object} req - The request object.
    * @param {Object} res - The response object.
    */
   static async updateAlert(req, res) {
     try {
       if (!req.body || Object.keys(req.body).length === 0) {
-        return res.status(400).json({ error: 'No fields provided for update' });
+        return res.status(400).json({ description: 'No fields provided for update' });
       }
 
       const { severity, message, is_notified, acknowledged } = req.body;
@@ -73,9 +86,9 @@ class AlertsController {
         updated_by: req.user?.id,
       });
 
-      res.json(AlertsSerializer.serialize(updatedAlert));
+      res.json(AlertsSerializer.serializeWithLinks(updatedAlert));
     } catch (error) {
-      res.status(error.statusCode || 500).json({ error: error.message });
+      res.status(error.statusCode || 500).json({ description: error.message });
     }
   }
 }
