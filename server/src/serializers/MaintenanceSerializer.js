@@ -61,15 +61,6 @@ class MaintenanceSerializer extends BaseSerializer {
   }
 
   /**
-   * Serialize the result of a status update.
-   * @param {Object} task - The updated task.
-   * @returns {Object} Serialized task with HATEOAS links.
-   */
-  static serializeStatusUpdate(task) {
-    return this.serializeWithLinks(task);
-  }
-
-  /**
    * Serialize maintenance summary.
    * @param {Object} summary - The summary data.
    * @returns {Object} Serialized summary.

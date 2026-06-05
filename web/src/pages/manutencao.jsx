@@ -198,7 +198,7 @@ export function ManutencaoPage() {
       return next
     })
 
-    api.patch(`/maintenance/${taskId}/status`, { status }).catch(() => {
+    api.patch(`/maintenance/${taskId}`, { status }).catch(() => {
       setColumnState(snapshot)
     })
   }

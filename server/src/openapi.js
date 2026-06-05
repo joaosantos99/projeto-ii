@@ -9,6 +9,18 @@ const ok = (description, schema) => ({
 
 const ref = (name) => ({ $ref: `#/components/schemas/${name}` });
 
+// Single-resource responses are wrapped as `{ data, _links }`.
+const linksSelf = {
+  type: 'object',
+  properties: {
+    self: { type: 'object', properties: { href: { type: 'string' } } },
+  },
+};
+const withLinks = (schema) => ({
+  type: 'object',
+  properties: { data: schema, _links: linksSelf },
+});
+
 // Reusable responses
 const ValidationError = {
   description: 'Invalid request parameters.',
@@ -821,8 +833,9 @@ export default {
           200: ok('Paginated tasks.', {
             type: 'object',
             properties: {
-              tasks: { type: 'array', items: ref('MaintenanceTask') },
-              pagination: ref('Pagination'),
+              data: { type: 'array', items: ref('MaintenanceTask') },
+              meta: ref('Pagination'),
+              _links: linksSelf,
               summary: {
                 type: 'object',
                 description: 'Present only when summary=true.',
@@ -855,14 +868,19 @@ export default {
             },
           }),
         },
-        responses: { 201: ok('Created task.', ref('MaintenanceTask')), 400: ValidationError, 401: Unauthorized },
+        responses: { 201: ok('Created task.', withLinks(ref('MaintenanceTask'))), 400: ValidationError, 401: Unauthorized },
       },
     },
-    '/maintenance/{taskId}': {
-      parameters: [idParam('taskId', 'Maintenance task id.')],
+    '/maintenance/{maintenanceId}': {
+      parameters: [idParam('maintenanceId', 'Maintenance task id.')],
+      get: {
+        tags: ['Maintenance'],
+        summary: 'Get a maintenance task by id.',
+        responses: { 200: ok('Task.', withLinks(ref('MaintenanceTask'))), 401: Unauthorized, 404: NotFound },
+      },
       put: {
         tags: ['Maintenance'],
-        summary: 'Full update of a maintenance task.',
+        summary: 'Full replacement of a maintenance task.',
         requestBody: {
           required: true,
           content: json({
@@ -878,30 +896,28 @@ export default {
             },
           }),
         },
-        responses: { 200: ok('Updated task.', ref('MaintenanceTask')), 400: ValidationError, 401: Unauthorized, 404: NotFound },
+        responses: { 200: ok('Updated task.', withLinks(ref('MaintenanceTask'))), 400: ValidationError, 401: Unauthorized, 404: NotFound },
       },
-    },
-    '/maintenance/{taskId}/status': {
-      parameters: [idParam('taskId', 'Maintenance task id.')],
       patch: {
         tags: ['Maintenance'],
-        summary: 'Update only the status of a maintenance task.',
-        description: 'Setting status to `completed` stamps `completed_at` automatically.',
+        summary: 'Partial update of a maintenance task.',
+        description: 'Update any subset of fields. Setting `status` to `completed` stamps `completed_at` automatically.',
         requestBody: {
           required: true,
           content: json({
             type: 'object',
-            required: ['status'],
             properties: {
+              type: { type: 'string' },
+              description: { type: 'string' },
               status: { type: 'string', enum: ['scheduled', 'in_progress', 'critical', 'completed'] },
+              green_spaces_id: { type: 'string' },
+              scheduled_date: { type: 'string', format: 'date-time' },
+              completed_at: { type: 'string', format: 'date-time', nullable: true },
             },
           }),
         },
-        responses: { 200: ok('Updated task.', ref('MaintenanceTask')), 400: ValidationError, 401: Unauthorized, 404: NotFound },
+        responses: { 200: ok('Updated task.', withLinks(ref('MaintenanceTask'))), 400: ValidationError, 401: Unauthorized, 404: NotFound },
       },
-    },
-    '/maintenance/{maintenanceId}': {
-      parameters: [idParam('maintenanceId', 'Maintenance task id.')],
       delete: {
         tags: ['Maintenance'],
         summary: 'Delete a maintenance task.',

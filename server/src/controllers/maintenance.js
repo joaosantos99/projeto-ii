@@ -41,6 +41,19 @@ class MaintenanceController {
   }
 
   /**
+   * Get a single maintenance task by id.
+   * GET /api/maintenance/:maintenanceId
+   */
+  static async getTaskById(req, res) {
+    try {
+      const task = await MaintenanceService.getTaskById(req.params.maintenanceId);
+      res.json(MaintenanceSerializer.serializeWithLinks(task));
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ description: error.message });
+    }
+  }
+
+  /**
    * Delete a task.
    * @param {Object} req - The request object.
    * @param {Object} res - The response object.
@@ -50,7 +63,7 @@ class MaintenanceController {
       await MaintenanceService.deleteTask(req.params.maintenanceId);
       res.status(204).send();
     } catch (error) {
-      res.status(error.statusCode || 500).json({ error: error.message });
+      res.status(error.statusCode || 500).json({ description: error.message });
     }
   }
 
@@ -75,30 +88,33 @@ class MaintenanceController {
   }
 
   /**
-   * Update the status of a maintenance task.
-   * PATCH /api/maintenance/tasks/:taskId/status
+   * Full replacement of a maintenance task.
+   * PUT /api/maintenance/:maintenanceId
    */
-  static async updateTaskStatus(req, res) {
+  static async updateTask(req, res) {
     try {
-      const task = await MaintenanceService.updateTaskStatus(
-        req.params.taskId,
-        req.body.status,
-        req.user?.id,
-      );
+      const task = await MaintenanceService.updateTask(req.params.maintenanceId, {
+        ...req.body,
+        updated_by: req.user?.id,
+      });
 
-      res.json(MaintenanceSerializer.serializeStatusUpdate(task));
+      res.json(MaintenanceSerializer.serializeWithLinks(task));
     } catch (error) {
-      res.status(error.statusCode || 500).json({ description: error.message });
+      res.status(error.statusCode || 500).json({
+        description: error.message,
+        ...(error.errors && { errors: error.errors }),
+      });
     }
   }
 
   /**
-   * Full update of a maintenance task.
-   * PUT /api/maintenance/tasks/:taskId
+   * Partial update of a maintenance task (any subset of fields, incl. status).
+   * Setting status to 'completed' stamps completed_at automatically.
+   * PATCH /api/maintenance/:maintenanceId
    */
-  static async updateTask(req, res) {
+  static async patchTask(req, res) {
     try {
-      const task = await MaintenanceService.updateTask(req.params.taskId, {
+      const task = await MaintenanceService.patchTask(req.params.maintenanceId, {
         ...req.body,
         updated_by: req.user?.id,
       });

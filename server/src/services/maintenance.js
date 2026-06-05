@@ -29,15 +29,17 @@ class MaintenanceService {
    * Delete a maintenance task.
    */
   static async deleteTask(maintenanceId) {
-    const task = await MaintenanceTasks.findByPk(maintenanceId);
-
-    if (!task) {
-      const error = new Error('Maintenance task not found');
-      error.statusCode = 404;
-      throw error;
-    }
-
+    const task = await this.#findTaskOrFail(maintenanceId);
     await task.destroy();
+  }
+
+  /**
+   * Get a single maintenance task by id.
+   * @param {string} maintenanceId - The task UUID.
+   * @returns {Promise<MaintenanceTasks>} The found task.
+   */
+  static async getTaskById(maintenanceId) {
+    return this.#findTaskOrFail(maintenanceId);
   }
 
   /**
@@ -165,27 +167,29 @@ class MaintenanceService {
   }
 
   /**
-   * Update the status of a maintenance task.
-   * Sets completed_at automatically when status is 'completed'.
-   * @param {string} taskId - The task UUID.
-   * @param {string} status - The new status value.
-   * @param {string} userId - The user performing the update.
+   * Partially update a maintenance task (any subset of fields).
+   * Sets completed_at automatically when status transitions to 'completed'.
+   * @param {string} maintenanceId - The task UUID.
+   * @param {Object} data - The fields to update.
    * @returns {Promise<MaintenanceTasks>} The updated task.
    */
-  static async updateTaskStatus(taskId, status, userId) {
-    if (!status) {
-      const error = new Error('Invalid task id');
-      error.statusCode = 400;
-      throw error;
-    }
+  static async patchTask(maintenanceId, data) {
+    const task = await this.#findTaskOrFail(maintenanceId);
 
-    const task = await this.#findTaskOrFail(taskId);
+    const completedNow =
+      data.status === TASK_STATUS.COMPLETED && data.completed_at === undefined
+        ? new Date()
+        : data.completed_at ?? task.completed_at;
 
     await task.update({
-      status,
-      completed_at: status === TASK_STATUS.COMPLETED ? new Date() : task.completed_at,
+      green_spaces_id: data.green_spaces_id ?? task.green_spaces_id,
+      type: data.type ?? task.type,
+      description: data.description ?? task.description,
+      status: data.status ?? task.status,
+      scheduled_date: data.scheduled_date ?? task.scheduled_date,
+      completed_at: completedNow,
       updated_at: new Date(),
-      updated_by: userId,
+      updated_by: data.updated_by,
     });
 
     return task;
@@ -193,14 +197,14 @@ class MaintenanceService {
 
   /**
    * Replace a maintenance task (full update).
-   * @param {string} taskId - The task UUID.
+   * @param {string} maintenanceId - The task UUID.
    * @param {Object} data - The full task payload.
    * @returns {Promise<MaintenanceTasks>} The updated task.
    */
-  static async updateTask(taskId, data) {
+  static async updateTask(maintenanceId, data) {
     this.#validateRequiredFields(data);
 
-    const task = await this.#findTaskOrFail(taskId);
+    const task = await this.#findTaskOrFail(maintenanceId);
 
     await task.update({
       green_spaces_id: data.green_spaces_id ?? task.green_spaces_id,
