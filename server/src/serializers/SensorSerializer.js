@@ -36,6 +36,36 @@ class SensorSerializer extends BaseSerializer {
   }
 
   /**
+   * Serialize a single sensor with HATEOAS links.
+   * @param {Object} sensor - The sensor to serialize.
+   * @returns {Object} The serialized sensor with links.
+   */
+  static serializeWithLinks(sensor) {
+    return {
+      data: this.serializeOne(sensor),
+      _links: {
+        self: { href: `/api/sensors/${sensor.id}` },
+      },
+    };
+  }
+
+  /**
+   * Serialize the space-scoped (unpaginated) sensor collection.
+   * @param {Array} sensors - The sensors array.
+   * @param {string} spaceId - The owning space id.
+   * @returns {Object} Serialized collection response.
+   */
+  static serializeForSpace(sensors, spaceId) {
+    return {
+      data: this.serialize(sensors),
+      meta: { total: sensors.length },
+      _links: {
+        self: { href: `/api/spaces/${spaceId}/sensors` },
+      },
+    };
+  }
+
+  /**
    * Serialize a paginated list of sensors.
    * @param {Array} sensors - The sensors array.
    * @param {Object} pagination - Pagination metadata.

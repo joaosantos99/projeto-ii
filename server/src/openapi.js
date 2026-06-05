@@ -718,6 +718,7 @@ export default {
             properties: {
               data: { type: 'array', items: ref('Sensor') },
               meta: ref('Pagination'),
+              _links: linksSelf,
               summary: { type: 'object' },
               distribution: { type: 'object' },
             },
@@ -726,15 +727,38 @@ export default {
       },
       post: {
         tags: ['Sensors'],
-        summary: 'Create a sensor (use the space-nested route).',
-        responses: { 201: ok('Created sensor.', ref('Sensor')), 400: ValidationError, 401: Unauthorized },
+        summary: 'Create a sensor.',
+        description: 'The owning space is derived from the zone. Equivalent to the space-nested route.',
+        requestBody: {
+          required: true,
+          content: json({
+            type: 'object',
+            required: ['zoneId', 'type'],
+            properties: {
+              zoneId: { type: 'string' },
+              type: { type: 'string' },
+              parameter: { type: 'string' },
+              unit: { type: 'string' },
+              minValue: { type: 'number' },
+              maxValue: { type: 'number' },
+              isActive: { type: 'boolean' },
+            },
+          }),
+        },
+        responses: { 201: ok('Created sensor.', withLinks(ref('Sensor'))), 400: ValidationError, 401: Unauthorized },
       },
     },
     '/sensors/{sensorId}': {
       parameters: [idParam('sensorId', 'Sensor id.')],
-      put: {
+      get: {
         tags: ['Sensors'],
-        summary: 'Update a sensor.',
+        summary: 'Get a sensor by id.',
+        security: [],
+        responses: { 200: ok('Sensor.', withLinks(ref('Sensor'))), 404: NotFound },
+      },
+      patch: {
+        tags: ['Sensors'],
+        summary: 'Partially update a sensor.',
         requestBody: {
           required: true,
           content: json({
@@ -750,7 +774,7 @@ export default {
             },
           }),
         },
-        responses: { 200: ok('Updated sensor.', ref('Sensor')), 400: ValidationError, 401: Unauthorized, 404: NotFound },
+        responses: { 200: ok('Updated sensor.', withLinks(ref('Sensor'))), 400: ValidationError, 401: Unauthorized, 404: NotFound },
       },
       delete: {
         tags: ['Sensors'],
@@ -762,9 +786,18 @@ export default {
       parameters: [idParam('spaceId', 'Space id.')],
       get: {
         tags: ['Sensors'],
-        summary: 'List sensors of a space.',
+        summary: 'List sensors of a space (unpaginated).',
         security: [],
-        responses: { 200: ok('Sensors.', { type: 'array', items: ref('Sensor') }) },
+        responses: {
+          200: ok('Sensors for the space.', {
+            type: 'object',
+            properties: {
+              data: { type: 'array', items: ref('Sensor') },
+              meta: { type: 'object', properties: { total: { type: 'integer' } } },
+              _links: linksSelf,
+            },
+          }),
+        },
       },
       post: {
         tags: ['Sensors'],
@@ -785,7 +818,7 @@ export default {
             },
           }),
         },
-        responses: { 201: ok('Created sensor.', ref('Sensor')), 400: ValidationError, 401: Unauthorized },
+        responses: { 201: ok('Created sensor.', withLinks(ref('Sensor'))), 400: ValidationError, 401: Unauthorized },
       },
     },
 

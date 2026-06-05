@@ -16,7 +16,7 @@ class SensorsController {
     try {
       if (req.params.spaceId) {
         const sensors = await SensorsService.getSensorsBySpace(req.params.spaceId);
-        return res.json(SensorSerializer.serialize(sensors));
+        return res.json(SensorSerializer.serializeForSpace(sensors, req.params.spaceId));
       }
 
       const page = Math.max(1, parseInt(req.query.page) || 1);
@@ -37,12 +37,26 @@ class SensorsController {
 
       res.json(SensorSerializer.serializePaginated(sensors, { page, limit, total }, extras));
     } catch (error) {
-      res.status(error.statusCode || 500).json({ error: error.message });
+      res.status(error.statusCode || 500).json({ description: error.message });
     }
   }
 
   /**
-   * Register a new sensor for a space.
+   * Get a single sensor by id.
+   * GET /api/sensors/:sensorId
+   */
+  static async getSensorById(req, res) {
+    try {
+      const sensor = await SensorsService.getSensorById(req.params.sensorId);
+      res.json(SensorSerializer.serializeWithLinks(sensor));
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ description: error.message });
+    }
+  }
+
+  /**
+   * Register a new sensor. The owning space is derived from the zone; when
+   * nested under a space, the zone is also checked to belong to that space.
    * @param {Object} req - The request object.
    * @param {Object} res - The response object.
    */
@@ -59,7 +73,10 @@ class SensorsController {
       }
 
       const zone = await SensorsService.getZoneById(zoneId);
-      if (!zone || zone.green_spaces_id !== req.params.spaceId) {
+      if (!zone) {
+        return res.status(400).json({ description: 'Zona inválida.', errors: { zoneId: ['Zona inválida.'] } });
+      }
+      if (req.params.spaceId && zone.green_spaces_id !== req.params.spaceId) {
         return res.status(400).json({ description: 'Zona inválida para este espaço.', errors: { zoneId: ['Zona inválida.'] } });
       }
 
@@ -75,11 +92,10 @@ class SensorsController {
         updated_by: req.user.id,
       });
 
-      const created = await SensorsService.getSensorsBySpace(req.params.spaceId);
-      const fresh = created.find((s) => s.id === sensor.id) ?? sensor;
-      res.status(201).json(SensorSerializer.serialize(fresh));
+      const fresh = await SensorsService.getSensorById(sensor.id);
+      res.status(201).json(SensorSerializer.serializeWithLinks(fresh));
     } catch (error) {
-      res.status(error.statusCode || 500).json({ error: error.message });
+      res.status(error.statusCode || 500).json({ description: error.message });
     }
   }
 
@@ -88,7 +104,7 @@ class SensorsController {
       const count = await SensorsService.count();
       res.json({ count });
     } catch (error) {
-      res.status(error.statusCode || 500).json({ error: error.message });
+      res.status(error.statusCode || 500).json({ description: error.message });
     }
   }
 
@@ -107,9 +123,9 @@ class SensorsController {
         updated_by: req.user.id,
       });
 
-      res.json(SensorSerializer.serialize(sensor));
+      res.json(SensorSerializer.serializeWithLinks(sensor));
     } catch (error) {
-      res.status(error.statusCode || 500).json({ error: error.message });
+      res.status(error.statusCode || 500).json({ description: error.message });
     }
   }
 
@@ -118,7 +134,7 @@ class SensorsController {
       await SensorsService.deleteSensor(req.params.sensorId);
       res.status(204).send();
     } catch (error) {
-      res.status(error.statusCode || 500).json({ error: error.message });
+      res.status(error.statusCode || 500).json({ description: error.message });
     }
   }
 }

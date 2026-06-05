@@ -186,6 +186,32 @@ class SensorsService {
   }
 
   /**
+   * Get a single sensor by id, with its zone and space loaded.
+   * @param {string} sensorId
+   * @returns {Promise<Sensors>} The sensor.
+   */
+  static async getSensorById(sensorId) {
+    const sensor = await Sensors.findByPk(sensorId, {
+      include: [
+        {
+          model: GreenSpaceZones,
+          as: 'greenSpaceZone',
+          attributes: ['id', 'name', 'green_spaces_id'],
+          include: [{ model: GreenSpaces, as: 'greenSpace', attributes: ['id', 'name'] }],
+        },
+      ],
+    });
+
+    if (!sensor) {
+      const error = new Error('Sensor not found');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    return sensor;
+  }
+
+  /**
    * Update an existing sensor. Only provided fields are changed.
    * @param {string} sensorId
    * @param {Object} data - Partial sensor fields (snake_case).

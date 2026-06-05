@@ -31,7 +31,7 @@ export function SensorsTab({ spaceId, spaceName }) {
     let cancelled = false
     setLoading(true)
     Promise.all([
-      api.get(`/spaces/${spaceId}/sensors`).then((r) => r.data).catch(() => []),
+      api.get(`/spaces/${spaceId}/sensors`).then((r) => r.data?.data ?? []).catch(() => []),
       api.get(`/spaces/${spaceId}/zones`).then((r) => r.data).catch(() => []),
     ])
       .then(([s, z]) => {
@@ -49,13 +49,13 @@ export function SensorsTab({ spaceId, spaceName }) {
 
   const handleAdd = async (payload) => {
     const res = await api.post(`/spaces/${spaceId}/sensors`, payload)
-    setSensors((prev) => [res.data, ...prev])
+    setSensors((prev) => [res.data?.data ?? res.data, ...prev])
     setAddOpen(false)
   }
 
   const handleEdit = async (payload) => {
-    const res = await api.put(`/sensors/${editSensor.id}`, payload)
-    setSensors((prev) => prev.map((s) => (s.id === editSensor.id ? res.data : s)))
+    const res = await api.patch(`/sensors/${editSensor.id}`, payload)
+    setSensors((prev) => prev.map((s) => (s.id === editSensor.id ? (res.data?.data ?? res.data) : s)))
     setEditSensor(null)
   }
 
