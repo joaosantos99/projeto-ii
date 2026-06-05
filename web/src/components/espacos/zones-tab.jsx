@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from "react"
-import { Plus, Trash, Tree } from "@phosphor-icons/react"
+import { PencilSimple, Plus, Trash, Tree } from "@phosphor-icons/react"
 import { Button } from "#/components/ui/button"
 import {
   Card,
@@ -23,6 +23,7 @@ export function ZonesTab({ spaceId, spaceName }) {
   const [zones, setZones] = useState([])
   const [loading, setLoading] = useState(true)
   const [addOpen, setAddOpen] = useState(false)
+  const [editZone, setEditZone] = useState(null)
 
   useEffect(() => {
     let cancelled = false
@@ -46,6 +47,12 @@ export function ZonesTab({ spaceId, spaceName }) {
     const res = await api.post(`/spaces/${spaceId}/zones`, { name })
     setZones((prev) => [...prev, res.data])
     setAddOpen(false)
+  }
+
+  const handleEdit = async ({ name }) => {
+    const res = await api.put(`/spaces/${spaceId}/zones/${editZone.id}`, { name })
+    setZones((prev) => prev.map((z) => (z.id === editZone.id ? res.data : z)))
+    setEditZone(null)
   }
 
   const handleRemove = async (zoneId) => {
@@ -107,6 +114,14 @@ export function ZonesTab({ spaceId, spaceName }) {
                         <Button
                           variant="ghost"
                           size="icon"
+                          aria-label={`Editar ${zone.name}`}
+                          onClick={() => setEditZone(zone)}
+                        >
+                          <PencilSimple />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           aria-label={`Remover ${zone.name}`}
                           onClick={() => handleRemove(zone.id)}
                         >
@@ -127,6 +142,15 @@ export function ZonesTab({ spaceId, spaceName }) {
         spaceName={spaceName}
         onClose={() => setAddOpen(false)}
         onSubmit={handleAdd}
+      />
+
+      <AddZoneDialog
+        open={editZone !== null}
+        mode="edit"
+        initial={editZone}
+        spaceName={spaceName}
+        onClose={() => setEditZone(null)}
+        onSubmit={handleEdit}
       />
     </>
   )

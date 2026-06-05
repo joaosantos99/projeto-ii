@@ -5,16 +5,17 @@ import { Button } from "#/components/ui/button"
 import { Field, FieldGroup, FieldLabel } from "#/components/ui/field"
 import { Input } from "#/components/ui/input"
 
-export function AddZoneDialog({ open, spaceName, onClose, onSubmit }) {
+export function AddZoneDialog({ open, spaceName, mode = "create", initial, onClose, onSubmit }) {
   const [name, setName] = useState("")
   const [submitting, setSubmitting] = useState(false)
+  const isEdit = mode === "edit"
 
   useEffect(() => {
     if (open) {
-      setName("")
+      setName(initial?.name ?? "")
       setSubmitting(false)
     }
-  }, [open])
+  }, [open, initial])
 
   if (!open) return null
 
@@ -39,7 +40,9 @@ export function AddZoneDialog({ open, spaceName, onClose, onSubmit }) {
         onClick={(event) => event.stopPropagation()}
       >
         <div className="flex flex-col gap-1">
-          <h2 className="text-sm font-semibold">Nova zona</h2>
+          <h2 className="text-sm font-semibold">
+            {isEdit ? "Editar zona" : "Nova zona"}
+          </h2>
           <p className="text-xs text-muted-foreground">
             Defina uma subdivisão monitorizada em {spaceName}.
           </p>
@@ -60,7 +63,7 @@ export function AddZoneDialog({ open, spaceName, onClose, onSubmit }) {
             Cancelar
           </Button>
           <Button onClick={handleSubmit} disabled={!name.trim() || submitting}>
-            {submitting ? "A criar…" : "Adicionar"}
+            {submitting ? "A guardar…" : isEdit ? "Guardar" : "Adicionar"}
           </Button>
         </div>
       </div>
