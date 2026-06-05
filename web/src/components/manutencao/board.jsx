@@ -8,7 +8,7 @@ import { Button } from "#/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card"
 import { TaskCard, TASK_CARD_TYPE } from "#/components/manutencao/task-card"
 
-function BoardColumn({ column, onMoveTask, onLoadMore }) {
+function BoardColumn({ column, onMoveTask, onLoadMore, onEditTask }) {
   const [{ isOver, canDrop }, dropRef] = useDrop(
     () => ({
       accept: TASK_CARD_TYPE,
@@ -37,7 +37,7 @@ function BoardColumn({ column, onMoveTask, onLoadMore }) {
       </CardHeader>
       <CardContent className="flex min-h-60 flex-col gap-3">
         {column.tasks.map((task) => (
-          <TaskCard key={task.id} task={task} />
+          <TaskCard key={task.id} task={task} onEdit={onEditTask} />
         ))}
         {column.tasks.length === 0 ? (
           <div className="rounded-none border border-dashed p-4 text-center text-muted-foreground text-sm">
@@ -60,7 +60,7 @@ function BoardColumn({ column, onMoveTask, onLoadMore }) {
   )
 }
 
-export function Board({ columns, onMoveTask, onLoadMore }) {
+export function Board({ columns, onMoveTask, onLoadMore, onEditTask }) {
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="grid gap-4 lg:grid-cols-3">
@@ -70,6 +70,7 @@ export function Board({ columns, onMoveTask, onLoadMore }) {
             column={column}
             onMoveTask={onMoveTask}
             onLoadMore={onLoadMore}
+            onEditTask={onEditTask}
           />
         ))}
       </div>

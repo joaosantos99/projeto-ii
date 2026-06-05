@@ -18,6 +18,7 @@ import { KpiCards } from "#/components/manutencao/kpi-cards"
 import { FiltersSheet } from "#/components/manutencao/filters-sheet"
 import { Board } from "#/components/manutencao/board"
 import { CreateTaskDialog } from "#/components/manutencao/create-task-dialog"
+import { EditTaskDialog } from "#/components/manutencao/edit-task-dialog"
 import { boardColumns } from "#/data/manutencao"
 import { api } from "#/lib/api"
 
@@ -68,6 +69,7 @@ export function ManutencaoPage() {
   const [columnState, setColumnState] = useState(emptyColumnState)
   const [loading, setLoading] = useState(true)
   const [createOpen, setCreateOpen] = useState(false)
+  const [editTask, setEditTask] = useState(null)
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [query, setQuery] = useState("")
   const [zoneFilter, setZoneFilter] = useState("todos")
@@ -218,6 +220,27 @@ export function ManutencaoPage() {
     })
   }
 
+  const handleUpdate = (payload) => {
+    return api.put(`/maintenance/${editTask.id}`, payload).then((res) => {
+      const updated = normalizeTask(res.data?.data ?? res.data)
+      if (updated) {
+        setColumnState((current) => {
+          const next = { ...current }
+          for (const id of Object.keys(next)) {
+            const idx = next[id].tasks.findIndex((t) => t.id === editTask.id)
+            if (idx >= 0) {
+              const tasks = [...next[id].tasks]
+              tasks[idx] = updated
+              next[id] = { ...next[id], tasks }
+            }
+          }
+          return next
+        })
+      }
+      setEditTask(null)
+    })
+  }
+
   return (
     <div className="flex flex-col gap-6">
       <KpiCards tasks={allTasks} />
@@ -268,6 +291,7 @@ export function ManutencaoPage() {
               columns={columns}
               onMoveTask={handleMoveTask}
               onLoadMore={handleLoadMore}
+              onEditTask={setEditTask}
             />
           )}
         </CardContent>
@@ -277,6 +301,13 @@ export function ManutencaoPage() {
         open={createOpen}
         onClose={() => setCreateOpen(false)}
         onCreate={handleCreate}
+      />
+
+      <EditTaskDialog
+        open={editTask !== null}
+        task={editTask}
+        onClose={() => setEditTask(null)}
+        onSubmit={handleUpdate}
       />
 
       <FiltersSheet
