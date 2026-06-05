@@ -48,7 +48,7 @@ export function SensorsTab({ spaceId, spaceName }) {
   }, [spaceId])
 
   const handleAdd = async (payload) => {
-    const res = await api.post(`/spaces/${spaceId}/sensors`, payload)
+    const res = await api.post(`/sensors`, payload)
     setSensors((prev) => [res.data?.data ?? res.data, ...prev])
     setAddOpen(false)
   }

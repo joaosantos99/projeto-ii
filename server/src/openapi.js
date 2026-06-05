@@ -787,6 +787,7 @@ export default {
       get: {
         tags: ['Sensors'],
         summary: 'List sensors of a space (unpaginated).',
+        description: 'To create a sensor, use `POST /sensors` (the space is derived from the zone).',
         security: [],
         responses: {
           200: ok('Sensors for the space.', {
@@ -798,27 +799,6 @@ export default {
             },
           }),
         },
-      },
-      post: {
-        tags: ['Sensors'],
-        summary: 'Register a sensor for a space.',
-        requestBody: {
-          required: true,
-          content: json({
-            type: 'object',
-            required: ['zoneId', 'type'],
-            properties: {
-              zoneId: { type: 'string' },
-              type: { type: 'string' },
-              parameter: { type: 'string' },
-              unit: { type: 'string' },
-              minValue: { type: 'number' },
-              maxValue: { type: 'number' },
-              isActive: { type: 'boolean' },
-            },
-          }),
-        },
-        responses: { 201: ok('Created sensor.', withLinks(ref('Sensor'))), 400: ValidationError, 401: Unauthorized },
       },
     },
 
