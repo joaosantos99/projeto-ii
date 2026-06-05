@@ -7,8 +7,6 @@ import requirePermission from '../middleware/requirePermission.js';
 const reportsRouter = Router({ mergeParams: true });
 
 reportsRouter.get('/', requireAuth, requirePermission('reports:read'), ReportsController.getReports);
-
-reportsRouter.post('/:spaceId/incident', ReportsController.createIncident);
-reportsRouter.post('/:spaceId/comment', ReportsController.createComment);
+reportsRouter.get('/:reportId', requireAuth, requirePermission('reports:read'), ReportsController.getReportById);
 
 export default reportsRouter;

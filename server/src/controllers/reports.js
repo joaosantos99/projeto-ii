@@ -26,32 +26,32 @@ class ReportsController {
   }
 
   /**
-   * Create an incident for a space.
+   * Get a single report by id.
    * @param {Object} req - The request object.
    * @param {Object} res - The response object.
    */
-  static async createIncident(req, res) {
+  static async getReportById(req, res) {
     try {
-      const report = await ReportsService.createIncident(req.params.spaceId, req.body);
-
-      res.status(201).json(ReportSerializer.serialize(report));
+      const report = await ReportsService.getReportById(req.params.reportId);
+      res.json(ReportSerializer.serializeWithLinks(report));
     } catch (error) {
-      res.status(error.statusCode || 500).json({ error: error.message });
+      res.status(error.statusCode || 500).json({ description: error.message });
     }
   }
 
   /**
-   * Create a comment for a space.
+   * Create a report for a space. The `type` (incident|comment) comes from the body.
+   * POST /api/spaces/:spaceId/reports
    * @param {Object} req - The request object.
    * @param {Object} res - The response object.
    */
-  static async createComment(req, res) {
+  static async createReport(req, res) {
     try {
-      const report = await ReportsService.createComment(req.params.spaceId, req.body);
+      const report = await ReportsService.createReport(req.params.spaceId, req.body);
 
-      res.status(201).json(ReportSerializer.serialize(report));
+      res.status(201).json(ReportSerializer.serializeWithLinks(report));
     } catch (error) {
-      res.status(error.statusCode || 500).json({ error: error.message });
+      res.status(error.statusCode || 500).json({ description: error.message });
     }
   }
 }

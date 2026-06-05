@@ -26,6 +26,20 @@ class ReportSerializer extends BaseSerializer {
   }
 
   /**
+   * Serialize a single report with HATEOAS links.
+   * @param {Object} report - The report to serialize.
+   * @returns {Object} The serialized report with links.
+   */
+  static serializeWithLinks(report) {
+    return {
+      data: this.serializeOne(report),
+      _links: {
+        self: { href: `/api/reports/${report.id}` },
+      },
+    };
+  }
+
+  /**
    * Serialize a generated report row for the history list.
    * @param {Object} report - The report (with greenSpace association).
    * @returns {Object} The serialized row.

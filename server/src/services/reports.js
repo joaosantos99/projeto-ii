@@ -90,23 +90,39 @@ class ReportsService {
   }
 
   /**
-   * Creates an incident report for a given space.
-   * @param {string} spaceId - The green space UUID.
-   * @param {Object} data - The incident payload.
-   * @returns {Promise<Reports>} The created incident.
+   * Get a single report by id.
+   * @param {string} reportId - The report UUID.
+   * @returns {Promise<Reports>} The report.
    */
-  static async createIncident(spaceId, data) {
-    return this.#createReport(spaceId, REPORT_TYPES.INCIDENT, data);
+  static async getReportById(reportId) {
+    const report = await Reports.findByPk(reportId, {
+      include: [{ model: GreenSpaces, as: 'greenSpace', attributes: ['name'], required: false }],
+    });
+
+    if (!report) {
+      const error = new Error('Report not found');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    return report;
   }
 
   /**
-   * Creates a comment report for a given space.
+   * Creates a report for a space. The `type` discriminator comes from the body.
    * @param {string} spaceId - The green space UUID.
-   * @param {Object} data - The comment payload.
-   * @returns {Promise<Reports>} The created comment.
+   * @param {Object} data - The report payload, including `type`.
+   * @returns {Promise<Reports>} The created report.
    */
-  static async createComment(spaceId, data) {
-    return this.#createReport(spaceId, REPORT_TYPES.COMMENT, data);
+  static async createReport(spaceId, data) {
+    const type = data.type;
+    if (!Object.values(REPORT_TYPES).includes(type)) {
+      const error = new Error(`Invalid type. Must be one of: ${Object.values(REPORT_TYPES).join(', ')}`);
+      error.statusCode = 400;
+      throw error;
+    }
+
+    return this.#createReport(spaceId, type, data);
   }
 }
 

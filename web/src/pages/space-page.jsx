@@ -60,7 +60,8 @@ export function SpacePage() {
         setIncidentError(null)
         setIncidentSubmitting(true)
         try {
-            await api.post(`/reports/${id}/incident`, {
+            await api.post(`/spaces/${id}/reports`, {
+                type: "incident",
                 green_spaces_zone_id: incident.zoneId || undefined,
                 status: incident.severity || undefined,
                 description: incident.description,
@@ -68,7 +69,7 @@ export function SpacePage() {
             setIncident({ zoneId: "", severity: "", description: "" })
             await loadSpace()
         } catch (err) {
-            setIncidentError(err.response?.data?.error || "Erro ao submeter incidente")
+            setIncidentError(err.response?.data?.description || "Erro ao submeter incidente")
         } finally {
             setIncidentSubmitting(false)
         }
@@ -79,11 +80,11 @@ export function SpacePage() {
         setFeedbackError(null)
         setFeedbackSubmitting(true)
         try {
-            await api.post(`/reports/${id}/comment`, { description: feedback })
+            await api.post(`/spaces/${id}/reports`, { type: "comment", description: feedback })
             setFeedback("")
             await loadSpace()
         } catch (err) {
-            setFeedbackError(err.response?.data?.error || "Erro ao submeter feedback")
+            setFeedbackError(err.response?.data?.description || "Erro ao submeter feedback")
         } finally {
             setFeedbackSubmitting(false)
         }

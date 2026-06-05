@@ -163,12 +163,14 @@ export default {
         type: 'object',
         properties: {
           id: { type: 'string' },
+          name: { type: 'string' },
+          description: { type: 'string' },
+          type: { type: 'string', description: 'e.g. incident, comment, generated, scheduled.' },
+          status: { type: 'string', nullable: true },
+          scope: { type: 'string', nullable: true, description: 'Owning space name (list rows only).' },
           greenSpaceId: { type: 'string' },
-          type: { type: 'string', enum: ['operational', 'environmental'] },
-          status: { type: 'string' },
-          url: { type: 'string' },
+          greenSpaceZoneId: { type: 'string', nullable: true },
           createdAt: { type: 'string', format: 'date-time' },
-          createdBy: { type: 'string' },
         },
       },
       Alert: {
@@ -660,13 +662,16 @@ export default {
         parameters: [
           queryParam('page', { type: 'integer', minimum: 1, default: 1 }, 'Page number.'),
           queryParam('limit', { type: 'integer', minimum: 1, default: 20 }, 'Items per page.'),
+          queryParam('type', { type: 'string' }, 'Filter by report type. When omitted, only generated/scheduled reports are returned.'),
+          queryParam('status', { type: 'string' }, 'Filter by status.'),
         ],
         responses: {
           200: ok('Paginated reports.', {
             type: 'object',
             properties: {
-              reports: { type: 'array', items: ref('Report') },
-              pagination: ref('Pagination'),
+              data: { type: 'array', items: ref('Report') },
+              meta: ref('Pagination'),
+              _links: linksSelf,
             },
           }),
           401: Unauthorized,
@@ -674,24 +679,38 @@ export default {
         },
       },
     },
-    '/reports/{spaceId}/incident': {
-      parameters: [idParam('spaceId', 'Space id.')],
-      post: {
+    '/reports/{reportId}': {
+      parameters: [idParam('reportId', 'Report id.')],
+      get: {
         tags: ['Reports'],
-        summary: 'Create an incident for a space.',
-        security: [],
-        requestBody: { required: true, content: json({ type: 'object' }) },
-        responses: { 201: ok('Created incident.', { type: 'object' }) },
+        summary: 'Get a report by id.',
+        description: 'Requires permission `reports:read`.',
+        responses: { 200: ok('Report.', withLinks(ref('Report'))), 401: Unauthorized, 403: Forbidden, 404: NotFound },
       },
     },
-    '/reports/{spaceId}/comment': {
+    '/spaces/{spaceId}/reports': {
       parameters: [idParam('spaceId', 'Space id.')],
       post: {
         tags: ['Reports'],
-        summary: 'Create a comment for a space.',
+        summary: 'Create a report (incident or comment) for a space.',
+        description: 'Public. The `type` discriminator is sent in the body.',
         security: [],
-        requestBody: { required: true, content: json({ type: 'object' }) },
-        responses: { 201: ok('Created comment.', { type: 'object' }) },
+        requestBody: {
+          required: true,
+          content: json({
+            type: 'object',
+            required: ['type', 'description'],
+            properties: {
+              type: { type: 'string', enum: ['incident', 'comment'] },
+              description: { type: 'string' },
+              name: { type: 'string' },
+              status: { type: 'string' },
+              green_spaces_zone_id: { type: 'string' },
+              user_id: { type: 'string' },
+            },
+          }),
+        },
+        responses: { 201: ok('Created report.', withLinks(ref('Report'))), 400: ValidationError, 404: NotFound },
       },
     },
 
