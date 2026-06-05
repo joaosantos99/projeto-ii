@@ -1,6 +1,9 @@
 'use client'
 
-export function DetailHeader({ space }) {
+import { PencilSimple } from "@phosphor-icons/react"
+import { Button } from "#/components/ui/button"
+
+export function DetailHeader({ space, onEdit }) {
   if (!space) return null
   return (
     <div className="flex flex-col gap-3 border-b border-border pb-4 md:flex-row md:items-center md:justify-between">
@@ -14,6 +17,12 @@ export function DetailHeader({ space }) {
           {space.parish} · {space.postal_code}
         </p>
       </div>
+      {onEdit ? (
+        <Button variant="outline" size="sm" className="shrink-0" onClick={onEdit}>
+          <PencilSimple />
+          Editar espaço
+        </Button>
+      ) : null}
     </div>
   )
 }

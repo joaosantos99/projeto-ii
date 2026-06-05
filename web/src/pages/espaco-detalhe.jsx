@@ -5,6 +5,7 @@ import { useOutletContext, useParams, useNavigate } from "react-router-dom"
 
 import { DetailHeader } from "#/components/espacos/detail-header"
 import { DetailTabs } from "#/components/espacos/detail-tabs"
+import { SpaceFormDialog } from "#/components/espacos/space-form-dialog"
 import { OverviewTab } from "#/components/espacos/overview-tab"
 import { ZonesTab } from "#/components/espacos/zones-tab"
 import { SensorsTab } from "#/components/espacos/sensors-tab"
@@ -31,6 +32,7 @@ export function EspacoDetalhePage() {
   const [space, setSpace] = useState(null)
   const [loading, setLoading] = useState(true)
   const [missing, setMissing] = useState(false)
+  const [editOpen, setEditOpen] = useState(false)
 
   const activeTab = useMemo(() => {
     return TABS.some((t) => t.value === tab) ? tab : "visao"
@@ -64,12 +66,31 @@ export function EspacoDetalhePage() {
     return () => setBreadcrumbs([])
   }, [setTitle, setBreadcrumbs, space])
 
+  const editInitial = space
+    ? {
+        name: space.name,
+        parish: space.parish,
+        postalCode: space.postal_code ?? "",
+        latitude: space.latitude,
+        longitude: space.longitude,
+      }
+    : null
+
+  const handleEdit = ({ image: _image, postalCode, ...values }) => {
+    return api
+      .put(`/spaces/${id}`, { ...values, postal_code: postalCode })
+      .then((res) => {
+        setSpace(res.data)
+        setEditOpen(false)
+      })
+  }
+
   if (loading) return <p className="text-sm text-muted-foreground">A carregar…</p>
   if (missing || !space) return <NotFoundCard />
 
   return (
     <div className="flex flex-col gap-6">
-      <DetailHeader space={space} />
+      <DetailHeader space={space} onEdit={() => setEditOpen(true)} />
 
       <DetailTabs tabs={TABS} active={activeTab} onChange={(next) => navigate(`/admin/espacos/${id}/${next}`)} />
 
@@ -79,6 +100,14 @@ export function EspacoDetalhePage() {
       {activeTab === "manutencao" ? <MaintenanceTab spaceId={space.id} /> : null}
       {activeTab === "incidentes" ? <IncidentsTab spaceId={space.id} /> : null}
       {activeTab === "feedback" ? <FeedbackTab /> : null}
+
+      <SpaceFormDialog
+        open={editOpen}
+        mode="edit"
+        initial={editInitial}
+        onClose={() => setEditOpen(false)}
+        onSubmit={handleEdit}
+      />
     </div>
   )
 }

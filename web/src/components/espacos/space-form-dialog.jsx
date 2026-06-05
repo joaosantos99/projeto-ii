@@ -116,7 +116,7 @@ export function SpaceFormDialog({ open, mode, initial, onClose, onSubmit }) {
               <Input id="esp-lng" inputMode="decimal" value={form.longitude} onChange={update("longitude")} />
             </Field>
           </div>
-          <Field>
+          <Field className={mode === "create" ? undefined : "hidden"}>
             <FieldLabel>Imagem</FieldLabel>
             <input
               ref={inputRef}
