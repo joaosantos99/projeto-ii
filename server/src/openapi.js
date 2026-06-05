@@ -709,8 +709,8 @@ export default {
       },
       delete: {
         tags: ['Sensors'],
-        summary: 'Delete a sensor (not implemented).',
-        responses: { 501: ok('Not implemented.', ref('Error')), 401: Unauthorized },
+        summary: 'Delete a sensor.',
+        responses: { 204: ok('Deleted.'), 401: Unauthorized, 404: NotFound },
       },
     },
     '/spaces/{spaceId}/sensors': {

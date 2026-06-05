@@ -235,6 +235,21 @@ class SensorsService {
       ],
     });
   }
+
+  /**
+   * Delete a sensor.
+   * @param {string} sensorId
+   */
+  static async deleteSensor(sensorId) {
+    const sensor = await Sensors.findByPk(sensorId);
+    if (!sensor) {
+      const error = new Error('Sensor not found');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    await sensor.destroy();
+  }
 }
 
 export default SensorsService;

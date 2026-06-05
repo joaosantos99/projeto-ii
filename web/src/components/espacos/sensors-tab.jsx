@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from "react"
-import { Broadcast, PencilSimple, Plus } from "@phosphor-icons/react"
+import { Broadcast, PencilSimple, Plus, Trash } from "@phosphor-icons/react"
 import { Badge } from "#/components/ui/badge"
 import { Button } from "#/components/ui/button"
 import {
@@ -57,6 +57,16 @@ export function SensorsTab({ spaceId, spaceName }) {
     const res = await api.put(`/sensors/${editSensor.id}`, payload)
     setSensors((prev) => prev.map((s) => (s.id === editSensor.id ? res.data : s)))
     setEditSensor(null)
+  }
+
+  const handleRemove = async (sensorId) => {
+    const prev = sensors
+    setSensors((current) => current.filter((s) => s.id !== sensorId))
+    try {
+      await api.delete(`/sensors/${sensorId}`)
+    } catch {
+      setSensors(prev)
+    }
   }
 
   return (
@@ -132,6 +142,14 @@ export function SensorsTab({ spaceId, spaceName }) {
                           onClick={() => setEditSensor(sensor)}
                         >
                           <PencilSimple />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label={`Remover sensor ${sensor.id.slice(0, 8)}`}
+                          onClick={() => handleRemove(sensor.id)}
+                        >
+                          <Trash />
                         </Button>
                       </td>
                     </tr>

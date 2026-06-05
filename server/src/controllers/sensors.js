@@ -114,7 +114,12 @@ class SensorsController {
   }
 
   static async deleteSensor(req, res) {
-    res.status(501).json({ error: 'Not implemented' });
+    try {
+      await SensorsService.deleteSensor(req.params.sensorId);
+      res.status(204).send();
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ error: error.message });
+    }
   }
 }
 
