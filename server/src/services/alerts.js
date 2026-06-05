@@ -139,26 +139,30 @@ class AlertsService {
   }
 
   /**
-   * Acknowledge an alert by ID.
+   * Update an alert by ID. Only provided fields change.
+   * Pass `acknowledged: true` to acknowledge it (sets status + is_notified).
    * @param {string} alertId - The alert UUID.
-   * @param {string} userId - The user performing the action.
+   * @param {Object} data - { severity, message, is_notified, acknowledged, updated_by }.
    * @returns {Promise<Alerts>} The updated alert.
    */
-  static async acknowledgeAlert(alertId, userId) {
-    const alert = await Alerts.findByPk(alertId);
+  static async updateAlert(alertId, data) {
+    const alert = await this.getAlertById(alertId);
 
-    if (!alert) {
-      const error = new Error('Alert not found!');
-      error.statusCode = 404;
-      throw error;
+    const changes = {
+      updated_at: new Date(),
+      updated_by: data.updated_by,
+    };
+
+    if (data.severity !== undefined) changes.severity = data.severity;
+    if (data.message !== undefined) changes.message = data.message;
+    if (data.is_notified !== undefined) changes.is_notified = data.is_notified;
+
+    if (data.acknowledged === true) {
+      changes.status = ALERT_STATUS.ACKNOWLEDGED;
+      changes.is_notified = true;
     }
 
-    await alert.update({
-      status: ALERT_STATUS.ACKNOWLEDGED,
-      is_notified: true,
-      updated_at: new Date(),
-      updated_by: userId,
-    });
+    await alert.update(changes);
 
     return alert;
   }

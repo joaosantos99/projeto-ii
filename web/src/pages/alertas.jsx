@@ -81,7 +81,7 @@ export function AlertasPage() {
 
   const handleAcknowledge = (alertId) => {
     setAcknowledgingId(alertId)
-    api.patch(`/alerts/${alertId}/acknowledge`)
+    api.patch(`/alerts/${alertId}`, { acknowledged: true })
       .then((res) => {
         setAlerts((current) =>
           current.map((item) =>

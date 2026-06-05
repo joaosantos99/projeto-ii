@@ -768,20 +768,11 @@ export default {
         },
       },
     },
-    '/alerts/{alertId}/acknowledge': {
+    '/alerts/{alertId}': {
       parameters: [idParam('alertId', 'Alert id.')],
       patch: {
         tags: ['Alerts'],
-        summary: 'Acknowledge an alert.',
-        security: [],
-        responses: { 200: ok('Acknowledged.', { type: 'object' }), 404: NotFound },
-      },
-    },
-    '/alerts/{incidentId}': {
-      parameters: [idParam('incidentId', 'Incident/alert id.')],
-      patch: {
-        tags: ['Alerts'],
-        summary: 'Update an alert.',
+        summary: 'Update an alert. Pass `acknowledged: true` to acknowledge it.',
         requestBody: {
           required: true,
           content: json({
@@ -790,6 +781,7 @@ export default {
               severity: { type: 'string' },
               message: { type: 'string' },
               is_notified: { type: 'boolean' },
+              acknowledged: { type: 'boolean' },
             },
           }),
         },

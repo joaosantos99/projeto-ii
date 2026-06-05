@@ -53,23 +53,6 @@ class AlertsSerializer extends BaseSerializer {
   }
 
   /**
-   * Serialize the acknowledge response.
-   * @param {Object} alert - The acknowledged alert.
-   * @returns {Object} The serialized acknowledge response.
-   */
-  static serializeAcknowledge(alert) {
-    this.baseValidation(alert);
-
-    return {
-      id: alert.id,
-      isNotified: alert.is_notified,
-      status: alert.status ?? null,
-      updatedAt: alert.updated_at ? new Date(alert.updated_at).toISOString() : null,
-      updatedBy: alert.updated_by ?? null,
-    };
-  }
-
-  /**
    * Serialize alerts summary.
    * @param {Object} summary - The summary data.
    * @returns {Object} Serialized summary.

@@ -112,7 +112,7 @@ export function DashboardPage() {
 
   const handleAcknowledge = (alertId) => {
     setAcknowledgingId(alertId)
-    api.patch(`/alerts/${alertId}/acknowledge`)
+    api.patch(`/alerts/${alertId}`, { acknowledged: true })
       .then(() => setRefresh((n) => n + 1))
       .catch(() => {})
       .finally(() => setAcknowledgingId(null))
