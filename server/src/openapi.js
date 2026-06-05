@@ -159,6 +159,21 @@ export default {
           createdBy: { type: 'string' },
         },
       },
+      MaintenanceTask: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          green_spaces_id: { type: 'string', nullable: true },
+          type: { type: 'string' },
+          description: { type: 'string' },
+          status: { type: 'string', enum: ['scheduled', 'in_progress', 'critical', 'completed'] },
+          scheduled_date: { type: 'string', format: 'date-time', nullable: true },
+          completed_at: { type: 'string', format: 'date-time', nullable: true },
+          created_by: { type: 'string', nullable: true },
+          updated_by: { type: 'string', nullable: true },
+          createdAt: { type: 'string', format: 'date-time' },
+        },
+      },
     },
     responses: {
       ValidationError,
@@ -806,7 +821,7 @@ export default {
           200: ok('Paginated tasks.', {
             type: 'object',
             properties: {
-              tasks: { type: 'array', items: { type: 'object' } },
+              tasks: { type: 'array', items: ref('MaintenanceTask') },
               pagination: ref('Pagination'),
               summary: {
                 type: 'object',
@@ -826,8 +841,63 @@ export default {
       post: {
         tags: ['Maintenance'],
         summary: 'Create a maintenance task.',
-        requestBody: { required: true, content: json({ type: 'object' }) },
-        responses: { 201: ok('Created task.', { type: 'object' }), 400: ValidationError, 401: Unauthorized },
+        requestBody: {
+          required: true,
+          content: json({
+            type: 'object',
+            required: ['type', 'description'],
+            properties: {
+              type: { type: 'string' },
+              description: { type: 'string' },
+              status: { type: 'string', enum: ['scheduled', 'in_progress', 'critical', 'completed'], default: 'scheduled' },
+              green_spaces_id: { type: 'string' },
+              scheduled_date: { type: 'string', format: 'date-time' },
+            },
+          }),
+        },
+        responses: { 201: ok('Created task.', ref('MaintenanceTask')), 400: ValidationError, 401: Unauthorized },
+      },
+    },
+    '/maintenance/{taskId}': {
+      parameters: [idParam('taskId', 'Maintenance task id.')],
+      put: {
+        tags: ['Maintenance'],
+        summary: 'Full update of a maintenance task.',
+        requestBody: {
+          required: true,
+          content: json({
+            type: 'object',
+            required: ['type', 'description'],
+            properties: {
+              type: { type: 'string' },
+              description: { type: 'string' },
+              status: { type: 'string', enum: ['scheduled', 'in_progress', 'critical', 'completed'] },
+              green_spaces_id: { type: 'string' },
+              scheduled_date: { type: 'string', format: 'date-time' },
+              completed_at: { type: 'string', format: 'date-time', nullable: true },
+            },
+          }),
+        },
+        responses: { 200: ok('Updated task.', ref('MaintenanceTask')), 400: ValidationError, 401: Unauthorized, 404: NotFound },
+      },
+    },
+    '/maintenance/{taskId}/status': {
+      parameters: [idParam('taskId', 'Maintenance task id.')],
+      patch: {
+        tags: ['Maintenance'],
+        summary: 'Update only the status of a maintenance task.',
+        description: 'Setting status to `completed` stamps `completed_at` automatically.',
+        requestBody: {
+          required: true,
+          content: json({
+            type: 'object',
+            required: ['status'],
+            properties: {
+              status: { type: 'string', enum: ['scheduled', 'in_progress', 'critical', 'completed'] },
+            },
+          }),
+        },
+        responses: { 200: ok('Updated task.', ref('MaintenanceTask')), 400: ValidationError, 401: Unauthorized, 404: NotFound },
       },
     },
     '/maintenance/{maintenanceId}': {
