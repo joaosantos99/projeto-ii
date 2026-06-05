@@ -924,5 +924,23 @@ export default {
         responses: { 204: ok('Deleted.'), 401: Unauthorized, 404: NotFound },
       },
     },
+    '/spaces/{spaceId}/maintenance': {
+      parameters: [idParam('spaceId', 'Space id.')],
+      get: {
+        tags: ['Maintenance'],
+        summary: 'List maintenance tasks of a space (unpaginated).',
+        responses: {
+          200: ok('Tasks for the space.', {
+            type: 'object',
+            properties: {
+              data: { type: 'array', items: ref('MaintenanceTask') },
+              meta: { type: 'object', properties: { total: { type: 'integer' } } },
+              _links: linksSelf,
+            },
+          }),
+          401: Unauthorized,
+        },
+      },
+    },
   },
 };

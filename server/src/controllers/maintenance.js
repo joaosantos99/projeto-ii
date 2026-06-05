@@ -14,7 +14,7 @@ class MaintenanceController {
     try {
       if (req.params.spaceId) {
         const tasks = await MaintenanceService.getTasksBySpace(req.params.spaceId);
-        return res.json(MaintenanceSerializer.serialize(tasks));
+        return res.json(MaintenanceSerializer.serializeForSpace(tasks, req.params.spaceId));
       }
 
       const page = Math.max(1, parseInt(req.query.page) || 1);

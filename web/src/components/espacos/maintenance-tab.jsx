@@ -51,7 +51,7 @@ export function MaintenanceTab({ spaceId }) {
     setLoading(true)
     api.get(`/spaces/${spaceId}/maintenance`)
       .then((res) => {
-        if (!cancelled) setTasks(Array.isArray(res.data) ? res.data : [])
+        if (!cancelled) setTasks(Array.isArray(res.data?.data) ? res.data.data : [])
       })
       .catch(() => {
         if (!cancelled) setTasks([])

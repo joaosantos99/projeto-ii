@@ -61,6 +61,22 @@ class MaintenanceSerializer extends BaseSerializer {
   }
 
   /**
+   * Serialize the space-scoped (unpaginated) task collection.
+   * @param {Array} tasks - The tasks array.
+   * @param {string} spaceId - The owning space id.
+   * @returns {Object} Serialized collection response.
+   */
+  static serializeForSpace(tasks, spaceId) {
+    return {
+      data: this.serialize(tasks),
+      meta: { total: tasks.length },
+      _links: {
+        self: { href: `/api/spaces/${spaceId}/maintenance` },
+      },
+    };
+  }
+
+  /**
    * Serialize maintenance summary.
    * @param {Object} summary - The summary data.
    * @returns {Object} Serialized summary.
