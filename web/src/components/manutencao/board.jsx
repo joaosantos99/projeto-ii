@@ -8,7 +8,7 @@ import { Button } from "#/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "#/components/ui/card"
 import { TaskCard, TASK_CARD_TYPE } from "#/components/manutencao/task-card"
 
-function BoardColumn({ column, onMoveTask, onLoadMore, onEditTask }) {
+function BoardColumn({ column, onMoveTask, onLoadMore, onEditTask, onDeleteTask }) {
   const [{ isOver, canDrop }, dropRef] = useDrop(
     () => ({
       accept: TASK_CARD_TYPE,
@@ -37,7 +37,12 @@ function BoardColumn({ column, onMoveTask, onLoadMore, onEditTask }) {
       </CardHeader>
       <CardContent className="flex min-h-60 flex-col gap-3">
         {column.tasks.map((task) => (
-          <TaskCard key={task.id} task={task} onEdit={onEditTask} />
+          <TaskCard
+            key={task.id}
+            task={task}
+            onEdit={onEditTask}
+            onDelete={onDeleteTask}
+          />
         ))}
         {column.tasks.length === 0 ? (
           <div className="rounded-none border border-dashed p-4 text-center text-muted-foreground text-sm">
@@ -60,7 +65,7 @@ function BoardColumn({ column, onMoveTask, onLoadMore, onEditTask }) {
   )
 }
 
-export function Board({ columns, onMoveTask, onLoadMore, onEditTask }) {
+export function Board({ columns, onMoveTask, onLoadMore, onEditTask, onDeleteTask }) {
   return (
     <DndProvider backend={HTML5Backend}>
       <div className="grid gap-4 lg:grid-cols-3">
@@ -71,6 +76,7 @@ export function Board({ columns, onMoveTask, onLoadMore, onEditTask }) {
             onMoveTask={onMoveTask}
             onLoadMore={onLoadMore}
             onEditTask={onEditTask}
+            onDeleteTask={onDeleteTask}
           />
         ))}
       </div>

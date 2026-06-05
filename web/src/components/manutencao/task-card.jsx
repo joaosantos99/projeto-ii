@@ -1,7 +1,7 @@
 'use client'
 
 import { useDrag } from "react-dnd"
-import { PencilSimple } from "@phosphor-icons/react"
+import { PencilSimple, Trash } from "@phosphor-icons/react"
 
 import { Badge } from "#/components/ui/badge"
 import { Button } from "#/components/ui/button"
@@ -17,7 +17,7 @@ const PRIORITY_LABELS = Object.fromEntries(
   priorityOptions.map((option) => [option.value, option.label]),
 )
 
-export function TaskCard({ task, onEdit }) {
+export function TaskCard({ task, onEdit, onDelete }) {
   const [{ isDragging }, dragRef] = useDrag(
     () => ({
       type: TASK_CARD_TYPE,
@@ -35,18 +35,32 @@ export function TaskCard({ task, onEdit }) {
       <CardContent className="flex flex-col gap-3 p-4">
         <div className="flex items-start justify-between gap-2">
           <p className="font-medium text-sm">{task.title}</p>
-          {onEdit ? (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="-mt-1 -mr-1 size-7 shrink-0"
-              aria-label={`Editar ${task.title}`}
-              onMouseDown={(event) => event.stopPropagation()}
-              onClick={() => onEdit(task)}
-            >
-              <PencilSimple />
-            </Button>
-          ) : null}
+          <div className="-mt-1 -mr-1 flex shrink-0">
+            {onEdit ? (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-7"
+                aria-label={`Editar ${task.title}`}
+                onMouseDown={(event) => event.stopPropagation()}
+                onClick={() => onEdit(task)}
+              >
+                <PencilSimple />
+              </Button>
+            ) : null}
+            {onDelete ? (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-7"
+                aria-label={`Remover ${task.title}`}
+                onMouseDown={(event) => event.stopPropagation()}
+                onClick={() => onDelete(task)}
+              >
+                <Trash />
+              </Button>
+            ) : null}
+          </div>
         </div>
         <div className="flex flex-wrap gap-2">
           <Badge variant="outline">{ZONE_LABELS[task.zone] ?? task.zone}</Badge>

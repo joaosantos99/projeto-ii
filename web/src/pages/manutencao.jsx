@@ -220,6 +220,29 @@ export function ManutencaoPage() {
     })
   }
 
+  const handleDelete = (task) => {
+    let snapshot
+    setColumnState((current) => {
+      snapshot = current
+      const next = { ...current }
+      for (const id of Object.keys(next)) {
+        const idx = next[id].tasks.findIndex((t) => t.id === task.id)
+        if (idx >= 0) {
+          next[id] = {
+            ...next[id],
+            tasks: next[id].tasks.filter((t) => t.id !== task.id),
+            total: Math.max(0, next[id].total - 1),
+          }
+        }
+      }
+      return next
+    })
+
+    api.delete(`/maintenance/${task.id}`).catch(() => {
+      if (snapshot) setColumnState(snapshot)
+    })
+  }
+
   const handleUpdate = (payload) => {
     return api.put(`/maintenance/${editTask.id}`, payload).then((res) => {
       const updated = normalizeTask(res.data?.data ?? res.data)
@@ -292,6 +315,7 @@ export function ManutencaoPage() {
               onMoveTask={handleMoveTask}
               onLoadMore={handleLoadMore}
               onEditTask={setEditTask}
+              onDeleteTask={handleDelete}
             />
           )}
         </CardContent>
