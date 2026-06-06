@@ -32,7 +32,7 @@ export function PermissoesPage() {
   useEffect(() => {
     setLoading(true)
     api.get("/roles")
-      .then((res) => setRoles(res.data))
+      .then((res) => setRoles(res.data?.data ?? []))
       .catch(() => setRoles([]))
       .finally(() => setLoading(false))
   }, [refresh])
@@ -43,7 +43,7 @@ export function PermissoesPage() {
       .then((res) => {
         setCreateOpen(false)
         setRefresh((n) => n + 1)
-        navigate(`/admin/roles/${res.data.id}`)
+        navigate(`/admin/roles/${res.data?.data?.id}`)
       })
       .catch(() => {})
       .finally(() => setSaving(false))

@@ -5,6 +5,7 @@ export async function buildApp() {
   const { default: authRouter } = await import('../../routers/auth.js');
   const { default: usersRouter } = await import('../../routers/users.js');
   const { default: rolesRouter } = await import('../../routers/roles.js');
+  const { default: permissionsRouter } = await import('../../routers/permissions.js');
 
   const app = express();
   app.use(express.json());
@@ -15,6 +16,7 @@ export async function buildApp() {
   apiRouter.use('/users', authRouter);
   apiRouter.use('/users', usersRouter);
   apiRouter.use('/roles', rolesRouter);
+  apiRouter.use('/permissions', permissionsRouter);
 
   return app;
 }
@@ -58,5 +60,23 @@ export function apiPost(baseUrl, path, token, body) {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     body: JSON.stringify(body ?? {}),
+  });
+}
+
+export function apiPut(baseUrl, path, token, body) {
+  return fetch(`${baseUrl}${path}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify(body ?? {}),
+  });
+}
+
+export function apiDelete(baseUrl, path, token) {
+  return fetch(`${baseUrl}${path}`, {
+    method: 'DELETE',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
   });
 }

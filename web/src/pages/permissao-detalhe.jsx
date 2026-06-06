@@ -36,17 +36,17 @@ export function PermissaoDetalhePage() {
     setNotFound(false)
     Promise.all([
       api.get("/roles"),
-      api.get("/roles/permissions/catalog"),
+      api.get("/permissions"),
     ])
       .then(([rolesRes, catalogRes]) => {
-        const match = rolesRes.data.find((r) => r.id === id)
+        const match = (rolesRes.data?.data ?? []).find((r) => r.id === id)
         if (!match) {
           setNotFound(true)
           setRole(null)
         } else {
           setRole(match)
         }
-        setCatalog(catalogRes.data)
+        setCatalog(catalogRes.data?.data ?? [])
       })
       .catch(() => {
         setNotFound(true)
@@ -57,14 +57,17 @@ export function PermissaoDetalhePage() {
   const handleToggle = (permissionId) => {
     if (!role || pendingPermission) return
     const current = role.permissionsDump ?? []
-    const next = current.includes(permissionId)
-      ? current.filter((p) => p !== permissionId)
-      : [...current, permissionId]
+    const enabling = !current.includes(permissionId)
+    const next = enabling
+      ? [...current, permissionId]
+      : current.filter((p) => p !== permissionId)
 
     setPendingPermission(permissionId)
     setRole({ ...role, permissionsDump: next })
 
-    api.patch(`/roles/${role.id}/permissions`, { permissionId })
+    const path = `/roles/${role.id}/permissions/${encodeURIComponent(permissionId)}`
+    const request = enabling ? api.put(path) : api.delete(path)
+    request
       .catch(() => {
         setRole((prev) =>
           prev ? { ...prev, permissionsDump: current } : prev,

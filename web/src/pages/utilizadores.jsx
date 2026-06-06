@@ -53,7 +53,7 @@ export function UtilizadoresPage() {
 
   useEffect(() => {
     api.get("/roles")
-      .then((res) => setRoles(res.data))
+      .then((res) => setRoles(res.data?.data ?? []))
       .catch(() => setRoles([]))
   }, [])
 

@@ -64,13 +64,16 @@ class RolesService {
   }
 
   /**
-   * Toggle a single permission on a role. Adds it if missing, removes it if present.
+   * Grant or revoke a single permission on a role. Idempotent: granting an
+   * already-present permission (or revoking an absent one) is a no-op that
+   * still resolves to the role.
    * @param {string} roleId - The role's uuid.
-   * @param {string} permissionId - The permission identifier to toggle.
+   * @param {string} permissionId - The permission identifier.
+   * @param {boolean} enabled - True to grant, false to revoke.
    * @param {string} updatedBy - The authenticated user's uuid.
-   * @returns {Promise<Role>} - The updated role.
+   * @returns {Promise<Role>} - The (possibly unchanged) role.
    */
-  static async updateRolePermission(roleId, permissionId, updatedBy) {
+  static async setRolePermission(roleId, permissionId, enabled, updatedBy) {
     const role = await Roles.findByPk(roleId);
 
     if (!role) {
@@ -80,9 +83,15 @@ class RolesService {
     }
 
     const current = role.permissions ?? [];
-    const next = current.includes(permissionId)
-      ? current.filter((p) => p !== permissionId)
-      : [...current, permissionId];
+    const has = current.includes(permissionId);
+    const next = enabled
+      ? (has ? current : [...current, permissionId])
+      : (has ? current.filter((p) => p !== permissionId) : current);
+
+    // Nothing to do — the role already matches the requested state.
+    if (next === current) {
+      return role;
+    }
 
     await role.update({ permissions: next, updated_by: updatedBy });
 

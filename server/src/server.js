@@ -11,6 +11,7 @@ import usersRouter from './routers/users.js'
 import spacesRouter from './routers/spaces.js'
 import authRouter from './routers/auth.js'
 import rolesRouter from './routers/roles.js'
+import permissionsRouter from './routers/permissions.js'
 import reportsRouter from './routers/reports.js'
 import sensorsRouter from './routers/sensors.js'
 import alertsRouter from './routers/alerts.js'
@@ -30,6 +31,7 @@ apiRouter.use('/users', authRouter);
 apiRouter.use('/users', usersRouter);
 apiRouter.use('/spaces', spacesRouter);
 apiRouter.use('/roles', rolesRouter);
+apiRouter.use('/permissions', permissionsRouter);
 apiRouter.use('/reports', reportsRouter);
 apiRouter.use('/sensors', sensorsRouter);
 apiRouter.use('/alerts', alertsRouter);

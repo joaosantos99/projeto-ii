@@ -1,7 +1,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 
 import { startTestDatabase } from '../helpers/db.js';
-import { apiGet, apiPatch, buildApp, close, listen } from '../helpers/app.js';
+import { apiDelete, apiGet, apiPut, buildApp, close, listen } from '../helpers/app.js';
 import { assignRole, createActor, createRole, createSession, createUser } from '../helpers/factories.js';
 
 describe('Immediate permission update after role change', () => {
@@ -47,11 +47,9 @@ describe('Immediate permission update after role change', () => {
     const before = await apiGet(baseUrl, '/api/roles', token);
     expect(before.status).toBe(403);
 
-    // WHEN - an admin adds the roles:read permission to that role
-    const toggle = await apiPatch(baseUrl, `/api/roles/${role.id}/permissions`, adminToken, {
-      permissionId: 'roles:read',
-    });
-    expect(toggle.status).toBe(200);
+    // WHEN - an admin grants the roles:read permission to that role
+    const grant = await apiPut(baseUrl, `/api/roles/${role.id}/permissions/roles:read`, adminToken);
+    expect(grant.status).toBe(200);
 
     // THEN - the SAME token is immediately allowed — no re-login required
     const after = await apiGet(baseUrl, '/api/roles', token);
@@ -68,11 +66,9 @@ describe('Immediate permission update after role change', () => {
     const before = await apiGet(baseUrl, '/api/roles', token);
     expect(before.status).toBe(200);
 
-    // WHEN - an admin toggles roles:read off that role
-    const toggle = await apiPatch(baseUrl, `/api/roles/${role.id}/permissions`, adminToken, {
-      permissionId: 'roles:read',
-    });
-    expect(toggle.status).toBe(200);
+    // WHEN - an admin revokes roles:read from that role
+    const revoke = await apiDelete(baseUrl, `/api/roles/${role.id}/permissions/roles:read`, adminToken);
+    expect(revoke.status).toBe(204);
 
     // THEN - the SAME token is immediately rejected
     const after = await apiGet(baseUrl, '/api/roles', token);

@@ -221,6 +221,7 @@ export default {
     { name: 'Spaces' },
     { name: 'Zones' },
     { name: 'Roles' },
+    { name: 'Permissions' },
     { name: 'Reports' },
     { name: 'Sensors' },
     { name: 'Alerts' },
@@ -601,7 +602,18 @@ export default {
         tags: ['Roles'],
         summary: 'List roles.',
         description: 'Requires permission `roles:read`.',
-        responses: { 200: ok('Roles.', { type: 'array', items: ref('Role') }), 401: Unauthorized, 403: Forbidden },
+        responses: {
+          200: ok('Roles.', {
+            type: 'object',
+            properties: {
+              data: { type: 'array', items: ref('Role') },
+              meta: { type: 'object', properties: { total: { type: 'integer' } } },
+              _links: linksSelf,
+            },
+          }),
+          401: Unauthorized,
+          403: Forbidden,
+        },
       },
       post: {
         tags: ['Roles'],
@@ -619,34 +631,45 @@ export default {
             },
           }),
         },
-        responses: { 200: ok('Created role.', ref('Role')), 400: ValidationError, 401: Unauthorized, 403: Forbidden },
+        responses: { 201: ok('Created role.', withLinks(ref('Role'))), 400: ValidationError, 401: Unauthorized, 403: Forbidden },
       },
     },
-    '/roles/permissions/catalog': {
-      get: {
+    '/roles/{roleId}/permissions/{permissionId}': {
+      parameters: [idParam('roleId', 'Role id.'), idParam('permissionId', 'Permission identifier, e.g. `users:read`.')],
+      put: {
         tags: ['Roles'],
+        summary: 'Grant a permission to a role.',
+        description: 'Idempotent. Requires permission `roles:update`.',
+        responses: {
+          200: ok('Updated role.', withLinks(ref('Role'))),
+          401: Unauthorized,
+          403: Forbidden,
+          404: NotFound,
+        },
+      },
+      delete: {
+        tags: ['Roles'],
+        summary: 'Revoke a permission from a role.',
+        description: 'Idempotent. Requires permission `roles:update`.',
+        responses: { 204: ok('Revoked.'), 401: Unauthorized, 403: Forbidden, 404: NotFound },
+      },
+    },
+
+    // ---------- Permissions ----------
+    '/permissions': {
+      get: {
+        tags: ['Permissions'],
         summary: 'List all known permissions.',
         description: 'Requires permission `roles:read`.',
-        responses: { 200: ok('Permissions catalog.', { type: 'array', items: ref('Permission') }), 401: Unauthorized, 403: Forbidden },
-      },
-    },
-    '/roles/{roleId}/permissions': {
-      parameters: [idParam('roleId', 'Role id.')],
-      patch: {
-        tags: ['Roles'],
-        summary: 'Toggle a permission for a role.',
-        description: 'Requires permission `roles:update`.',
-        requestBody: {
-          required: true,
-          content: json({
-            type: 'object',
-            required: ['permissionId'],
-            properties: { permissionId: { type: 'string' } },
-          }),
-        },
         responses: {
-          200: ok('Updated.', { type: 'object', properties: { permissionId: { type: 'string' } } }),
-          400: ValidationError,
+          200: ok('Permissions catalog.', {
+            type: 'object',
+            properties: {
+              data: { type: 'array', items: ref('Permission') },
+              meta: { type: 'object', properties: { total: { type: 'integer' } } },
+              _links: linksSelf,
+            },
+          }),
           401: Unauthorized,
           403: Forbidden,
         },
