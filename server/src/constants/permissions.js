@@ -17,4 +17,5 @@ export const PERMISSIONS = Object.freeze({
   SPACES_READ: 'spaces:read',
   SPACES_CREATE: 'spaces:create',
   SPACES_UPDATE: 'spaces:update',
+  SPACES_DELETE: 'spaces:delete',
 });

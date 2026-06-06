@@ -17,6 +17,7 @@ spacesRouter.get('/', SpacesController.getSpaces);
 spacesRouter.get('/:spaceId', SpacesController.getSpaceById);
 spacesRouter.post('/', requireAuth, requirePermission(PERMISSIONS.SPACES_CREATE), uploadImage, SpacesController.createSpace);
 spacesRouter.put('/:spaceId', requireAuth, requirePermission(PERMISSIONS.SPACES_UPDATE), SpacesController.updateSpace);
+spacesRouter.delete('/:spaceId', requireAuth, requirePermission(PERMISSIONS.SPACES_DELETE), SpacesController.deleteSpace);
 spacesRouter.use('/:spaceId/zones', zonesRouter);
 spacesRouter.get('/:spaceId/sensors', SensorsController.getSensors);
 spacesRouter.use('/:spaceId/maintenance', maintenanceRouter);

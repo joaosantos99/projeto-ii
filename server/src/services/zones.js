@@ -18,6 +18,26 @@ class ZonesService {
   }
 
   /**
+   * Get a single zone by id, scoped to its space.
+   * @param {string} spaceId
+   * @param {string} zoneId
+   * @returns {Promise<GreenSpaceZones>} - The zone.
+   */
+  static async getZoneById(spaceId, zoneId) {
+    const zone = await GreenSpaceZones.findOne({
+      where: { id: zoneId, green_spaces_id: spaceId },
+    });
+
+    if (!zone) {
+      const error = new Error('Zone not found');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    return zone;
+  }
+
+  /**
    * Create a zone.
    * @returns {Promise<Array<GreenSpaceZones>>} - The zones.
    */

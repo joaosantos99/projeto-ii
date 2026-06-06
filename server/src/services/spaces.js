@@ -204,6 +204,41 @@ class SpacesService {
     return newSpace;
   }
 
+  /**
+   * Soft-delete a space and cascade the soft-delete to its paranoid children
+   * (zones, sensors, reports) so space-scoped routes stop returning them. The
+   * space row is retained (deleted_at set), so foreign keys stay valid and the
+   * non-paranoid children (alerts, maintenance tasks, sensor readings) remain
+   * linked and reappear if the space is restored. Runs in one transaction.
+   * @param {string} spaceId
+   */
+  static async deleteSpace(spaceId) {
+    const space = await GreenSpaces.findByPk(spaceId);
+
+    if (!space) {
+      const error = new Error('Space not found');
+      error.statusCode = 404;
+      throw error;
+    }
+
+    await GreenSpaces.sequelize.transaction(async (transaction) => {
+      const zones = await GreenSpaceZones.findAll({
+        attributes: ['id'],
+        where: { green_spaces_id: spaceId },
+        transaction,
+        raw: true,
+      });
+      const zoneIds = zones.map((z) => z.id);
+
+      await Reports.destroy({ where: { green_space_id: spaceId }, transaction });
+      if (zoneIds.length > 0) {
+        await Sensors.destroy({ where: { green_space_zone_id: { [Op.in]: zoneIds } }, transaction });
+      }
+      await GreenSpaceZones.destroy({ where: { green_spaces_id: spaceId }, transaction });
+      await space.destroy({ transaction });
+    });
+  }
+
   static async getParishes() {
     const rows = await GreenSpaces.findAll({
       attributes: [[fn('DISTINCT', col('parish')), 'parish']],

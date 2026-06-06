@@ -20,6 +20,20 @@ class ZonesController {
   }
 
   /**
+   * Get a single zone by id.
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   */
+  static async getZoneById(req, res) {
+    try {
+      const zone = await ZonesService.getZoneById(req.params.spaceId, req.params.zoneId);
+      res.json(ZoneSerializer.serialize(zone));
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ error: error.message });
+    }
+  }
+
+  /**
    * Create a zone for a space.
    */
   static async createZone(req, res) {

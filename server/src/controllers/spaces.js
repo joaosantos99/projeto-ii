@@ -198,6 +198,20 @@ class SpacesController {
     }
   }
 
+  /**
+   * Delete a space and all of its children.
+   * @param {Object} req - The request object.
+   * @param {Object} res - The response object.
+   */
+  static async deleteSpace(req, res) {
+    try {
+      await SpacesService.deleteSpace(req.params.spaceId);
+      res.status(204).send();
+    } catch (error) {
+      res.status(error.statusCode || 500).json({ error: error.message });
+    }
+  }
+
 }
 
 const EXTENSION_BY_MIME = {

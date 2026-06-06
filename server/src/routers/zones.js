@@ -6,6 +6,7 @@ import requireAuth from '../middleware/auth.js';
 const zonesRouter = Router({mergeParams: true});
 
 zonesRouter.get('/', requireAuth, ZonesController.getSpaceZones);
+zonesRouter.get('/:zoneId', requireAuth, ZonesController.getZoneById);
 zonesRouter.post('/', requireAuth, ZonesController.createZone);
 zonesRouter.put('/:zoneId', requireAuth, ZonesController.updateZone);
 zonesRouter.delete('/:zoneId', requireAuth, ZonesController.deleteZone);

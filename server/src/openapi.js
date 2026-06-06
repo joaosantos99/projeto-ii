@@ -554,6 +554,12 @@ export default {
         },
         responses: { 200: ok('Updated space.', ref('Space')), 400: ValidationError, 401: Unauthorized, 403: Forbidden, 404: NotFound },
       },
+      delete: {
+        tags: ['Spaces'],
+        summary: 'Delete a space.',
+        description: 'Requires permission `spaces:delete`. Soft-delete: the space is hidden and its zones, sensors and reports are soft-deleted too; the record is retained and can be restored.',
+        responses: { 204: ok('Deleted.'), 401: Unauthorized, 403: Forbidden, 404: NotFound },
+      },
     },
 
     // ---------- Zones (nested under a space) ----------
@@ -580,6 +586,11 @@ export default {
     },
     '/spaces/{spaceId}/zones/{zoneId}': {
       parameters: [idParam('spaceId', 'Space id.'), idParam('zoneId', 'Zone id.')],
+      get: {
+        tags: ['Zones'],
+        summary: 'Get a zone by id.',
+        responses: { 200: ok('Zone.', ref('Zone')), 401: Unauthorized, 404: NotFound },
+      },
       put: {
         tags: ['Zones'],
         summary: 'Update a zone.',
