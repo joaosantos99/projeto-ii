@@ -60,7 +60,8 @@ export function SpacePage() {
         setIncidentError(null)
         setIncidentSubmitting(true)
         try {
-            await api.post(`/spaces/${id}/reports`, {
+            await api.post(`/reports`, {
+                spaceId: id,
                 type: "incident",
                 green_spaces_zone_id: incident.zoneId || undefined,
                 status: incident.severity || undefined,
@@ -80,7 +81,7 @@ export function SpacePage() {
         setFeedbackError(null)
         setFeedbackSubmitting(true)
         try {
-            await api.post(`/spaces/${id}/reports`, { type: "comment", description: feedback })
+            await api.post(`/reports`, { spaceId: id, type: "comment", description: feedback })
             setFeedback("")
             await loadSpace()
         } catch (err) {

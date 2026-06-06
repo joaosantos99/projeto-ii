@@ -8,5 +8,6 @@ const reportsRouter = Router({ mergeParams: true });
 
 reportsRouter.get('/', requireAuth, requirePermission('reports:read'), ReportsController.getReports);
 reportsRouter.get('/:reportId', requireAuth, requirePermission('reports:read'), ReportsController.getReportById);
+reportsRouter.post('/', ReportsController.createReport);
 
 export default reportsRouter;

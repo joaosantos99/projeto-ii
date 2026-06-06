@@ -40,14 +40,21 @@ class ReportsController {
   }
 
   /**
-   * Create a report for a space. The `type` (incident|comment) comes from the body.
-   * POST /api/spaces/:spaceId/reports
+   * Create a report. The target space (`spaceId`) and the `type`
+   * (incident|comment) discriminator both come from the body.
+   * POST /api/reports
    * @param {Object} req - The request object.
    * @param {Object} res - The response object.
    */
   static async createReport(req, res) {
     try {
-      const report = await ReportsService.createReport(req.params.spaceId, req.body);
+      const { spaceId, ...data } = req.body ?? {};
+      if (!spaceId) {
+        const error = new Error('spaceId é obrigatório');
+        error.statusCode = 400;
+        throw error;
+      }
+      const report = await ReportsService.createReport(spaceId, data);
 
       res.status(201).json(ReportSerializer.serializeWithLinks(report));
     } catch (error) {

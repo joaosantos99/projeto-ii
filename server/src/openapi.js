@@ -712,29 +712,18 @@ export default {
           403: Forbidden,
         },
       },
-    },
-    '/reports/{reportId}': {
-      parameters: [idParam('reportId', 'Report id.')],
-      get: {
-        tags: ['Reports'],
-        summary: 'Get a report by id.',
-        description: 'Requires permission `reports:read`.',
-        responses: { 200: ok('Report.', withLinks(ref('Report'))), 401: Unauthorized, 403: Forbidden, 404: NotFound },
-      },
-    },
-    '/spaces/{spaceId}/reports': {
-      parameters: [idParam('spaceId', 'Space id.')],
       post: {
         tags: ['Reports'],
-        summary: 'Create a report (incident or comment) for a space.',
-        description: 'Public. The `type` discriminator is sent in the body.',
+        summary: 'Create a report (incident or comment).',
+        description: 'Public. The target `spaceId` and the `type` discriminator are sent in the body.',
         security: [],
         requestBody: {
           required: true,
           content: json({
             type: 'object',
-            required: ['type', 'description'],
+            required: ['spaceId', 'type', 'description'],
             properties: {
+              spaceId: { type: 'string' },
               type: { type: 'string', enum: ['incident', 'comment'] },
               description: { type: 'string' },
               name: { type: 'string' },
@@ -745,6 +734,15 @@ export default {
           }),
         },
         responses: { 201: ok('Created report.', withLinks(ref('Report'))), 400: ValidationError, 404: NotFound },
+      },
+    },
+    '/reports/{reportId}': {
+      parameters: [idParam('reportId', 'Report id.')],
+      get: {
+        tags: ['Reports'],
+        summary: 'Get a report by id.',
+        description: 'Requires permission `reports:read`.',
+        responses: { 200: ok('Report.', withLinks(ref('Report'))), 401: Unauthorized, 403: Forbidden, 404: NotFound },
       },
     },
 

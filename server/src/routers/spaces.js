@@ -2,7 +2,6 @@ import { Router } from 'express';
 
 import SpacesController from '../controllers/spaces.js';
 import SensorsController from '../controllers/sensors.js';
-import ReportsController from '../controllers/reports.js';
 import requireAuth from '../middleware/auth.js';
 import requirePermission from '../middleware/requirePermission.js';
 import uploadImage from '../middleware/upload.js';
@@ -22,6 +21,5 @@ spacesRouter.use('/:spaceId/zones', zonesRouter);
 spacesRouter.get('/:spaceId/sensors', SensorsController.getSensors);
 spacesRouter.use('/:spaceId/maintenance', maintenanceRouter);
 spacesRouter.use('/:spaceId/alerts', alertRouter);
-spacesRouter.post('/:spaceId/reports', ReportsController.createReport);
 
 export default spacesRouter;
