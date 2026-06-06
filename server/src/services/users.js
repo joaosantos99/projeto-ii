@@ -147,7 +147,7 @@ class UsersService {
       changes.password_hash = await bcrypt.hash(data.password, 12);
     }
 
-    if (!data?.role) {
+    if (data?.role) {
       const role = await Roles.findOne({ where: { name: data.role } });
       if (!role) {
         const error = new Error('Perfil não encontrado.');
@@ -157,11 +157,9 @@ class UsersService {
       changes.role_id = role.id;
     }
 
+    // The Users afterUpdate hook drops the cached session when a
+    // session-relevant field (role/name/email) actually changes.
     await user.update(changes);
-
-    if (!changes?.role_id) {
-      await sessionCache.invalidateIndex(userId);
-    }
 
     return user.reload({ include: [{ model: Roles, as: 'role' }] });
   }

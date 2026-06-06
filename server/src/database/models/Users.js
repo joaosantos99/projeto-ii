@@ -1,6 +1,18 @@
 import { DataTypes } from 'sequelize';
 
 import sequelize from '../connection.js';
+import CacheService from '../../services/cache.js';
+
+const sessionCache = new CacheService({
+  namespace: 'session',
+  indexNamespace: 'user-sessions',
+  label: 'session-cache',
+});
+
+// Fields whose value is baked into the cached `req.user` session payload
+// (see middleware/auth.js). Any change to them must drop the user's cached
+// sessions so the next request is re-hydrated from the database.
+const SESSION_FIELDS = ['role_id', 'full_name', 'email'];
 
 const Users = sequelize.define(
   'Users',
@@ -65,6 +77,27 @@ const Users = sequelize.define(
     deletedAt: 'deleted_at',
   },
 );
+
+// Instance update (e.g. UsersService.updateUser via user.update(...)).
+Users.addHook('afterUpdate', async (user) => {
+  if (SESSION_FIELDS.some((f) => user.changed(f))) {
+    await sessionCache.invalidateIndex(user.id);
+  }
+});
+
+// Bulk update (e.g. Users.update({ role_id }, { where })). Affected ids are
+// resolved from the same filter so each user's sessions are dropped.
+Users.addHook('afterBulkUpdate', async (options) => {
+  const fields = options.fields ?? Object.keys(options.attributes ?? {});
+  if (!fields.some((f) => SESSION_FIELDS.includes(f))) return;
+
+  const rows = await Users.findAll({
+    where: options.where,
+    attributes: ['id'],
+    paranoid: false,
+  });
+  await Promise.all(rows.map((u) => sessionCache.invalidateIndex(u.id)));
+});
 
 Users.associate = (models) => {
   Users.belongsTo(models.Roles, {
