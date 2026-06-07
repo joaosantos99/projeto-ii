@@ -2,16 +2,16 @@ import { test, expect } from '@playwright/test'
 import { stubApi } from './helpers/api'
 
 // A structurally valid JWT whose `exp` claim is in the past (Sept 2001).
-// The backend rejects it on /auth/me with 401 { description: 'Token inválido ou expirado' }.
+// The backend rejects it on /users/me with 401 { description: 'Token inválido ou expirado' }.
 const EXPIRED_JWT =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEsImVtYWlsIjoidXNlckBtdW5pY2lwaW8ucHQiLCJpYXQiOjEwMDAwMDAwMDAsImV4cCI6MTAwMDAwMzYwMH0.c2lnbmF0dXJlLXBsYWNlaG9sZGVy'
 
 const STALE_USER = { id: 1, email: 'user@municipio.pt', fullName: 'Test User', role: 'admin' }
 
-/** Stub /auth/me to reject any token the way the real server rejects an expired session. */
+/** Stub /users/me to reject any token the way the real server rejects an expired session. */
 async function stubExpiredSession(page) {
   await stubApi(page, {
-    'auth/me': (route) =>
+    'users/me': (route) =>
       route.fulfill({
         status: 401,
         contentType: 'application/json',
@@ -42,15 +42,14 @@ test.describe('access with an expired JWT', () => {
   test('clears the expired session from cookie and storage', async ({ page }) => {
     await test.step('Given an expired JWT cookie alongside a stale cached user', async () => {
       await stubExpiredSession(page)
-      // Set the cookie once via the browser context (not addInitScript, which
-      // would re-inject it on every navigation and mask the clearing logic).
-      await page.context().addCookies([
-        { name: 'token', value: EXPIRED_JWT, domain: 'localhost', path: '/' },
-      ])
       await page.goto('/')
-      await page.evaluate((user) => {
-        localStorage.setItem('user', JSON.stringify(user))
-      }, STALE_USER)
+      await page.evaluate(
+        ({ user, token }) => {
+          document.cookie = `token=${token}; path=/`
+          localStorage.setItem('user', JSON.stringify(user))
+        },
+        { user: STALE_USER, token: EXPIRED_JWT },
+      )
     })
 
     await test.step('When they try to open the admin dashboard', async () => {

@@ -51,7 +51,7 @@ test.describe('redirect to login when there is no session', () => {
   test('redirects to /login once the session is cleared', async ({ page }) => {
     await test.step('Given an authenticated visitor on the admin area', async () => {
       await stubApi(page, {
-        'auth/me': (route) =>
+        'users/me': (route) =>
           route.fulfill({
             status: 200,
             contentType: 'application/json',

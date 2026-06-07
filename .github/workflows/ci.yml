@@ -136,6 +136,8 @@ jobs:
           # Baked into the web client bundle; ignored by the server build.
           build-args: |
             VITE_API_URL=https://${{ vars.API_DOMAIN }}
+            VITE_ADMIN_URL=https://${{ vars.ADMIN_DOMAIN }}
+            VITE_PUBLIC_URL=https://${{ vars.DOMAIN }}
 
   # ── Deploy ──────────────────────────────────────────────
   deploy:

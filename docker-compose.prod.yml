@@ -57,6 +57,10 @@ services:
       args:
         # Baked into the client bundle → browser talks to api.domain.com
         VITE_API_URL: https://${API_DOMAIN}
+        # Baked in cross-subdomain links from the public site reach the admin host
+        VITE_ADMIN_URL: https://${ADMIN_DOMAIN}
+        # Baked in in cross-subdomain links from admin pages reach the public site
+        VITE_PUBLIC_URL: https://${DOMAIN}
     restart: always
     depends_on:
       - server
@@ -64,6 +68,8 @@ services:
       PORT: 4173
       # Internal URL for RSC server-side fetches (skips the public hairpin)
       API_INTERNAL_URL: http://server:3000
+      # vite preview Host allow-list (CSV) — the domains Caddy proxies to web.
+      PREVIEW_ALLOWED_HOSTS: ${DOMAIN},${ADMIN_DOMAIN}
 
   caddy:
     image: caddy:2-alpine

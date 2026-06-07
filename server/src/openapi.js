@@ -1,5 +1,3 @@
-import env from './env.js';
-
 const json = (schema) => ({ 'application/json': { schema } });
 
 const ok = (description, schema) => ({
@@ -58,8 +56,12 @@ export default {
     version: '1.0.0',
     description: 'REST API for the Projeto II server.',
   },
+  // Relative URL → Swagger UI resolves it against the docs page origin, so
+  // "Try it out" hits the same host that served /docs (works local and live,
+  // http or https). A hardcoded localhost URL breaks try-it-out on live (CORS
+  // + mixed content).
   servers: [
-    { url: `http://localhost:${env.PORT}/api`, description: 'Local' },
+    { url: '/api', description: 'Same origin' },
   ],
   components: {
     securitySchemes: {

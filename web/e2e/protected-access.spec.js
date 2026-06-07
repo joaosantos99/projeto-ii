@@ -57,7 +57,7 @@ test.describe('protected route access without a token', () => {
   test('redirects to /login when the token is rejected by the server (401)', async ({ page }) => {
     await test.step('Given a stale token cookie that the server rejects', async () => {
       await stubApi(page, {
-        'auth/me': (route) =>
+        'users/me': (route) =>
           route.fulfill({
             status: 401,
             contentType: 'application/json',

@@ -20,6 +20,8 @@ export default defineConfig({
   preview: {
     host: '0.0.0.0',
     port: Number(process.env.PORT) || 4173,
+    allowedHosts:
+      process.env.PREVIEW_ALLOWED_HOSTS?.split(',').map((h) => h.trim()).filter(Boolean) ?? [],
   },
   environments: {
     rsc: {

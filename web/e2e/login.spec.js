@@ -20,7 +20,7 @@ test.describe('login with invalid and valid credentials', () => {
   test('shows an error and stays on /login with invalid credentials', async ({ page }) => {
     await test.step('Given the login endpoint rejects the credentials', async () => {
       await stubApi(page, {
-        'auth/login': (route) =>
+        'users/login': (route) =>
           route.fulfill({
             status: 401,
             contentType: 'application/json',
@@ -43,7 +43,7 @@ test.describe('login with invalid and valid credentials', () => {
   test('logs in and redirects to /admin with valid credentials', async ({ page }) => {
     await test.step('Given the login endpoint accepts the credentials', async () => {
       await stubApi(page, {
-        'auth/login': (route) =>
+        'users/login': (route) =>
           route.fulfill({
             status: 200,
             contentType: 'application/json',
@@ -65,7 +65,7 @@ test.describe('login with invalid and valid credentials', () => {
   test('does not redirect when the server errors on login', async ({ page }) => {
     await test.step('Given the login endpoint fails with a server error', async () => {
       await stubApi(page, {
-        'auth/login': (route) =>
+        'users/login': (route) =>
           route.fulfill({
             status: 500,
             contentType: 'application/json',

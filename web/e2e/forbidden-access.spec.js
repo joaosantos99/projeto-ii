@@ -26,21 +26,22 @@ const json = (status, body) => (route) =>
  * a protected route would redirect to `/admin/login`. The form login sets the
  * client auth state and navigates via the router with no SSR round-trip.
  *
- * The `/users` and `/roles` routes are registered after {@link stubApi} so they
- * are matched before its catch-all; the regexes match with or without a query
- * string (the users list is paginated).
+ * The `/users` and `/roles` list routes are registered after {@link stubApi} so
+ * they are matched before its catch-all; the regexes match the list endpoint
+ * with or without a query string (the users list is paginated) while leaving the
+ * auth endpoints (`/users/login`, `/users/me`) untouched.
  * @param {import('@playwright/test').Page} page - The Playwright page.
  * @returns {Promise<void>} Resolves once the dashboard (`/admin`) has loaded.
  */
 async function signInWithoutPermissions(page) {
   await stubApi(page, {
-    'auth/login': json(200, { token: 'valid-but-unprivileged', user: LIMITED_USER }),
-    'auth/me': json(200, LIMITED_USER),
+    'users/login': json(200, { token: 'valid-but-unprivileged', user: LIMITED_USER }),
+    'users/me': json(200, LIMITED_USER),
   })
 
   const forbid = json(403, FORBIDDEN_BODY)
-  await page.route(/\/api\/users(\?|\/|$)/, forbid)
-  await page.route(/\/api\/roles(\?|\/|$)/, forbid)
+  await page.route(/\/api\/users(\?|$)/, forbid)
+  await page.route(/\/api\/roles(\?|$)/, forbid)
 
   await page.goto('/admin/login')
   await page.waitForLoadState('networkidle')

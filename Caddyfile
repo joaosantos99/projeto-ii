@@ -37,9 +37,9 @@
 {$ADMIN_DOMAIN} {
 	encode gzip zstd
 
-	# Bare subdomain lands on the dashboard
+	# Bare subdomain lands on the login page
 	handle / {
-		redir /admin 302
+		redir /admin/login 302
 	}
 
 	handle /api* {

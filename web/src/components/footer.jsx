@@ -1,5 +1,6 @@
 import logo from "#/assets/logo.svg"
 import { Link } from "react-router-dom"
+import { adminUrl } from "#/lib/urls"
 
 export function Footer() {
     return (
@@ -18,7 +19,7 @@ export function Footer() {
 
                 <div className="flex gap-4 ">
                     <Link to="/" className="text-sm">Início</Link>
-                    <Link to="/admin" className="text-sm">Portal do município</Link>
+                    <a href={adminUrl()} className="text-sm">Portal do município</a>
                     <Link to="/termos-utilizacao" className="text-sm">Termos e Condições</Link>
                     <Link to="/politica-privacidade" className="text-sm">Privacidade</Link>
                 </div>
