@@ -54,7 +54,17 @@ export default {
   info: {
     title: 'Projeto II API',
     version: '1.0.0',
-    description: 'REST API for the Projeto II server.',
+    description: `
+      REST API para a cadeira de Programação Web II.
+      Groupo 1
+      - João Santos | 40240263
+      - João Rego | 40240259
+      - Petúnia Dias | 40230091
+
+      Acessos para a conta admin:
+      email: admin@mailinator.com
+      password: 123456789a
+    `,
   },
   // Relative URL → Swagger UI resolves it against the docs page origin, so
   // "Try it out" hits the same host that served /docs (works local and live,
