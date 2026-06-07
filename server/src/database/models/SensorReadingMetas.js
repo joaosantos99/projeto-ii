@@ -37,7 +37,7 @@ const SensorReadingMetas = sequelize.define(
     },
     // Raw payload as sent by the sensor (untransformed values, metadata).
     dump: {
-      type: DataTypes.JSONB,
+      type: DataTypes.JSON,
       allowNull: true,
     },
   },

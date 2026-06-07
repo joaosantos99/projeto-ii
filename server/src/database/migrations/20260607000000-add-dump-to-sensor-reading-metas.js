@@ -1,7 +1,7 @@
 export default {
   async up(queryInterface, Sequelize) {
     await queryInterface.addColumn('sensor_reading_metas', 'dump', {
-      type: Sequelize.JSONB,
+      type: Sequelize.JSON,
       allowNull: true,
     });
   },
