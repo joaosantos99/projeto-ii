@@ -466,6 +466,7 @@ export default {
           queryParam('parish', { type: 'string' }, 'Filter by parish.'),
           queryParam('summary', { type: 'boolean' }, 'Include spaces statistics summary when true.'),
           queryParam('sensoresStatus', { type: 'boolean' }, 'Include per-type sensor status (from the latest reading) on each space when true.'),
+          queryParam('readings', { type: 'boolean' }, 'Include the latest actual reading value per metric (from sensor_reading_metas.dump) under `readings` on each space when true.'),
         ],
         responses: {
           200: ok('Paginated spaces.', {

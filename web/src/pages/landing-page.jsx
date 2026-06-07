@@ -24,7 +24,7 @@ export function LandingPage() {
   const perPage = 6
 
   useEffect(() => {
-    api.get("/spaces", { params: { page: 1, perPage } })
+    api.get("/spaces", { params: { page: 1, perPage, readings: true } })
       .then((res) => {
         const list = res.data?.spaces ?? []
         const pagination = res.data?.pagination
@@ -38,7 +38,7 @@ export function LandingPage() {
   const handleLoadMore = () => {
     const next = page + 1
     setLoadingMore(true)
-    api.get("/spaces", { params: { page: next, perPage } })
+    api.get("/spaces", { params: { page: next, perPage, readings: true } })
       .then((res) => {
         const list = res.data?.spaces ?? []
         const pagination = res.data?.pagination

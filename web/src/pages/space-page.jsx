@@ -13,19 +13,23 @@ import { api } from "#/lib/api"
 
 function SensorMetric({ label, data }) {
     const hasSensors = data && data.count > 0
+    const value = hasSensors && data.latestValue != null
+        ? `${data.latestValue}${data.latestUnit ? ` ${data.latestUnit}` : ""}`
+        : "—"
     const range = hasSensors && data.minValue != null && data.maxValue != null
         ? `${data.minValue}–${data.maxValue}${data.unit ? ` ${data.unit}` : ""}`
-        : "—"
+        : null
 
     return (
         <div className="border border-border p-2 flex flex-col gap-1">
             <span className="text-xs text-muted-foreground uppercase">{label}</span>
             <div className="flex justify-between">
-                <span className="text-sm font-medium">{range}</span>
+                <span className="text-sm font-medium">{value}</span>
                 <Badge variant={hasSensors ? (data.activeCount > 0 ? "outline" : "warning") : "outline"}>
                     {hasSensors ? `${data.activeCount}/${data.count} ativos` : "—"}
                 </Badge>
             </div>
+            {range && <span className="text-xs text-muted-foreground">Intervalo {range}</span>}
         </div>
     )
 }

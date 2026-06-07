@@ -20,6 +20,7 @@ class SpacesController {
       const { query, parish } = req.query;
       const includeSummary = req.query.summary === 'true';
       const includeSensoresStatus = req.query.sensoresStatus === 'true';
+      const includeReadings = req.query.readings === 'true';
 
       const { spaces, total } = await SpacesService.getSpaces({ page, perPage, query, parish });
       const totalPages = Math.max(1, Math.ceil(total / perPage));
@@ -56,6 +57,15 @@ class SpacesController {
         );
         body.spaces.forEach((s) => {
           s.sensoresStatus = statusMap.get(s.id) ?? null;
+        });
+      }
+
+      if (includeReadings) {
+        const readingsMap = await SpacesService.getLatestReadingsBySpaceIds(
+          body.spaces.map((s) => s.id),
+        );
+        body.spaces.forEach((s) => {
+          s.readings = readingsMap.get(s.id) ?? {};
         });
       }
 
