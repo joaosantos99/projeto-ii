@@ -1,4 +1,4 @@
-.PHONY: setup up down reset migrate seed dev dev-server dev-web load-test prod prod-down prod-logs
+.PHONY: setup up down reset migrate seed seed-prod dev dev-server dev-web load-test prod prod-down prod-logs
 
 setup: up migrate seed
 
@@ -20,10 +20,10 @@ up:
 
 down:
 	docker compose down
+	rm -rf .data
 
 reset:
 	docker compose down
-	rm -rf .data
 	$(MAKE) setup
 
 migrate:
@@ -31,6 +31,10 @@ migrate:
 
 seed:
 	cd server && bun run seed.js
+
+# Mirrors prod boot (migrate then seed); the seed assumes the schema exists.
+seed-prod: migrate
+	cd server && bun run db:seed:prod
 
 dev: dev-server dev-web
 

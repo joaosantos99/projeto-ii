@@ -9,5 +9,5 @@ COPY . .
 
 EXPOSE 3000
 
-# Run migrations (prod config reads DATABASE_URL), then boot the API.
-CMD ["sh", "-c", "bun run db:migrate && bun src/server.js"]
+# Run migrations, seed idempotent bootstrap data, then boot the API.
+CMD ["sh", "-c", "bun run db:migrate && bun run db:seed:prod && bun src/server.js"]

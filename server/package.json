@@ -14,6 +14,7 @@
     "lint:fix": "biome lint src --fix",
     "db:migrate": "bun src/database/migrate.js",
     "db:migrate:undo": "bun src/database/migrate.js --down",
+    "db:seed:prod": "bun seed.prod.js",
     "db:create-migration": "sequelize migration:generate --name "
   },
   "author": "",
