@@ -19,6 +19,22 @@ function readCachedUser() {
   }
 }
 
+/**
+ * True when a JWT's `exp` claim is in the past. Lets us drop an expired session
+ * up front instead of waiting for the server to reject it on /users/me. Returns
+ * false on any decode failure — let the server be the authority in that case.
+ */
+function isTokenExpired(token) {
+  try {
+    const payload = token.split(".")[1]
+    if (!payload) return false
+    const claims = JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/")))
+    return typeof claims.exp === "number" && claims.exp * 1000 <= Date.now()
+  } catch {
+    return false
+  }
+}
+
 export function AuthProvider({ children, initialUser = null, initialStatus = null }) {
   const [token, setToken] = useState(() => (isBrowser ? getCookie("token") : null))
   const [user, setUser] = useState(() => initialUser ?? readCachedUser())
@@ -55,6 +71,11 @@ export function AuthProvider({ children, initialUser = null, initialStatus = nul
   useEffect(() => {
     if (!isBrowser) return
     if (!token) return
+    // An expired token is rejected up front — no need to ask the server.
+    if (isTokenExpired(token)) {
+      clearSession()
+      return
+    }
     if (status === "authenticated" && user) return
     let cancelled = false
     setStatus("loading")
