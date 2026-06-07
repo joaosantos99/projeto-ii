@@ -229,15 +229,26 @@ const generateSensorReadingMetas = async (sensors) => {
     const readingCount = 10 * DATA_SCALE;
 
     for (let i = 0; i < readingCount; i++) {
+      const recordedAt = faker.date.between({ from: '2024-01-01', to: new Date() });
+      const value = Number(
+        faker.number
+          .float({ min: sensor.min_value, max: sensor.max_value, fractionDigits: 2 })
+          .toFixed(2),
+      );
+
       readings.push({
         id: faker.string.uuid(),
         sensor_id: sensor.id,
         green_space_id: sensor.green_space_id,
-        recorded_at: faker.date.between({
-          from: '2024-01-01',
-          to: new Date(),
-        }),
+        recorded_at: recordedAt,
         is_valid: faker.datatype.boolean(0.9),
+        // Raw payload as a sensor would send it.
+        dump: {
+          parameter: sensor.parameter,
+          value,
+          unit: sensor.unit,
+          recorded_at: recordedAt.toISOString(),
+        },
       });
     }
   }

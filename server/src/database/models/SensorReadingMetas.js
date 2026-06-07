@@ -35,6 +35,11 @@ const SensorReadingMetas = sequelize.define(
       type: DataTypes.BOOLEAN,
       allowNull: false,
     },
+    // Raw payload as sent by the sensor (untransformed values, metadata).
+    dump: {
+      type: DataTypes.JSONB,
+      allowNull: true,
+    },
   },
   {
     tableName: 'sensor_reading_metas',
