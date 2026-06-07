@@ -295,3 +295,6 @@ try {
 } finally {
   await sequelize.close();
 }
+
+// Force exit
+process.exit(0);
