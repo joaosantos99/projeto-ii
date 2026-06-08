@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test'
 import { stubApi } from './helpers/api'
 
-test.describe('error pages', () => {
-  test('renders the 403 page at /403 without a session', async ({ page }) => {
+test.describe('[PROJETOII-242] TC030-RNF03 - Redirecionamento sem sessão', () => {
+  test('Mostra página 403 em /403 sem sessão', async ({ page }) => {
     await test.step('Given a visitor with no session token', async () => {
       await stubApi(page)
     })
@@ -19,7 +19,7 @@ test.describe('error pages', () => {
     })
   })
 
-  test('renders the 404 page for an unknown path', async ({ page }) => {
+  test('Mostra página 404 para caminho desconhecido', async ({ page }) => {
     await test.step('Given a visitor with no session token', async () => {
       await stubApi(page)
     })

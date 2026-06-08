@@ -20,8 +20,8 @@ async function stubExpiredSession(page) {
   })
 }
 
-test.describe('access with an expired JWT', () => {
-  test('redirects a deep-linked protected page to /admin/login', async ({ page }) => {
+test.describe('[PROJETOII-226] TC014-RNF03 - JWT expirado', () => {
+  test('Redireciona página protegida com JWT expirado para /admin/login', async ({ page }) => {
     await test.step('Given an expired JWT cookie that the server rejects', async () => {
       await stubExpiredSession(page)
       await page.addInitScript((token) => {
@@ -39,7 +39,7 @@ test.describe('access with an expired JWT', () => {
     })
   })
 
-  test('clears the expired session from cookie and storage', async ({ page }) => {
+  test('Limpa cookie e localStorage de sessão expirada', async ({ page }) => {
     await test.step('Given an expired JWT cookie alongside a stale cached user', async () => {
       await stubExpiredSession(page)
       await page.goto('/')
@@ -68,7 +68,7 @@ test.describe('access with an expired JWT', () => {
     })
   })
 
-  test('never renders protected content with an expired JWT', async ({ page }) => {
+  test('Não renderiza conteúdo protegido com JWT expirado', async ({ page }) => {
     await test.step('Given an expired JWT cookie', async () => {
       await stubExpiredSession(page)
       await page.addInitScript((token) => {

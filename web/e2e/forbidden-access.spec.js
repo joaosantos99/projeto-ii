@@ -52,8 +52,8 @@ async function signInWithoutPermissions(page) {
   await page.waitForURL(/\/admin$/)
 }
 
-test.describe('access by a user without permission', () => {
-  test('reaches the users page without being redirected to login', async ({ page }) => {
+test.describe('[PROJETOII-222] TC010-RF04.3 - Acesso sem permissão', () => {
+  test('Utilizador sem permissão acede a /admin/utilizadores sem ser redirecionado para login', async ({ page }) => {
     await signInWithoutPermissions(page)
 
     await test.step('When they open the users management page from the sidebar', async () => {
@@ -67,7 +67,7 @@ test.describe('access by a user without permission', () => {
     })
   })
 
-  test('does not leak any forbidden user data', async ({ page }) => {
+  test('Não expõe dados de utilizadores sem permissão', async ({ page }) => {
     await signInWithoutPermissions(page)
 
     await test.step('When the users management page loads its forbidden data', async () => {
@@ -81,7 +81,7 @@ test.describe('access by a user without permission', () => {
     })
   })
 
-  test('forbids the roles management data the same way', async ({ page }) => {
+  test('Não expõe dados de roles sem permissão', async ({ page }) => {
     await signInWithoutPermissions(page)
 
     await test.step('When they open the roles management page from the sidebar', async () => {

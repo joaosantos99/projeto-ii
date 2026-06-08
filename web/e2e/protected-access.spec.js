@@ -5,8 +5,8 @@ import { stubApi } from './helpers/api'
 // Protected endpoints behind <RequireAuth>.
 const PROTECTED_ROUTES = ['/admin/utilizadores', '/admin/roles', '/admin/conta']
 
-test.describe('protected route access without a token', () => {
-  test('redirects an anonymous visitor from /admin to /login', async ({ page }) => {
+test.describe('[PROJETOII-225] TC013-RNF03 - JWT em falta', () => {
+  test('Redireciona visitante anónimo de /admin para /admin/login', async ({ page }) => {
     await test.step('Given a visitor with no session token', async () => {
       await stubApi(page)
     })
@@ -22,7 +22,7 @@ test.describe('protected route access without a token', () => {
   })
 
   for (const route of PROTECTED_ROUTES) {
-    test(`redirects an anonymous visitor from ${route} to /login`, async ({ page }) => {
+    test(`Redireciona visitante anónimo de ${route} para /admin/login`, async ({ page }) => {
       await test.step('Given a visitor with no session token', async () => {
         await stubApi(page)
       })
@@ -37,7 +37,7 @@ test.describe('protected route access without a token', () => {
     })
   }
 
-  test('never renders protected content for an anonymous visitor', async ({ page }) => {
+  test('Não renderiza conteúdo protegido para visitante anónimo', async ({ page }) => {
     await test.step('Given a visitor with no session token', async () => {
       await stubApi(page)
     })
@@ -54,7 +54,7 @@ test.describe('protected route access without a token', () => {
     })
   })
 
-  test('redirects to /login when the token is rejected by the server (401)', async ({ page }) => {
+  test('Redireciona para /admin/login quando servidor rejeita token com 401', async ({ page }) => {
     await test.step('Given a stale token cookie that the server rejects', async () => {
       await stubApi(page, {
         'users/me': (route) =>

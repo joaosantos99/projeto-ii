@@ -1,8 +1,8 @@
 import { test, expect } from '@playwright/test'
 import { stubApi } from './helpers/api'
 
-test.describe('redirect to login when there is no session', () => {
-  test('serves the public landing page at the root path "/"', async ({ page }) => {
+test.describe('[PROJETOII-242] TC030-RNF03 - Redirecionamento sem sessão', () => {
+  test('Página pública acessível na raiz "/" sem sessão', async ({ page }) => {
     await test.step('Given a visitor with no session token', async () => {
       await stubApi(page)
     })
@@ -17,7 +17,7 @@ test.describe('redirect to login when there is no session', () => {
     })
   })
 
-  test('shows the 404 page for an unknown path', async ({ page }) => {
+  test('Mostra página 404 para caminho desconhecido sem sessão', async ({ page }) => {
     await test.step('Given a visitor with no session token', async () => {
       await stubApi(page)
     })
@@ -33,7 +33,7 @@ test.describe('redirect to login when there is no session', () => {
     })
   })
 
-  test('redirects a deep-linked protected page to /login', async ({ page }) => {
+  test('Redireciona página protegida com deep-link para /admin/login', async ({ page }) => {
     await test.step('Given a visitor with no session token', async () => {
       await stubApi(page)
     })
@@ -48,7 +48,7 @@ test.describe('redirect to login when there is no session', () => {
     })
   })
 
-  test('redirects to /login once the session is cleared', async ({ page }) => {
+  test('Redireciona para /admin/login após sessão terminada', async ({ page }) => {
     await test.step('Given an authenticated visitor on the admin area', async () => {
       await stubApi(page, {
         'users/me': (route) =>
