@@ -6,6 +6,9 @@ export async function buildApp() {
   const { default: usersRouter } = await import('../../routers/users.js');
   const { default: rolesRouter } = await import('../../routers/roles.js');
   const { default: permissionsRouter } = await import('../../routers/permissions.js');
+  const { default: spacesRouter } = await import('../../routers/spaces.js');
+  const { default: reportsRouter } = await import('../../routers/reports.js');
+  const { default: alertsRouter } = await import('../../routers/alerts.js');
 
   const app = express();
   app.use(express.json());
@@ -17,7 +20,9 @@ export async function buildApp() {
   apiRouter.use('/users', usersRouter);
   apiRouter.use('/roles', rolesRouter);
   apiRouter.use('/permissions', permissionsRouter);
-
+  apiRouter.use('/spaces', spacesRouter);
+  apiRouter.use('/reports', reportsRouter);
+  apiRouter.use('/alerts', alertsRouter);
   return app;
 }
 
