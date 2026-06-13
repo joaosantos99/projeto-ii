@@ -1,10 +1,32 @@
 import Alerts from '../database/models/Alerts.js';
+import GreenSpaceZones from '../database/models/GreenSpaceZones.js';
 import GreenSpaces from '../database/models/GreenSpaces.js';
 
 const ALERT_STATUS = {
   ACKNOWLEDGED: 'confirmed',
   CRITICAL: 'critical',
 };
+
+const BREACH_SEVERITY = {
+  HIGH: 'high',
+  CRITICAL: 'critical',
+};
+
+/**
+ * Classify an out-of-range value against a sensor's [min, max] band. A value
+ * beyond a bound by more than 20% of the band width is "critical"; any smaller
+ * breach is "high". A value inside the band returns null (no breach).
+ * @param {number} value
+ * @param {number} min
+ * @param {number} max
+ * @returns {string|null}
+ */
+function classifyBreach(value, min, max) {
+  const margin = Math.max(max - min, 0) * 0.2;
+  if (value < min) return value < min - margin ? BREACH_SEVERITY.CRITICAL : BREACH_SEVERITY.HIGH;
+  if (value > max) return value > max + margin ? BREACH_SEVERITY.CRITICAL : BREACH_SEVERITY.HIGH;
+  return null;
+}
 
 /**
  * Build the Sequelize where clause for alert listing/counting.
@@ -119,6 +141,71 @@ class AlertsService {
       totalCriticalAlerts,
       totalAlerts,
     };
+  }
+
+  /**
+   * Resolve the owning green space id for a sensor. Sensors reference a zone,
+   * which in turn references the green space.
+   * @param {Object} sensor - A sensor instance (must have green_space_zone_id).
+   * @param {string} [greenSpaceId] - Explicit id; resolved from the zone if omitted.
+   * @returns {Promise<string>}
+   */
+  static async #resolveGreenSpaceId(sensor, greenSpaceId) {
+    if (greenSpaceId) return greenSpaceId;
+    const zone = await GreenSpaceZones.findByPk(sensor.green_space_zone_id);
+    if (!zone) {
+      const error = new Error('Sensor zone not found');
+      error.statusCode = 404;
+      throw error;
+    }
+    return zone.green_spaces_id;
+  }
+
+  /**
+   * Evaluate a sensor reading against the sensor's configured thresholds and,
+   * when the value falls outside [min_value, max_value], persist an alert.
+   * This is the alert-generation entry point (RF01.3 / TC002): a value that
+   * breaches a limit produces an alert; a value within range produces none.
+   * @param {Object} params
+   * @param {Object} params.sensor - Sensor instance (id, green_space_zone_id, min_value, max_value, parameter, unit).
+   * @param {number} params.value - The reading value, in the sensor's canonical unit.
+   * @param {string} [params.greenSpaceId] - Owning space id; resolved from the zone if omitted.
+   * @param {string} params.createdBy - User id credited with the alert.
+   * @returns {Promise<Alerts|null>} The created alert, or null when in range.
+   */
+  static async evaluateReading({ sensor, value, greenSpaceId, createdBy }) {
+    if (sensor == null) {
+      const error = new Error('Sensor is required');
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const num = Number(value);
+    if (Number.isNaN(num)) {
+      const error = new Error(`Value "${value}" is not a number.`);
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const min = Number(sensor.min_value);
+    const max = Number(sensor.max_value);
+    const severity = classifyBreach(num, min, max);
+    if (!severity) return null;
+
+    const unit = sensor.unit ?? '';
+    const bound = num < min ? `mínimo (${min}${unit})` : `máximo (${max}${unit})`;
+    const message = `Leitura ${num}${unit} de "${sensor.parameter}" ultrapassa o limite ${bound}.`;
+
+    const resolvedSpaceId = await AlertsService.#resolveGreenSpaceId(sensor, greenSpaceId);
+
+    return Alerts.create({
+      sensor_id: sensor.id,
+      green_space_id: resolvedSpaceId,
+      severity,
+      message,
+      is_notified: false,
+      created_by: createdBy,
+    });
   }
 
   /**
