@@ -100,7 +100,7 @@ Sensors.associate = (models) => {
   });
 
 	Sensors.hasMany(models.SensorReadingMetas, {
-    foreignKey: 'sensors_id',
+    foreignKey: 'sensor_id',
     as: 'sensorReadings',
   });
 };
